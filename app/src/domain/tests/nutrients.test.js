@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { findNutrientVal, netCarbsFromMap, getNutrientVal, getIngredientNutrient, fmt, getPct, getStatus } from '../nutrients.js';
+import { resolveBasisG } from '../units.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const fixture = JSON.parse(readFileSync(join(__dirname, '../../../../backups/nourish-backup-2026-04-25.json'), 'utf8'));
@@ -42,8 +43,29 @@ test('getNutrientVal scales by amountG', () => {
 });
 
 test('getNutrientVal in serving mode scales by qty', () => {
-  const ing = { servingMode: true, qty: 2, nutrients: { 'Protein': 10 } };
-  assert.equal(getNutrientVal(ing, 'protein'), 20);
+  const ing = { qty: 2, fdcId: 'custom_x' };
+  const foods = { 'custom_x': { nutrients: { 'Protein': 10 }, nutrientBasis: { qty: 1, unit: 'serving', label: 'scoop' } } };
+  assert.equal(getNutrientVal(ing, 'protein', foods), 20);
+});
+
+test('getNutrientVal respects nutrientBasis.qty from foods registry', () => {
+  const ing = { amountG: 100, fdcId: 'custom_x' };
+  const foods = { 'custom_x': { nutrients: { 'Protein': 5 }, nutrientBasis: { qty: 50, unit: 'g' } } };
+  // 5g protein per 50g → for 100g should be 10
+  assert.equal(getNutrientVal(ing, 'Protein', foods), 10);
+});
+
+test('getNutrientVal defaults to 100g basis when no nutrientBasis', () => {
+  const ing = { amountG: 100, fdcId: 'usda_123' };
+  const foods = { 'usda_123': { nutrients: { 'Protein': 10 } } };
+  assert.equal(getNutrientVal(ing, 'Protein', foods), 10);
+});
+
+test('getNutrientVal nutrientBasis.qty=200 halves per-100g result', () => {
+  const ing = { amountG: 100, fdcId: 'custom_y' };
+  const foods = { 'custom_y': { nutrients: { 'Energy': 400 }, nutrientBasis: { qty: 200, unit: 'g' } } };
+  // 400 kcal per 200g → 200 kcal per 100g → for 100g = 200
+  assert.equal(getNutrientVal(ing, 'Energy', foods), 200);
 });
 
 test('getIngredientNutrient works for real fixture food item', () => {
@@ -110,4 +132,44 @@ test('getStatus handles UL (max) for non-macro', () => {
   assert.equal(getStatus('Sodium', 2500, targets, MACRO_KEYS), 'high');
   assert.equal(getStatus('Sodium', 1000, targets, MACRO_KEYS), 'low');
   assert.equal(getStatus('Sodium', 1800, targets, MACRO_KEYS), 'ok');
+});
+
+// resolveBasisG
+test('resolveBasisG returns 100 when no nutrientBasis', () => {
+  assert.equal(resolveBasisG({}), 100);
+  assert.equal(resolveBasisG(null), 100);
+});
+
+test('resolveBasisG returns qty for g unit', () => {
+  assert.equal(resolveBasisG({ nutrientBasis: { qty: 50, unit: 'g' } }), 50);
+});
+
+test('resolveBasisG returns null for serving unit', () => {
+  assert.equal(resolveBasisG({ nutrientBasis: { qty: 1, unit: 'serving' } }), null);
+});
+
+test('resolveBasisG resolves named unit via measures', () => {
+  const food = {
+    nutrientBasis: { qty: 1, unit: 'cup' },
+    measures: [{ label: 'cup', factor: 240, userAdded: true }, { label: 'g', factor: 1 }],
+  };
+  assert.equal(resolveBasisG(food), 240);
+});
+
+test('resolveBasisG falls back to qty*1 when named unit not in measures', () => {
+  const food = { nutrientBasis: { qty: 2, unit: 'cup' }, measures: [] };
+  assert.equal(resolveBasisG(food), 2);
+});
+
+test('getNutrientVal resolves named-unit basis via measures', () => {
+  const ing = { amountG: 240, fdcId: 'custom_z' };
+  const foods = {
+    'custom_z': {
+      nutrients: { 'Protein': 10 },
+      nutrientBasis: { qty: 1, unit: 'cup' },
+      measures: [{ label: 'cup', factor: 240, userAdded: true }],
+    },
+  };
+  // 10g protein per 1 cup (240g) → for 240g should be 10
+  assert.equal(getNutrientVal(ing, 'Protein', foods), 10);
 });

@@ -1,7 +1,24 @@
+async function fetchWithRetry(url, maxRetries = 3) {
+  let delay = 1000;
+  let lastErr;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const r = await fetch(url);
+      if (r.status !== 503 && r.status !== 429) return r;
+      lastErr = new Error(`HTTP ${r.status}`);
+    } catch (e) {
+      lastErr = e;
+    }
+    if (attempt < maxRetries) await new Promise(res => setTimeout(res, delay));
+    delay *= 2;
+  }
+  throw lastErr;
+}
+
 export async function searchOFF(query) {
-  const fields = 'product_name,brands,nutriments,code,image_small_url,serving_size,serving_quantity,serving_quantity_unit,quantity,product_quantity_unit,nutrition_data_per,categories_tags';
+  const fields = 'product_name,brands,nutriments,code,image_small_url,serving_size,serving_quantity,serving_quantity_unit,quantity,product_quantity_unit,nutrition_data_per,categories_tags,countries_tags';
   const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10&fields=${fields}`;
-  const r = await fetch(url);
+  const r = await fetchWithRetry(url);
   if (!r.ok) throw new Error('OFF search failed');
   return r.json();
 }
@@ -9,7 +26,8 @@ export async function searchOFF(query) {
 // Returns the product object or null (never throws).
 export async function lookupOFFProduct(code) {
   try {
-    const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    const r = await fetchWithRetry(`https://world.openfoodfacts.org/api/v0/product/${code}.json`);
+    if (!r.ok) return null;
     const data = await r.json();
     if (data.status !== 1 || !data.product) return null;
     return data.product;
@@ -18,10 +36,58 @@ export async function lookupOFFProduct(code) {
   }
 }
 
-export function normalizeOFFNutrients(product) {
+// Returns tentative carb labeling regime based on product metadata.
+// tentative: 'net' | 'total'; confidence: 'high' | 'medium' | 'low'
+export function inferCarbBasis(product) {
+  const n = product.nutriments || {};
+  const rawCarbs = n['carbohydrates_100g'] ?? null;
+  const fiber    = n['fiber_100g'] ?? 0;
+  const polyols  = n['polyols_100g'] ?? 0;
+  const countries = product.countries_tags || [];
+  const assumptions = [];
+
+  if (rawCarbs === null) {
+    return { tentative: 'total', confidence: 'low', assumptions: ['no carb data'], rawCarbs: 0, fiber, polyols };
+  }
+  // Fiber > carbs is mathematically impossible under total-carb labeling
+  if (fiber > rawCarbs) {
+    assumptions.push('fiber exceeds carbs — must be net carbs');
+    return { tentative: 'net', confidence: 'high', assumptions, rawCarbs, fiber, polyols };
+  }
+  const isUSCA    = countries.some(c => c === 'en:united-states' || c === 'en:canada');
+  const isNonUSCA = countries.some(c => c !== 'en:united-states' && c !== 'en:canada');
+  if (isUSCA && !isNonUSCA) {
+    assumptions.push('US/CA product — total carbs (fiber included)');
+    return { tentative: 'total', confidence: 'high', assumptions, rawCarbs, fiber, polyols };
+  }
+  if (isNonUSCA && !isUSCA) {
+    const tag = countries.find(c => c !== 'en:united-states' && c !== 'en:canada') || '';
+    assumptions.push(`${tag.replace('en:', '').replace(/-/g, ' ')} product — net carbs (fiber excluded)`);
+    return { tentative: 'net', confidence: 'high', assumptions, rawCarbs, fiber, polyols };
+  }
+  if (isUSCA && isNonUSCA) {
+    assumptions.push('sold in multiple regions');
+    return { tentative: 'total', confidence: 'medium', assumptions, rawCarbs, fiber, polyols };
+  }
+  assumptions.push('no country data — assuming net carbs');
+  return { tentative: 'net', confidence: 'low', assumptions, rawCarbs, fiber, polyols };
+}
+
+// carbBasis: 'net' | 'total' | null (null → auto-detect from countries_tags for backward compat)
+export function normalizeOFFNutrients(product, carbBasis = null) {
   // OFF stores nutrients per 100g in nutriments object
   const n = product.nutriments || {};
-  const serving = product.serving_size || null;
+
+  // Resolve carbBasis: explicit arg takes priority; fall back to countries_tags detection.
+  if (carbBasis === null) {
+    const countries = product.countries_tags || [];
+    carbBasis = countries.some(c => c === 'en:united-states' || c === 'en:canada') ? 'total' : 'net';
+  }
+  // EU/world labels report net carbs (fiber excluded). US/CA report total carbs (fiber included).
+  // Store as total carbs so the standard formula (total − fiber = net) works everywhere.
+  const _rawCarbs = n['carbohydrates_100g'] || 0;
+  const _fiber    = n['fiber_100g'] || 0;
+  const _totalCarbs = carbBasis === 'total' ? _rawCarbs : _rawCarbs + _fiber;
 
   // Map OFF keys → our TARGETS keys (partial match compatible)
   // Energy: cross-validate kcal vs kJ fields. If they disagree by >20%, derive kcal from kJ
@@ -38,7 +104,7 @@ export function normalizeOFFNutrients(product) {
   return {
     'Energy':                       _energy,
     'Protein':                      n['proteins_100g'] || 0,
-    'Carbohydrate, by difference':  n['carbohydrates_100g'] || 0,
+    'Carbohydrate, by difference':  _totalCarbs,
     'Total lipid (fat)':            n['fat_100g'] || 0,
     'Fiber, total dietary':         n['fiber_100g'] || 0,
     'Sugars, added':                n['added-sugars_100g'] || 0,
@@ -92,8 +158,12 @@ export function extractMeasuresOFF(product) {
   if (isLiquid) {
     let factor = 1.0;
     const mlMatch = servingSize.match(/([\d.]+)\s*ml/);
+    const mlVal   = mlMatch ? parseFloat(mlMatch[1]) : 0;
     const servingG = parseFloat(product.serving_quantity);
-    if (mlMatch && servingG > 0) factor = Math.round((servingG / parseFloat(mlMatch[1])) * 1000) / 1000;
+    if (mlVal > 0 && servingG > 0) {
+      const computed = Math.round((servingG / mlVal) * 1000) / 1000;
+      if (computed > 0) factor = computed;
+    }
     // ml first so it's the default selected option
     return [{ label: 'ml', factor }, { label: 'g', factor: 1 }];
   }

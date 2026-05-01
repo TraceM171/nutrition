@@ -1,13 +1,30 @@
+async function fetchWithRetry(url, maxRetries = 3) {
+  let delay = 1000;
+  let lastErr;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      const r = await fetch(url);
+      if (r.status !== 503 && r.status !== 429) return r;
+      lastErr = new Error(`HTTP ${r.status}`);
+    } catch (e) {
+      lastErr = e;
+    }
+    if (attempt < maxRetries) await new Promise(res => setTimeout(res, delay));
+    delay *= 2;
+  }
+  throw lastErr;
+}
+
 export async function searchUSDA(query, apiKey) {
   const url = `https://api.nal.usda.gov/fdc/v1/foods/search?query=${encodeURIComponent(query)}&dataType=SR%20Legacy,Foundation,Branded&pageSize=20&api_key=${apiKey}`;
-  const r = await fetch(url);
+  const r = await fetchWithRetry(url);
   if (!r.ok) throw new Error('Search failed');
   return r.json();
 }
 
 export async function fetchFoodDetails(fdcId, apiKey) {
   const url = `https://api.nal.usda.gov/fdc/v1/food/${fdcId}?api_key=${apiKey}`;
-  const r = await fetch(url);
+  const r = await fetchWithRetry(url);
   if (!r.ok) throw new Error('Fetch failed');
   return r.json();
 }
@@ -41,6 +58,9 @@ export function extractMeasuresUSDA(foodData) {
       measures.push({ label, factor: grams });
     }
   });
+  // gramWeight / amount: USDA stores total gram weight for `amount` of the portion unit.
+  // e.g. amount=0.5, modifier="cup", gramWeight=62.5 → 125 g/cup. Verified against
+  // known values (1 cup all-purpose flour ≈ 125 g, 1 tbsp olive oil ≈ 13.5 g).
   (foodData.foodPortions || []).forEach(p => {
     const label = p.modifier;
     const grams = p.gramWeight;

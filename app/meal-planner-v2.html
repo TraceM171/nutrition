@@ -141,11 +141,14 @@ body {
 }
 
 /* ── WEEKLY GRID ── */
+#week-grid-wrap { overflow-x: auto; padding-bottom: 4px; }
+
 .week-grid {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(130px, 1fr));
   gap: 10px;
   margin-bottom: 28px;
+  min-width: 750px;
 }
 
 .day-col {
@@ -157,7 +160,7 @@ body {
 }
 
 .day-header {
-  background: var(--bg2);
+  background: var(--accent-light);
   padding: 10px 12px;
   border-bottom: 1px solid var(--border);
   text-align: center;
@@ -166,29 +169,34 @@ body {
   font-family: 'Playfair Display', serif;
   font-size: 13px;
   font-weight: 700;
+  color: var(--accent);
 }
 .day-kcal { font-size: 10px; color: var(--text-dim); margin-top: 2px; }
 
-.meal-slot { border-bottom: 1px solid var(--bg2); }
+.meal-slot { border-bottom: 1px solid var(--border); }
 .meal-slot:last-child { border-bottom: none; }
 
 .meal-label {
   font-size: 9px;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: var(--text-dimmer);
-  padding: 6px 10px 2px;
+  color: var(--text-dim);
+  padding: 6px 10px 5px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
 }
 
 .ingredient-chip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 10px 3px 14px;
+  padding: 5px 8px 5px 10px;
   gap: 4px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-dim);
+  border-bottom: 1px solid var(--bg2);
 }
+.ingredient-chip:last-of-type { border-bottom: none; }
 .ingredient-chip:hover { background: var(--bg2); }
 .chip-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chip-remove {
@@ -196,7 +204,7 @@ body {
   cursor: pointer;
   padding: 0 2px;
   border-radius: 3px;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
   flex-shrink: 0;
   background: none;
@@ -206,7 +214,7 @@ body {
 
 .add-ingredient-btn {
   width: 100%;
-  padding: 5px 10px;
+  padding: 6px 10px;
   text-align: left;
   font-size: 10px;
   color: var(--text-dimmer);
@@ -217,6 +225,43 @@ body {
   font-family: 'IBM Plex Mono', monospace;
 }
 .add-ingredient-btn:hover { color: var(--accent); }
+
+/* ── EXTRA FOODS ── */
+.extra-foods-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  width: fit-content;
+  min-width: 340px;
+}
+.extra-foods-header {
+  background: var(--bg2);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.extra-foods-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  font-weight: 700;
+  margin-right: 8px;
+}
+.extra-foods-sub {
+  font-size: 10px;
+  color: var(--text-dimmer);
+}
+.extra-foods-kcal {
+  font-size: 10px;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.extra-foods-list { padding: 2px 0; }
+.extra-chip {}
 
 /* ── SEARCH MODAL ── */
 .modal-overlay {
@@ -258,7 +303,7 @@ body {
 .search-wrap { position: relative; }
 .search-input {
   width: 100%;
-  padding: 10px 14px 10px 36px;
+  padding: 10px 30px 10px 36px;
   border: 1px solid var(--border2);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -269,6 +314,21 @@ body {
   transition: border-color 0.15s;
 }
 .search-input:focus { border-color: var(--accent); }
+.search-clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-dimmer);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  display: none;
+}
+.search-clear-btn:hover { color: var(--text); }
 .search-icon {
   position: absolute;
   left: 11px;
@@ -279,6 +339,8 @@ body {
 }
 
 .modal-body { overflow-y: auto; flex: 1; }
+.modal-body:has(#search-results-wrap:empty) { display: none; }
+#modal:has(#search-results-wrap:empty) .modal-header { border-bottom: none; }
 
 .search-results { padding: 8px; }
 
@@ -299,7 +361,8 @@ body {
 .src-badge { display:inline-block; font-size:9px; font-weight:700; padding:1px 5px; border-radius:3px; vertical-align:middle; margin-right:5px; letter-spacing:.3px; }
 .src-off  { background:rgba(76,175,80,.15);  color:#4caf50; }
 .src-usda   { background:rgba(33,150,243,.15); color:#2196f3; }
-.src-custom { background:rgba(139,69,19,.15);  color:#8b4513; }
+.src-custom  { background:rgba(139,69,19,.15);  color:#8b4513; }
+.src-recipe  { background:rgba(156,39,176,.15); color:#9c27b0; }
 .re-badge.custom { background:#fdf3dc; color:#8b4513; }
 
 .search-status { padding: 24px; text-align: center; color: var(--text-dim); font-size: 12px; }
@@ -330,10 +393,10 @@ body {
 .unit-select {
   padding: 6px 8px;
   font-size: 12px;
-  background: var(--bg2);
+  background: #fff;
   border: 1px solid var(--border2);
   border-radius: 6px;
-  color: var(--text-dim);
+  color: var(--text);
   cursor: pointer;
   font-family: 'IBM Plex Mono', monospace;
   outline: none;
@@ -599,6 +662,24 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
   padding: 5px 8px; font-size: 13px;
 }
 #targets-grid .tgt-input:disabled { opacity: 0.3; cursor: default; }
+#targets-grid .tgt-row--off .tgt-label { opacity: 0.4; }
+/* toggle switch */
+.tgt-toggle { position: relative; display: inline-flex; align-items: center; cursor: pointer; flex-shrink: 0; }
+.tgt-toggle input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.tgt-toggle-track {
+  display: block; width: 32px; height: 18px;
+  background: var(--border2); border-radius: 9px;
+  transition: background 0.2s; position: relative;
+}
+.tgt-toggle input:checked ~ .tgt-toggle-track { background: var(--accent); }
+.tgt-toggle-track::after {
+  content: ''; position: absolute;
+  top: 3px; left: 3px;
+  width: 12px; height: 12px;
+  border-radius: 50%; background: #fff;
+  transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.tgt-toggle input:checked ~ .tgt-toggle-track::after { transform: translateX(14px); }
 
 /* ── MISC ── */
 .section-hdr { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -675,9 +756,17 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
 .re-badge {
   font-size: 8px; font-weight: 600; letter-spacing: 0.5px;
   padding: 2px 5px; border-radius: 3px; flex-shrink: 0; text-transform: uppercase;
+  margin-right: 5px;
 }
 .re-badge.food { background: var(--accent-light); color: var(--accent); }
 .re-badge.rec  { background: #ede8f5; color: #6b47a8; }
+.re-drag-handle {
+  color: var(--text-dimmer); cursor: grab; font-size: 14px; line-height: 1;
+  padding: 0 2px; flex-shrink: 0; user-select: none;
+}
+.re-drag-handle:active { cursor: grabbing; }
+.re-ing-row.re-ing-dragging { opacity: 0.35; }
+.re-ing-row.re-ing-drag-over { background: var(--accent-light); }
 
 .recipe-card {
   background: var(--surface); border: 1px solid var(--border);
@@ -697,6 +786,43 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
   .sidebar { display: none; }
   .page { padding: 20px; }
 }
+
+#snackbar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: #1a1714;
+  color: #f7f4ef;
+  padding: 10px 14px 10px 16px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+#snackbar.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+.snackbar-undo-btn {
+  background: none;
+  border: none;
+  color: #8fc98a;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  letter-spacing: 0.02em;
+}
+.snackbar-undo-btn:hover { color: #b6dfb2; }
 </style>
 </head>
 <body>
@@ -709,21 +835,36 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
       <div class="logo-title">Nourish</div>
       <div class="logo-sub">Meal Planner</div>
     </div>
-    <div class="nav-item active" onclick="showPage('plan')"><span class="nav-icon">📅</span> Weekly Plan</div>
-    <div class="nav-item" onclick="showPage('nutrients')"><span class="nav-icon">📊</span> Nutrients</div>
-    <div class="nav-item" onclick="showPage('recipes')"><span class="nav-icon">🥗</span> Foods</div>
-    <div class="nav-item" onclick="showPage('targets')"><span class="nav-icon">🎯</span> My Targets</div>
-    <div class="nav-item" onclick="showPage('config')" style="margin-top:auto"><span class="nav-icon">⚙️</span> Config</div>
+    <div class="nav-item active" data-action="nav" data-page="plan"><span class="nav-icon">📅</span> Weekly Plan</div>
+    <div class="nav-item" data-action="nav" data-page="nutrients"><span class="nav-icon">📊</span> Nutrients</div>
+    <div class="nav-item" data-action="nav" data-page="recipes"><span class="nav-icon">🥗</span> Foods</div>
+    <div class="nav-item" data-action="nav" data-page="targets"><span class="nav-icon">🎯</span> My Targets</div>
+    <div class="nav-item" data-action="nav" data-page="config" style="margin-top:auto"><span class="nav-icon">⚙️</span> Config</div>
     <div style="padding:16px;border-top:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;gap:7px;">
-      <button class="btn sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);width:100%;justify-content:center" onclick="exportPlan()">
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase;padding:0 2px 1px">Tools</div>
+      <button class="btn sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);width:100%;justify-content:center" data-action="export-recipes-pdf">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Export recipes as PDF
+      </button>
+      <button class="btn sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);width:100%;justify-content:center" data-action="generate-shopping-list">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+        Shopping List
+      </button>
+      <div style="border-top:1px solid rgba(255,255,255,0.08);margin:4px 0 2px"></div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:0.08em;color:rgba(255,255,255,0.25);text-transform:uppercase;padding:0 2px 1px">Backup</div>
+      <div id="export-warning" style="display:none;font-size:11px;color:#f59e0b;padding:6px 8px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:6px;line-height:1.5;align-items:flex-start;gap:6px">
+        <svg style="flex-shrink:0;margin-top:1px" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span>Unsaved changes since last export</span>
+      </div>
+      <button class="btn sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);width:100%;justify-content:center" data-action="export-plan">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export backup
       </button>
-      <button class="btn sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);width:100%;justify-content:center" onclick="document.getElementById('import-input').click()">
+      <button class="btn sm" style="background:rgba(255,255,255,0.07);border-color:rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);width:100%;justify-content:center" data-action="trigger-import">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         Import backup
       </button>
-      <input type="file" id="import-input" accept=".json" style="display:none" onchange="importPlan(event)">
+      <input type="file" id="import-input" accept=".json" style="display:none" data-action="import-file">
     </div>
   </nav>
 
@@ -760,11 +901,10 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
             <span class="search-icon">🔍</span>
             <input class="search-input" id="foods-search-input" type="text"
               placeholder="Search by name or paste a barcode…"
-              autocomplete="off"
-              onkeydown="if(event.key==='Enter') foodsTriggerSearch()"
-              onpaste="foodsHandlePaste(event)">
+              autocomplete="off">
+            <button class="search-clear-btn" id="foods-search-clear-btn" data-action="foods-clear-search" title="Clear">×</button>
           </div>
-          <button class="btn primary" onclick="foodsTriggerSearch()">Search</button>
+          <button class="btn primary" data-action="foods-trigger-search">Search</button>
         </div>
         <div id="foods-search-results" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:none"></div>
       </div>
@@ -813,7 +953,7 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
           </div>
           <div class="tgt-row">
             <label class="tgt-label">Goal</label>
-            <select class="tgt-input" id="prof-goal" onchange="onGoalPresetChange()">
+            <select class="tgt-input" id="prof-goal" data-action="goal-preset-change">
               <option value="-500">Lose weight (−500 kcal/day)</option>
               <option value="0">Maintain weight</option>
               <option value="300">Gain weight (+300 kcal/day)</option>
@@ -834,15 +974,15 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
           <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap">
             <div class="tgt-row" style="flex:1;min-width:90px">
               <label class="tgt-label">Protein %</label>
-              <input class="tgt-input" type="number" id="macro-protein-pct" value="25" min="5" max="80" step="1" oninput="updateMacroTotal()">
+              <input class="tgt-input" type="number" id="macro-protein-pct" value="25" min="5" max="80" step="1" data-action="update-macro-total">
             </div>
             <div class="tgt-row" style="flex:1;min-width:90px">
               <label class="tgt-label">Carbs %</label>
-              <input class="tgt-input" type="number" id="macro-carbs-pct" value="45" min="5" max="80" step="1" oninput="updateMacroTotal()">
+              <input class="tgt-input" type="number" id="macro-carbs-pct" value="45" min="5" max="80" step="1" data-action="update-macro-total">
             </div>
             <div class="tgt-row" style="flex:1;min-width:90px">
               <label class="tgt-label">Fat %</label>
-              <input class="tgt-input" type="number" id="macro-fat-pct" value="30" min="5" max="80" step="1" oninput="updateMacroTotal()">
+              <input class="tgt-input" type="number" id="macro-fat-pct" value="30" min="5" max="80" step="1" data-action="update-macro-total">
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;padding-bottom:1px">
               <span id="macro-total-badge" style="font-size:11px;padding:3px 10px;border-radius:4px;background:var(--good-bg);color:var(--good);font-weight:500">100%</span>
@@ -850,7 +990,7 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
           </div>
         </div>
 
-        <button class="btn primary" onclick="applyProfileTargets()">Calculate my targets</button>
+        <button class="btn primary" data-action="apply-profile-targets">Calculate my targets</button>
       </div>
 
       <div class="card" style="padding:24px">
@@ -860,7 +1000,7 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
 
         <div class="tgt-grid" id="targets-grid"></div>
         <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px">
-          <button class="btn primary" onclick="saveTargets()">Save Targets</button>
+          <button class="btn primary" data-action="save-targets">Save Targets</button>
         </div>
       </div>
 
@@ -881,10 +1021,59 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
         </p>
         <div style="display:flex;gap:8px;align-items:center">
           <input class="tgt-input" type="text" id="usda-key-input" placeholder="DEMO_KEY" style="flex:1;font-family:monospace">
-          <button class="btn primary sm" onclick="saveApiKey()">Save</button>
-          <button class="btn sm" onclick="document.getElementById('usda-key-input').value='DEMO_KEY'">Reset</button>
+          <button class="btn primary sm" data-action="save-api-key">Save</button>
+          <button class="btn sm" data-action="reset-api-key">Reset</button>
         </div>
         <div id="api-key-status" style="font-size:11px;color:var(--text-dimmer);margin-top:8px"></div>
+      </div>
+
+      <div class="card" style="padding:24px;margin-bottom:20px">
+        <div class="section-hdr" style="margin-bottom:14px">
+          <div class="section-title">PDF Export</div>
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+          <input type="checkbox" id="pdf-split-toggle" data-action="toggle-pdf-split">
+          Start each recipe on a new page
+        </label>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;margin-bottom:12px;line-height:1.6">
+          When enabled, each recipe begins on its own page. When disabled, recipes flow continuously with a divider between them.
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+          <input type="checkbox" id="pdf-macros-toggle" data-action="toggle-pdf-macros">
+          Include macros summary
+        </label>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.6">
+          When enabled, a calories/protein/carbs/fat/fiber box is shown per recipe. When disabled, only the ingredient list is included.
+        </div>
+      </div>
+
+      <div class="card" style="padding:24px;margin-bottom:20px">
+        <div class="section-hdr" style="margin-bottom:14px">
+          <div class="section-title">Shopping List</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+            <input type="radio" name="shopping-format" value="interactive" data-action="set-shopping-format" style="margin-top:2px">
+            <span>
+              <strong>Interactive PDF</strong>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.5">PDF with fillable checkboxes — tick items off as you shop.</div>
+            </span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+            <input type="radio" name="shopping-format" value="dotted" data-action="set-shopping-format" style="margin-top:2px">
+            <span>
+              <strong>Dotted list PDF</strong>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.5">PDF with bullet points — simpler, no form fields.</div>
+            </span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px">
+            <input type="radio" name="shopping-format" value="raw" data-action="set-shopping-format" style="margin-top:2px">
+            <span>
+              <strong>Plain text</strong>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:2px;line-height:1.5">Shows a copyable text list — paste into Notion, Notes, or any app.</div>
+            </span>
+          </label>
+        </div>
       </div>
 
       <div class="card" style="padding:24px">
@@ -894,7 +1083,7 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
         <p style="font-size:11px;color:var(--text-dim);margin-bottom:12px;line-height:1.6">
           Re-download nutrient data for all ingredients in your plan from USDA and Open Food Facts.
         </p>
-        <button class="btn sm" id="refetch-all-btn" onclick="refetchAllNutrients()">↻ Refetch All</button>
+        <button class="btn sm" id="refetch-all-btn" data-action="refetch-all">↻ Refetch All</button>
         <div id="refetch-progress" style="display:none;margin-top:12px">
           <div id="refetch-progress-text" style="font-size:12px;color:var(--text-dim);margin-bottom:4px"></div>
           <div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden">
@@ -916,27 +1105,100 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
     <div class="blame-hdr-name" id="blame-hdr-name"></div>
     <div class="blame-hdr-total" id="blame-hdr-total"></div>
     <div class="blame-hdr-bar-outer" id="blame-hdr-bar-outer" style="display:none"></div>
-    <button class="blame-x" onclick="closeBlame()">×</button>
+    <button class="blame-x" data-action="close-blame">×</button>
   </div>
   <div class="blame-hint" style="display:flex;align-items:center;justify-content:space-between;gap:6px">
     <div style="display:flex;gap:4px">
-      <button class="blame-mode-btn" onclick="blameExpandAll()">expand all</button>
-      <button class="blame-mode-btn" onclick="blameCollapseAll()">collapse all</button>
+      <button class="blame-mode-btn" data-action="blame-expand-all">expand all</button>
+      <button class="blame-mode-btn" data-action="blame-collapse-all">collapse all</button>
     </div>
-    <button class="blame-mode-btn" id="blame-mode-btn" onclick="toggleBlameMode()">% of day</button>
+    <button class="blame-mode-btn" id="blame-mode-btn" data-action="toggle-blame-mode">% of day</button>
   </div>
   <div class="blame-tree" id="blame-tree"></div>
 </div>
 
 <!-- ── RECIPE EDITOR MODAL ── -->
-<div class="modal-overlay" id="recipe-editor" onclick="closeRecipeEditorBg(event)">
+<!-- ── CUSTOM INGREDIENT EDITOR MODAL ── -->
+<div class="modal-overlay" id="custom-ing-editor">
+  <div class="modal" style="width:560px">
+    <div class="modal-header">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="modal-title" id="cie-title">New Custom Ingredient</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn sm" id="cie-nutrition-btn" data-action="cie-view-nutrition" style="display:none">Nutrition</button>
+          <button class="btn sm" id="cie-copy-btn" data-action="copy-custom-ing-from-editor" style="display:none">Duplicate</button>
+          <button class="btn sm danger-btn" id="cie-delete-btn" data-action="delete-custom-ing" style="display:none">Delete</button>
+        </div>
+      </div>
+      <input class="search-input" type="text" id="cie-name" placeholder="Ingredient name…" style="padding-left:14px" autocomplete="off">
+    </div>
+    <div class="modal-body" id="cie-body" style="padding:20px;max-height:65vh;overflow-y:auto"></div>
+<div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn sm" data-action="close-custom-ing-editor">Cancel</button>
+      <button class="btn primary sm" data-action="save-custom-ing">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── SEARCH MODAL ── -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div class="modal-title" style="margin:0">Add Ingredient</div>
+        <button class="btn sm" id="mode-tab-recipes" data-action="switch-mode" data-mode="recipes" style="font-size:11px;padding:4px 10px">📖 My Foods</button>
+      </div>
+      <div id="mode-search-wrap">
+        <div class="search-wrap" style="display:flex;gap:6px;align-items:center">
+          <div style="position:relative;flex:1">
+            <span class="search-icon">🔍</span>
+            <input class="search-input" id="search-input" type="text"
+              placeholder="Search by name or enter / paste a barcode…"
+              autocomplete="off">
+            <button class="search-clear-btn" id="search-clear-btn" data-action="clear-search" title="Clear">×</button>
+          </div>
+          <button class="btn primary sm" data-action="trigger-search" style="flex-shrink:0">Search</button>
+        </div>
+        <div id="barcode-drop-zone" data-action="paste-from-clipboard" style="margin-top:6px">
+          📷 Paste (Ctrl+V) or drag &amp; drop a barcode image
+        </div>
+        <div id="barcode-img-status" style="font-size:11px;margin-top:4px;min-height:14px;text-align:center"></div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div id="search-results-wrap" class="search-results">
+      </div>
+    </div>
+    <div id="amount-row" style="display:none;flex-direction:column;gap:0;border-top:1px solid var(--border);background:var(--bg2)">
+      <div style="padding:10px 24px 2px;text-align:center">
+        <span style="font-size:13px;font-weight:600;color:var(--text);cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px" id="selected-food-name" data-action="open-food-manage-from-search"></span>
+      </div>
+      <div id="selection-info-text" style="padding:2px 24px 6px;text-align:center;font-size:11px;color:var(--text-dimmer)"></div>
+      <div id="selection-image-wrap" style="display:none;padding:0 0 6px;text-align:center">
+        <img id="selection-image" style="width:56px;height:56px;object-fit:contain;border-radius:6px" src="" onerror="this.parentElement.style.display='none'">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;padding:6px 24px 12px;justify-content:center">
+        <input class="amount-input" id="amount-input" type="number" value="100" min="1" max="5000">
+        <select id="unit-selector" class="unit-select"></select>
+        <button class="btn primary sm" data-action="confirm-add">Add</button>
+        <button class="btn sm" data-action="clear-selection">Back</button>
+      </div>
+    </div>
+    <div style="padding:12px 24px; border-top:1px solid var(--border); text-align:right">
+      <button class="btn sm" data-action="close-modal">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── RECIPE EDITOR MODAL ── -->
+<div class="modal-overlay" id="recipe-editor">
   <div class="modal" style="width:620px">
     <div class="modal-header">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
         <div class="modal-title" id="re-title">New Recipe</div>
         <div style="display:flex;gap:6px">
-          <button class="btn sm" id="re-copy-btn" onclick="copyCurrentRecipe()" style="display:none">Copy</button>
-          <button class="btn sm danger-btn" id="re-delete-btn" onclick="confirmDeleteRecipe()" style="display:none">Delete</button>
+          <button class="btn sm" id="re-copy-btn" data-action="copy-current-recipe" style="display:none">Duplicate</button>
+          <button class="btn sm danger-btn" id="re-delete-btn" data-action="confirm-delete-recipe" style="display:none">Delete</button>
         </div>
       </div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -945,397 +1207,272 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
         <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
           <span style="font-size:11px;color:var(--text-dim)">Yields</span>
           <input class="amount-input" type="number" id="re-yields" value="1" min="1" style="width:52px"
-            oninput="updateRecipeNutritionStrip()">
+            data-action="update-recipe-strip">
           <span style="font-size:11px;color:var(--text-dim)">servings</span>
         </div>
       </div>
     </div>
     <div class="modal-body">
       <div id="re-ingredients-list"></div>
-    </div>
-    <div id="re-nutrition-strip" style="padding:10px 20px;border-top:1px solid var(--border);background:var(--bg2);font-size:11px;color:var(--text-dim);display:flex;gap:20px;flex-wrap:wrap;min-height:36px;align-items:center"></div>
-    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-      <div style="display:flex;gap:6px">
-        <button class="btn sm" onclick="recipeAddFood()">+ Add ingredient</button>
-        <button class="btn sm" onclick="openCurrentRecipeDetail()">Nutrition info</button>
-      </div>
-      <div style="display:flex;gap:6px">
-        <button class="btn sm" onclick="closeRecipeEditor()">Cancel</button>
-        <button class="btn primary sm" onclick="saveCurrentRecipe()">Save</button>
+      <div data-action="recipe-add-food" style="position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 20px;text-align:center;cursor:pointer;user-select:none">
+        <span style="font-size:13px;color:var(--accent)">+ Add ingredient</span>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- ── CUSTOM INGREDIENT EDITOR MODAL ── -->
-<div class="modal-overlay" id="custom-ing-editor" onclick="closeCustomIngEditorBg(event)">
-  <div class="modal" style="width:560px">
-    <div class="modal-header">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <div class="modal-title" id="cie-title">New Custom Ingredient</div>
-        <div style="display:flex;gap:6px">
-          <button class="btn sm" id="cie-copy-btn" onclick="copyCustomIngFromEditor()" style="display:none">Copy</button>
-          <button class="btn sm danger-btn" id="cie-delete-btn" onclick="deleteCustomIng()" style="display:none">Delete</button>
-        </div>
-      </div>
-      <input class="search-input" type="text" id="cie-name" placeholder="Ingredient name…" style="padding-left:14px" autocomplete="off">
-    </div>
-    <div class="modal-body" id="cie-body" style="padding:20px;max-height:65vh;overflow-y:auto"></div>
-    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
-      <button class="btn sm" onclick="closeCustomIngEditor()">Cancel</button>
-      <button class="btn primary sm" onclick="saveCustomIng()">Save</button>
-    </div>
-  </div>
-</div>
-
-<!-- ── SEARCH MODAL ── -->
-<div class="modal-overlay" id="modal" onclick="closeModalIfBg(event)">
-  <div class="modal">
-    <div class="modal-header">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div class="modal-title" style="margin:0">Add Ingredient</div>
-        <button class="btn sm" id="mode-tab-recipes" onclick="switchMode('recipes')" style="font-size:11px;padding:4px 10px">📖 My Recipes</button>
-      </div>
-      <div id="mode-search-wrap">
-        <div class="search-wrap" style="display:flex;gap:6px;align-items:center">
-          <div style="position:relative;flex:1">
-            <span class="search-icon">🔍</span>
-            <input class="search-input" id="search-input" type="text"
-              placeholder="Search by name or enter / paste a barcode…"
-              autocomplete="off"
-              onkeydown="if(event.key==='Enter') triggerSearch()"
-              onpaste="handleBarcodePaste(event)">
-          </div>
-          <button class="btn primary sm" onclick="triggerSearch()" style="flex-shrink:0">Search</button>
-        </div>
-        <div id="barcode-drop-zone"
-          onclick="pasteImageFromClipboard()"
-          ondragover="event.preventDefault();this.classList.add('drag-over')"
-          ondragleave="this.classList.remove('drag-over')"
-          ondrop="this.classList.remove('drag-over');handleBarcodeDrop(event)"
-          style="margin-top:6px">
-          📷 Paste (Ctrl+V) or drag &amp; drop a barcode image
-        </div>
-        <div id="barcode-img-status" style="font-size:11px;margin-top:4px;min-height:14px;text-align:center"></div>
-      </div>
-    </div>
-    <div class="modal-body">
-      <div id="search-results-wrap" class="search-results">
-        <div class="search-status">Type a food name and press Search</div>
-      </div>
-    </div>
-    <div class="amount-row" id="amount-row" style="display:none">
-      <span style="font-size:12px;color:var(--text-dim);flex:1" id="selected-food-name"></span>
-      <input class="amount-input" id="amount-input" type="number" value="100" min="1" max="5000">
-      <select id="unit-selector" class="unit-select"></select>
-      <button class="btn primary sm" onclick="confirmAdd()">Add</button>
-      <button class="btn sm" onclick="clearSelection()">Back</button>
-    </div>
-    <div class="amount-row" id="custom-unit-row" style="display:none;flex-wrap:wrap;gap:6px">
-      <span style="font-size:12px;color:var(--text-dim);white-space:nowrap">1</span>
-      <input id="custom-unit-name" type="text" placeholder="unit name (e.g. tsp)"
-        style="width:120px;padding:6px 8px;border:1px solid var(--border2);border-radius:4px;font-size:13px;background:var(--bg);color:var(--text)">
-      <span style="font-size:12px;color:var(--text-dim);white-space:nowrap">=</span>
-      <input id="custom-unit-equiv" type="number" min="0.001" step="any" placeholder="amount"
-        style="width:80px;padding:6px 8px;border:1px solid var(--border2);border-radius:4px;font-size:13px;background:var(--bg);color:var(--text)">
-      <select id="custom-unit-ref" class="unit-select"></select>
-      <button class="btn primary sm" onclick="applyCustomUnit()">Apply</button>
-      <button class="btn sm" onclick="hideCustomUnitRow()">Cancel</button>
-    </div>
-    <div style="padding:12px 24px; border-top:1px solid var(--border); text-align:right">
-      <button class="btn sm" onclick="closeModal()">Cancel</button>
+    <div id="re-nutrition-strip" data-action="open-recipe-detail" style="padding:10px 20px;border-top:1px solid var(--border);background:var(--bg2);font-size:11px;color:var(--text-dim);display:flex;gap:20px;flex-wrap:wrap;min-height:36px;align-items:center;cursor:pointer" title="View full nutrition"></div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:6px">
+      <button class="btn sm" data-action="close-recipe-editor">Cancel</button>
+      <button class="btn primary sm" data-action="save-current-recipe">Save</button>
     </div>
   </div>
 </div>
 
 <!-- ── INGREDIENT DETAIL MODAL ── -->
-<div class="modal-overlay" id="ing-detail-modal" onclick="closeIngDetailIfBg(event)">
+<div class="modal-overlay" id="ing-detail-modal">
   <div class="modal" style="width:900px;max-width:95vw;max-height:90vh">
     <div class="modal-header">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
         <div>
           <div class="modal-title" id="ing-detail-title"></div>
           <div id="ing-detail-sub" style="font-size:11px;color:var(--text-dim);margin-top:3px"></div>
+          <div id="ing-detail-rename" style="display:none;margin-top:4px;font-size:11px;color:var(--text-dimmer)"></div>
         </div>
-        <button class="btn sm" onclick="closeIngDetail()" style="flex-shrink:0">Close</button>
+        <button class="btn sm" data-action="close-ing-detail" style="flex-shrink:0">Close</button>
       </div>
     </div>
     <div class="modal-body" id="ing-detail-body" style="padding:16px 20px 20px"></div>
   </div>
 </div>
 
+<!-- ── FOOD MANAGE MODAL ── -->
+<div class="modal-overlay" id="food-manage-modal">
+  <div class="modal" style="width:360px">
+    <div class="modal-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="modal-title" id="fm-title"></div>
+        <button class="btn sm" data-action="close-food-manage">Close</button>
+      </div>
+    </div>
+    <div id="fm-actions" style="padding:16px 20px;display:flex;flex-direction:column;gap:6px"></div>
+  </div>
+</div>
+
+<!-- ── USAGE CONFLICT MODAL ── -->
+<div class="modal-overlay" id="usage-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-header">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div class="modal-title" style="color:var(--danger)">⚠ In use</div>
+          <div id="usage-modal-name" style="font-size:12px;color:var(--text-dim);margin-top:2px"></div>
+        </div>
+        <button class="btn sm" data-action="usage-dismiss">Cancel</button>
+      </div>
+    </div>
+    <div style="padding:4px 20px 12px;font-size:12px;color:var(--text-dim)">Click an entry to navigate there, or remove it:</div>
+    <div id="usage-modal-list" style="padding:0 20px 16px;display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto"></div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end">
+      <button class="btn sm danger-btn" data-action="usage-remove-all">Remove from all</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="modal-overlay" id="delete-confirm-modal">
+  <div class="modal" style="width:360px">
+    <div class="modal-header">
+      <div class="modal-title" style="color:var(--danger)">Delete?</div>
+    </div>
+    <div style="padding:16px 24px 20px">
+      <p style="font-size:13px;color:var(--text-dim);margin:0">Delete "<span id="delete-confirm-name"></span>"? This cannot be undone.</p>
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn sm" data-action="delete-confirm-cancel">Cancel</button>
+      <button class="btn sm danger-btn" data-action="delete-confirm-ok">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── EXPORT OPTIONS MODAL ── -->
+<div class="modal-overlay" id="export-options-modal">
+  <div class="modal" style="width:420px">
+    <div class="modal-header">
+      <div class="modal-title">Export Backup</div>
+    </div>
+    <div style="padding:20px">
+      <p style="font-size:13px;color:var(--text-dim);margin:0 0 16px">Select what to include in the backup file:</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="exp-plan" checked style="margin-top:2px;accent-color:var(--accent)">
+          <div>
+            <div style="font-size:13px;font-weight:600">Weekly Plan</div>
+            <div id="exp-plan-desc" style="font-size:11px;color:var(--text-dimmer)">Daily meal schedule and extra foods</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="exp-foods" checked style="margin-top:2px;accent-color:var(--accent)">
+          <div>
+            <div style="font-size:13px;font-weight:600">Recipes &amp; Custom Ingredients</div>
+            <div id="exp-foods-desc" style="font-size:11px;color:var(--text-dimmer)">Recipes, custom ingredients, and cached nutrient data</div>
+          </div>
+        </label>
+        <div style="border-top:1px solid var(--border);margin:2px 0"></div>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="exp-targets" checked style="margin-top:2px;accent-color:var(--accent)">
+          <div>
+            <div style="font-size:13px;font-weight:600">Nutrient Targets</div>
+            <div id="exp-targets-desc" style="font-size:11px;color:var(--text-dimmer)">Your configured nutrient goals</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="exp-profile" checked style="margin-top:2px;accent-color:var(--accent)">
+          <div>
+            <div style="font-size:13px;font-weight:600">Profile</div>
+            <div id="exp-profile-desc" style="font-size:11px;color:var(--text-dimmer)">Age, weight, height, activity level, goal</div>
+          </div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+          <input type="checkbox" id="exp-settings" checked style="margin-top:2px;accent-color:var(--accent)">
+          <div>
+            <div style="font-size:13px;font-weight:600">App Settings</div>
+            <div style="font-size:11px;color:var(--text-dimmer)">USDA API key, PDF options</div>
+          </div>
+        </label>
+      </div>
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn sm" data-action="cancel-export">Cancel</button>
+      <button class="btn primary sm" data-action="do-export">Export</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── IMPORT PREVIEW MODAL ── -->
+<div class="modal-overlay" id="import-preview-modal">
+  <div class="modal" style="width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Import Backup</div>
+    </div>
+    <div style="padding:20px">
+      <div id="import-preview-body"></div>
+    </div>
+    <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn sm" data-action="cancel-import">Cancel</button>
+      <button class="btn primary sm" data-action="do-import">Import</button>
+    </div>
+  </div>
+</div>
+
+<div id="snackbar"><span id="snackbar-msg"></span><button class="snackbar-undo-btn" data-action="snackbar-undo">Undo</button></div>
+
 <script type="module">
-import { findNutrientVal, netCarbsFromMap, getNutrientVal, getIngredientNutrient as _getIngredientNutrient, fmt, getPct as _getPct, getStatus as _getStatus } from './src/domain/nutrients.js';
-import { effectiveAmountG as _effectiveAmountG, getRecipeWeightG as _getRecipeWeightG, getRecipeNutrientsPer100g as _getRecipeNutrientsPer100g, wouldCreateCycle as _wouldCreateCycle } from './src/domain/recipes.js';
-import { dayKcal as _dayKcal, sumDay as _sumDay, weeklyAvg as _weeklyAvg } from './src/domain/aggregation.js';
-import { buildBlameNode as _buildBlameNode, getDayBlameTree as _getDayBlameTree, getWeeklyBlameTree as _getWeeklyBlameTree } from './src/domain/blame.js';
-import { calcTargetsFromProfile } from './src/domain/targets.js';
-import { searchUSDA, fetchFoodDetails, extractNutrients, extractMeasuresUSDA } from './src/sources/usdaSource.js';
-import { searchOFF, lookupOFFProduct, normalizeOFFNutrients, extractMeasuresOFF } from './src/sources/offSource.js';
-import { loadUPNG, loadZBar, decodeBarcodeFromBlob } from './src/sources/barcode/decoder.js';
+import { invalidateRecipeMemo } from './src/domain/recipes.js';
+import { DAYS, MEALS, TARGETS } from './src/domain/constants.js';
+import { fetchFoodDetails, extractNutrients, extractMeasuresUSDA } from './src/sources/usdaSource.js';
+import { normalizeOFFNutrients, lookupOFFProduct, extractMeasuresOFF, inferCarbBasis } from './src/sources/offSource.js';
+import { state, dispatch, subscribe } from './src/store/store.js';
+import { load as loadPersisted, debouncedSave, buildPayload, applyMigrations } from './src/store/persistence.js';
+import { escapeHtml } from './src/views/escape.js';
+import { config, getTopmostOpenModalId } from './src/views/uiState.js';
+import { renderPlan, removeIngredient, removeExtraFood } from './src/views/planView.js';
+import { renderNutrients, setAnalysisDay } from './src/views/nutrientsView.js';
+import { openBlame, openRecipeBlame, closeBlame, blameExpandAll, blameCollapseAll, toggleBlameMode } from './src/views/blamePanel.js';
+import { renderRecipes, showRecipePDFDialog } from './src/views/recipesView.js';
+import { openRecipeEditor, closeRecipeEditor, updateRecipeNutritionStrip, updateRecipeIngAmount, updateRecipeIngUnit, removeRecipeIngredient, initIngDnd, saveCurrentRecipe, confirmDeleteRecipe, copyCurrentRecipe, openIngredientDetail, openCurrentRecipeDetail, openIngOrRecipeDetail } from './src/views/recipeEditor.js';
+import { openCustomIngEditor, openCustomIngEditorForFork, closeCustomIngEditor, saveCustomIng, deleteCustomIng, copyCustomIngFromEditor, cieBasisUnitChange, cieBasisUnitLive, cieBasisQtyChange, toggleCieMicros, resetCieField, viewCieNutrition, refreshCieServing, showCieServingForm, saveCieServing, deleteCieServing, removeSelectedCieServing } from './src/views/customIngEditor.js';
+import { closeUsageModal, handleUsageRemoveOne, handleUsageRemoveAll } from './src/views/usageModal.js';
+import { closeDeleteConfirm, executeDeleteConfirm } from './src/views/deleteConfirmModal.js';
+import { openModal, openModalForExtras, closeModal, switchMode, handleBarcodePaste, pasteImageFromClipboard, handleBarcodeDrop, triggerSearch, confirmAdd, clearSelection, recipeAddFood, selectCustomIng, selectOFFResult, selectFood, selectLocalFood, selectRecipeForMeal, openFoodManageFromSearch, refreshSearchModalUnits, confirmCarbBasis } from './src/views/searchModal.js';
+import { closeIngDetail, openFoodManageModal, closeFoodManageModal, openIngDetailFromManage, openFoodNutritionDetailFromManage, openFoodNutritionDetail, refreshFoodManageModal, changeFoodCarbBasis } from './src/views/ingredientDetail.js';
+import { foodsHandlePaste, foodsTriggerSearch, foodsSelectOFFResult, foodsSelectFood, foodsSelectLocalFood, restoreFoodsSearch, foodsClearSearch } from './src/views/foodsView.js';
+import { renderTargets, saveTargets, applyProfileTargets, onGoalPresetChange, updateMacroTotal } from './src/views/targetsView.js';
+import { executeUndo, showUndo } from './src/views/snackbar.js';
+import { renderConfig, saveApiKey, loadApiKey, togglePdfSplit, togglePdfMacros, setShoppingFormat } from './src/views/configView.js';
+import { initBlameResize, initSidebarResize } from './src/views/resize.js';
+import { generateShoppingList } from './src/views/shoppingList.js';
 
-// ── Utilities ──────────────────────────────────────────────────────────────
-function escapeHtml(s) {
-  return String(s)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-// ── Constants ──────────────────────────────────────────────────────────────
-const DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
-const MEALS = ['Breakfast','Morning snack','Lunch','Afternoon snack','Dinner'];
-const MACRO_KEYS = ['Energy', 'Protein', 'Carbohydrate', 'Total lipid'];
-let USDA_KEY = 'DEMO_KEY'; // overridden by user setting at runtime
-
-const TARGETS = {
-  'Energy':       { val: 2700,  unit: 'kcal', label: 'Calories',      max: null },
-  'Protein':      { val: 138,   unit: 'g',    label: 'Protein',        max: null },
-  'Carbohydrate': { val: 330,   unit: 'g',    label: 'Net Carbs',      max: null },
-  'Total lipid':  { val: 80,    unit: 'g',    label: 'Fat',            max: null },
-  'Fiber':        { val: 38,    unit: 'g',    label: 'Fiber',          max: null },
-  'Sugars, added': { val: 0,    unit: 'g',    label: 'Added Sugar',    max: 25   },
-  'Sodium':       { val: 1500,  unit: 'mg',   label: 'Sodium',         max: 2300 },
-  'Calcium':      { val: 1000,  unit: 'mg',   label: 'Calcium',        max: 2500 },
-  'Iron':         { val: 18,    unit: 'mg',   label: 'Iron',           max: 45 },
-  'Magnesium':    { val: 420,   unit: 'mg',   label: 'Magnesium',      max: 350 },
-  'Potassium':    { val: 4700,  unit: 'mg',   label: 'Potassium',      max: null },
-  'Zinc':         { val: 11,    unit: 'mg',   label: 'Zinc',           max: 40 },
-  'Selenium':     { val: 55,    unit: 'µg',   label: 'Selenium',       max: 400 },
-  'Iodine':       { val: 150,   unit: 'µg',   label: 'Iodine',         max: 1100 },
-  'Manganese':    { val: 2.3,   unit: 'mg',   label: 'Manganese',      max: 11 },
-  'Phosphorus':   { val: 700,   unit: 'mg',   label: 'Phosphorus',     max: 4000 },
-  'Vitamin A':    { val: 900,   unit: 'µg',   label: 'Vitamin A',      max: 3000 },
-  'Vitamin C':    { val: 90,    unit: 'mg',   label: 'Vitamin C',      max: 2000 },
-  'Vitamin D':    { val: 600,   unit: 'IU',   label: 'Vitamin D',      max: 4000 },
-  'Vitamin E':    { val: 15,    unit: 'mg',   label: 'Vitamin E',      max: 1000 },
-  'Vitamin K':    { val: 120,   unit: 'µg',   label: 'Vitamin K',      max: null },
-  'Thiamin':      { val: 1.2,   unit: 'mg',   label: 'B1 Thiamine',    max: null },
-  'Riboflavin':   { val: 1.3,   unit: 'mg',   label: 'B2 Riboflavin',  max: null },
-  'Niacin':       { val: 16,    unit: 'mg',   label: 'B3 Niacin',      max: 35 },
-  'Pantothenic acid': { val: 5, unit: 'mg',   label: 'B5 Pantothenic', max: null },
-  'Vitamin B-6':  { val: 1.7,   unit: 'mg',   label: 'B6',             max: 100 },
-  'Vitamin B-12': { val: 2.4,   unit: 'µg',   label: 'B12',            max: null },
-  'Folate':       { val: 400,   unit: 'µg',   label: 'Folate',         max: 1000 },
-  'Fatty acids, total omega-3': { val: 1.6, unit: 'g', label: 'Omega-3', max: null },
-  'Histidine':    { val: 0.75,  unit: 'g',    label: 'Histidine',      max: null },
-  'Isoleucine':   { val: 1.5,   unit: 'g',    label: 'Isoleucine',     max: null },
-  'Leucine':      { val: 2.9,   unit: 'g',    label: 'Leucine',        max: null },
-  'Lysine':       { val: 2.25,  unit: 'g',    label: 'Lysine',         max: null },
-  'Methionine':   { val: 0.8,   unit: 'g',    label: 'Methionine',     max: null },
-  'Cystine':      { val: 0.3,   unit: 'g',    label: 'Cystine',        max: null },
-  'Phenylalanine':{ val: 1.1,   unit: 'g',    label: 'Phenylalanine',  max: null },
-  'Tyrosine':     { val: 0.8,   unit: 'g',    label: 'Tyrosine',       max: null },
-  'Threonine':    { val: 1.1,   unit: 'g',    label: 'Threonine',      max: null },
-  'Tryptophan':   { val: 0.3,   unit: 'g',    label: 'Tryptophan',     max: null },
-  'Valine':       { val: 1.95,  unit: 'g',    label: 'Valine',         max: null },
-};
-
-const NUTRIENT_SECTIONS = {
-  'Key Minerals': ['Sodium','Calcium','Iron','Magnesium','Potassium','Zinc','Selenium','Iodine','Manganese','Phosphorus'],
-  'Vitamins': ['Vitamin A','Vitamin C','Vitamin D','Vitamin E','Vitamin K','Thiamin','Riboflavin','Niacin','Pantothenic acid','Vitamin B-6','Vitamin B-12','Folate'],
-  'Amino Acids': ['Histidine','Isoleucine','Leucine','Lysine','Methionine','Cystine','Phenylalanine','Tyrosine','Threonine','Tryptophan','Valine'],
-  'Other': ['Fiber','Sugars, added','Fatty acids, total omega-3'],
-};
-
-// Micronutrient fields available in the custom ingredient editor, grouped by section.
-// Keys must partial-match TARGETS keys (same convention as normalizeOFFNutrients / extractNutrients).
-const CUSTOM_ING_MICRO_FIELDS = [
-  { section: 'Other', fields: [
-    { key: 'Fiber, total dietary',        label: 'Fiber',          unit: 'g'  },
-    { key: 'Sugars, added',               label: 'Added Sugar',   unit: 'g'  },
-    { key: 'Fatty acids, total omega-3',  label: 'Omega-3',        unit: 'g'  },
-  ]},
-  { section: 'Key Minerals', fields: [
-    { key: 'Sodium, Na',    label: 'Sodium',     unit: 'mg' },
-    { key: 'Calcium, Ca',   label: 'Calcium',    unit: 'mg' },
-    { key: 'Iron, Fe',      label: 'Iron',       unit: 'mg' },
-    { key: 'Magnesium, Mg', label: 'Magnesium',  unit: 'mg' },
-    { key: 'Potassium, K',  label: 'Potassium',  unit: 'mg' },
-    { key: 'Zinc, Zn',      label: 'Zinc',       unit: 'mg' },
-    { key: 'Selenium, Se',  label: 'Selenium',   unit: 'µg' },
-    { key: 'Iodine, I',     label: 'Iodine',     unit: 'µg' },
-    { key: 'Manganese, Mn', label: 'Manganese',  unit: 'mg' },
-    { key: 'Phosphorus, P', label: 'Phosphorus', unit: 'mg' },
-  ]},
-  { section: 'Vitamins', fields: [
-    { key: 'Vitamin A, RAE',                label: 'Vitamin A',      unit: 'µg' },
-    { key: 'Vitamin C, total ascorbic acid', label: 'Vitamin C',     unit: 'mg' },
-    { key: 'Vitamin D',                     label: 'Vitamin D',      unit: 'IU' },
-    { key: 'Vitamin E (alpha-tocopherol)',   label: 'Vitamin E',      unit: 'mg' },
-    { key: 'Vitamin K (phylloquinone)',      label: 'Vitamin K',      unit: 'µg' },
-    { key: 'Thiamin',                        label: 'B1 Thiamine',    unit: 'mg' },
-    { key: 'Riboflavin',                     label: 'B2 Riboflavin',  unit: 'mg' },
-    { key: 'Niacin',                         label: 'B3 Niacin',      unit: 'mg' },
-    { key: 'Pantothenic acid',               label: 'B5 Pantothenic', unit: 'mg' },
-    { key: 'Vitamin B-6',                    label: 'B6',             unit: 'mg' },
-    { key: 'Vitamin B-12',                   label: 'B12',            unit: 'µg' },
-    { key: 'Folate, total',                  label: 'Folate',         unit: 'µg' },
-  ]},
-  { section: 'Amino Acids', fields: [
-    { key: 'Histidine',     label: 'Histidine',     unit: 'g' },
-    { key: 'Isoleucine',    label: 'Isoleucine',    unit: 'g' },
-    { key: 'Leucine',       label: 'Leucine',       unit: 'g' },
-    { key: 'Lysine',        label: 'Lysine',        unit: 'g' },
-    { key: 'Methionine',    label: 'Methionine',    unit: 'g' },
-    { key: 'Cystine',       label: 'Cystine',       unit: 'g' },
-    { key: 'Phenylalanine', label: 'Phenylalanine', unit: 'g' },
-    { key: 'Tyrosine',      label: 'Tyrosine',      unit: 'g' },
-    { key: 'Threonine',     label: 'Threonine',     unit: 'g' },
-    { key: 'Tryptophan',    label: 'Tryptophan',    unit: 'g' },
-    { key: 'Valine',        label: 'Valine',        unit: 'g' },
-  ]},
-];
-
-// ── State ──────────────────────────────────────────────────────────────────
-// plan[day][meal] = [ { name, fdcId, amountG, nutrients } | { type:'recipe', recipeId, name, amountG } ]
-let plan = {};
-DAYS.forEach(d => { plan[d] = {}; MEALS.forEach(m => { plan[d][m] = []; }); });
-
-// recipes[id] = { id, name, yields, yieldUnit, ingredients: [ {type:'food'|'recipe', ...} ] }
-let recipes = {};
-// customIngredients[id] = { id, name, nutrients: {per100g} }
-let customIngredients = {};
-let currentEditRecipe = null; // working copy in editor
-let selectedRecipeIds = new Set(); // recipes checked for PDF export
-let recipeExportMode = false;      // whether the PDF selection UI is visible
-
-let modalCtx = null; // { day, meal } | { mode: 'recipe' }
-let selectedFood = null;
-let analysisDay = null;
-
-// ── Domain layer wrappers (bind globals; move to Store dispatch in Phase 3) ─
-function getPct(key, val) { return _getPct(key, val, TARGETS); }
-function getStatus(key, val) { return _getStatus(key, val, TARGETS, MACRO_KEYS); }
-function effectiveAmountG(ing) { return _effectiveAmountG(ing, recipes); }
-function getRecipeWeightG(recipe) { return _getRecipeWeightG(recipe, recipes); }
-function getRecipeNutrientsPer100g(recipe, visited) { return _getRecipeNutrientsPer100g(recipe, recipes, visited); }
-function wouldCreateCycle(parentId, candidateId, visited) { return _wouldCreateCycle(parentId, candidateId, recipes, visited); }
-function getIngredientNutrient(ingredient, targetKey) { return _getIngredientNutrient(ingredient, targetKey, recipes); }
-function dayKcal(day) { return _dayKcal(day, plan, MEALS, recipes); }
-function sumDay(day) { return _sumDay(day, plan, MEALS, TARGETS, recipes); }
-function weeklyAvg() { return _weeklyAvg(plan, DAYS, MEALS, TARGETS, recipes); }
-function buildBlameNode(ing, nutrientKey, scaleFactor) { return _buildBlameNode(ing, nutrientKey, scaleFactor, recipes); }
-function getDayBlameTree(day, nutrientKey) { return _getDayBlameTree(day, nutrientKey, plan, MEALS, recipes); }
-function getWeeklyBlameTree(nutrientKey) { return _getWeeklyBlameTree(nutrientKey, plan, DAYS, MEALS, recipes); }
-
-// ── Persistence ───────────────────────────────────────────────────────────
-
-// ── Payload helpers ────────────────────────────────────────────────────────
-function buildPayload() {
-  return { version: 2, savedAt: new Date().toISOString(), plan, recipes, customIngredients, targets: TARGETS, userProfile };
-}
-
+// ── Payload hydration ───────────────────────────────────────────────────────
 function applyPayload(payload) {
   if (payload.plan) {
-    plan = payload.plan;
-    DAYS.forEach(d => { if (!plan[d]) plan[d]={}; MEALS.forEach(m => { if (!plan[d][m]) plan[d][m]=[]; }); });
+    state.plan = payload.plan;
+    DAYS.forEach(d => { if (!state.plan[d]) state.plan[d]={}; MEALS.forEach(m => { if (!state.plan[d][m]) state.plan[d][m]=[]; }); });
   }
-  if (payload.recipes) recipes = payload.recipes;
-  if (payload.customIngredients) customIngredients = payload.customIngredients;
+  if (payload.recipes)           state.recipes           = payload.recipes;
+  if (payload.customIngredients) state.customIngredients = payload.customIngredients;
+  if (payload.foods)             state.foods             = payload.foods;
+  if (payload.extraFoods)        state.extraFoods        = payload.extraFoods;
+  if (payload.foodAliases)       state.foodAliases       = payload.foodAliases;
+  if (payload.foodServings)      state.foodServings      = payload.foodServings;
   if (payload.targets) Object.keys(payload.targets).forEach(k => {
-    if (!TARGETS[k]) return;
-    TARGETS[k].val = payload.targets[k].val;
-    if (payload.targets[k].max !== undefined) TARGETS[k].max = payload.targets[k].max;
+    if (!state.targets[k]) return;
+    state.targets[k].val = payload.targets[k].val;
+    if (payload.targets[k].max !== undefined) state.targets[k].max = payload.targets[k].max;
   });
-  if (payload.userProfile) userProfile = { ...userProfile, ...payload.userProfile };
+  if (payload.disabledTargets) state.disabledTargets = payload.disabledTargets;
+  if (payload.userProfile) state.userProfile = { ...state.userProfile, ...payload.userProfile };
 }
 
-// ── LocalStorage fallback ──────────────────────────────────────────────────
-function saveFallback() {
-  try { localStorage.setItem('nourish_data', JSON.stringify(buildPayload())); } catch(e) {}
-}
-
-function loadFallback() {
-  try {
-    const s = localStorage.getItem('nourish_data');
-    if (s) { applyPayload(JSON.parse(s)); return; }
-    // Migrate old separate keys
-    const oldPlan = localStorage.getItem('nourish_plan');
-    if (oldPlan) {
-      plan = JSON.parse(oldPlan);
-      DAYS.forEach(d => { if (!plan[d]) plan[d]={}; MEALS.forEach(m => { if (!plan[d][m]) plan[d][m]=[]; }); });
-    }
-    const oldProfile = localStorage.getItem('nourish_profile');
-    if (oldProfile) userProfile = { ...userProfile, ...JSON.parse(oldProfile) };
-  } catch(e) {}
-}
-
-// ── Save / load ────────────────────────────────────────────────────────────
-function savePlan() { saveFallback(); }
-
-// ── Refetch all nutritional data (USDA + OFF) ──────────────────────────────
+// ── Refetch all nutritional data ────────────────────────────────────────────
 async function refetchAllNutrients() {
-  const btn = document.getElementById('refetch-all-btn');
-  const prog = document.getElementById('refetch-progress');
+  const btn      = document.getElementById('refetch-all-btn');
+  const prog     = document.getElementById('refetch-progress');
   const progText = document.getElementById('refetch-progress-text');
-  const progBar = document.getElementById('refetch-progress-bar');
-
+  const progBar  = document.getElementById('refetch-progress-bar');
   btn.disabled = true;
   prog.style.display = 'block';
   const errorsEl = document.getElementById('refetch-errors');
   errorsEl.style.display = 'none';
   errorsEl.innerHTML = '';
 
-  // Collect unique ingredient refs by source
-  const usdaMap = new Map(); // fdcId → [ing refs]
-  const offMap = new Map();  // barcode string → [ing refs]
+  const usdaMap = new Map();
+  const offMap  = new Map();
 
-  const collect = ing => {
-    if (!ing || ing.type === 'recipe') return;
-    const id = String(ing.fdcId || '');
-    if (!id) return;
+  const collectId = (fdcId, name) => {
+    if (!fdcId) return;
+    const id = String(fdcId);
     if (id.startsWith('off_')) {
       const barcode = id.slice(4);
-      if (!/^\d+$/.test(barcode)) return; // skip off_search_X — no barcode to refetch
-      if (!offMap.has(barcode)) offMap.set(barcode, []);
-      offMap.get(barcode).push(ing);
+      if (!/^\d+$/.test(barcode)) return;
+      if (!offMap.has(barcode)) offMap.set(barcode, { fdcId: id, name });
     } else if (/^\d+$/.test(id)) {
-      if (!usdaMap.has(ing.fdcId)) usdaMap.set(ing.fdcId, []);
-      usdaMap.get(ing.fdcId).push(ing);
+      if (!usdaMap.has(fdcId)) usdaMap.set(fdcId, { fdcId, name });
     }
   };
 
-  DAYS.forEach(d => MEALS.forEach(m => (plan[d][m] || []).forEach(collect)));
-  Object.values(recipes).forEach(r => r.ingredients.forEach(collect));
+  Object.values(state.foods).forEach(f => collectId(f.fdcId, f.name));
+  const collect = ing => { if (!ing || ing.type === 'recipe') return; collectId(ing.fdcId, ing.name); };
+  DAYS.forEach(d => MEALS.forEach(m => (state.plan[d][m] || []).forEach(collect)));
+  Object.values(state.recipes).forEach(r => r.ingredients.forEach(collect));
 
   const total = usdaMap.size + offMap.size;
   if (total === 0) {
     progText.textContent = 'No refetchable ingredients found.';
-    progBar.style.width = '100%';
+    progBar.style.width  = '100%';
     setTimeout(() => { prog.style.display = 'none'; btn.disabled = false; }, 2000);
     return;
   }
 
   let processed = 0, failed = 0;
   const errors = [];
-  const sleep = ms => new Promise(res => setTimeout(res, ms));
-
-  const addError = (msg) => {
+  const sleep  = ms => new Promise(res => setTimeout(res, ms));
+  const addError = msg => {
     errors.push(msg);
-    errorsEl.innerHTML = errors.map(e => `⚠ ${escapeHtml(e)}`).join('<br>');
+    errorsEl.innerHTML    = errors.map(e => `⚠ ${escapeHtml(e)}`).join('<br>');
     errorsEl.style.display = 'block';
   };
-
-  const tick = (label) => {
+  const tick = label => {
     processed++;
-    const pct = Math.round(processed / total * 100);
     progText.textContent = `${label} (${processed} / ${total})`;
-    progBar.style.width = pct + '%';
+    progBar.style.width  = Math.round(processed / total * 100) + '%';
   };
 
   const MAX_RETRIES = 3;
 
-  for (const [fdcId, ings] of usdaMap) {
-    let ok = false;
+  for (const [fdcId, info] of usdaMap) {
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
-        const data = await fetchFoodDetails(fdcId, USDA_KEY);
+        const data      = await fetchFoodDetails(fdcId, config.usdaKey);
         const nutrients = extractNutrients(data);
-        ings.forEach(ing => { ing.nutrients = nutrients; });
-        ok = true;
+        dispatch({ type: 'FOODS_UPSERT', payload: { [String(fdcId)]: { fdcId: String(fdcId), name: info.name, nutrients } } });
         break;
       } catch(e) {
         if (attempt < MAX_RETRIES) {
@@ -1351,45 +1488,44 @@ async function refetchAllNutrients() {
     await sleep(1000);
   }
 
-  for (const [barcode, ings] of offMap) {
-    const name = ings[0]?.name || barcode;
-    let ok = false;
+  for (const [barcode, info] of offMap) {
+    const name  = info.name || barcode;
+    const fdcId = info.fdcId;
     for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
       try {
         const r = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
         if (r.status === 429) {
           const retryDelay = 8000 * attempt;
-          progText.textContent = `Rate limited — waiting ${retryDelay / 1000}s before retry ${attempt}/${MAX_RETRIES - 1} for "${name}"…`;
+          progText.textContent = `Rate limited — waiting ${retryDelay / 1000}s before retry…`;
           await sleep(retryDelay);
           continue;
         }
         if (!r.ok) {
           if (attempt < MAX_RETRIES) {
-            progText.textContent = `HTTP ${r.status} — retry ${attempt}/${MAX_RETRIES - 1} for "${name}"…`;
+            progText.textContent = `HTTP ${r.status} — retry ${attempt}/${MAX_RETRIES - 1} for “${name}”…`;
             await sleep(2000 * attempt);
             continue;
           }
           failed++;
-          addError(`Open Food Facts returned ${r.status} for "${name}" (gave up after ${MAX_RETRIES} attempts)`);
+          addError(`Open Food Facts returned ${r.status} for “${name}” (gave up after ${MAX_RETRIES} attempts)`);
           break;
         }
         const data = await r.json();
         if (data.status === 1 && data.product) {
           const nutrients = normalizeOFFNutrients(data.product);
-          ings.forEach(ing => { ing.nutrients = nutrients; });
-          ok = true;
+          dispatch({ type: 'FOODS_UPSERT', payload: { [fdcId]: { fdcId, name, nutrients } } });
         } else {
           failed++;
-          addError(`Product not found in Open Food Facts: "${name}" (${barcode})`);
+          addError(`Product not found in Open Food Facts: “${name}” (${barcode})`);
         }
         break;
       } catch(e) {
         if (attempt < MAX_RETRIES) {
-          progText.textContent = `Network error — retry ${attempt}/${MAX_RETRIES - 1} for "${name}"…`;
+          progText.textContent = `Network error — retry ${attempt}/${MAX_RETRIES - 1} for “${name}”…`;
           await sleep(2000 * attempt);
         } else {
           failed++;
-          addError(`Network error for "${name}": ${e.message || 'request failed'} (gave up after ${MAX_RETRIES} attempts)`);
+          addError(`Network error for “${name}”: ${e.message || 'request failed'} (gave up after ${MAX_RETRIES} attempts)`);
         }
       }
     }
@@ -1397,10 +1533,8 @@ async function refetchAllNutrients() {
     await sleep(2500);
   }
 
-  saveFallback();
-  renderNutrients();
+  dispatch({ type: 'NUTRIENTS_REFETCH_COMPLETE' });
   btn.disabled = false;
-
   const succeeded = total - failed;
   progText.textContent = failed
     ? `Done — ${succeeded} refreshed, ${failed} failed (see below)`
@@ -1408,15 +1542,139 @@ async function refetchAllNutrients() {
   if (!failed) setTimeout(() => { prog.style.display = 'none'; progBar.style.width = '0%'; }, 3000);
 }
 
-// Export / Import (backup)
-function exportPlan() {
-  const blob = new Blob([JSON.stringify(buildPayload(), null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `nourish-backup-${new Date().toISOString().slice(0,10)}.json`;
+// ── Export / Import ─────────────────────────────────────────────────────────
+// ── Export dirty tracking ─────────────────────────────────────────────────────
+const EXPORT_DIRTY_ON = new Set([
+  'PLAN_ADD_ITEM','PLAN_REMOVE_ITEM','PLAN_INSERT_ITEM','RECIPE_SAVE','RECIPE_DELETE','RECIPE_COPY',
+  'CUSTOM_ING_SAVE','CUSTOM_ING_DELETE','CUSTOM_ING_COPY','FOODS_UPSERT',
+  'EXTRA_FOOD_INSERT','TARGETS_SAVE','NUTRIENTS_REFETCH_COMPLETE',
+]);
+function _setExportWarning(show) {
+  const w = document.getElementById('export-warning');
+  if (w) w.style.display = show ? 'flex' : 'none';
+}
+
+// ── Selective backup export/import ─────────────────────────────────────────
+let _pendingImportPayload = null;
+
+function _detectSections(payload) {
+  const raw = Array.isArray(payload.sections) ? payload.sections : (() => {
+    const s = [];
+    if (payload.plan) s.push('plan');
+    if (payload.recipes || payload.customIngredients || payload.foods) s.push('foods');
+    if (payload.targets || payload.disabledTargets) s.push('targets');
+    if (payload.userProfile) s.push('profile');
+    if (payload.appConfig) s.push('settings');
+    return s;
+  })();
+  // Expand legacy 'config' section into sub-sections
+  if (raw.includes('config')) {
+    const out = raw.filter(k => k !== 'config');
+    if (payload.targets || payload.disabledTargets) out.push('targets');
+    if (payload.userProfile) out.push('profile');
+    if (payload.appConfig) out.push('settings');
+    return out;
+  }
+  return raw;
+}
+
+function _buildSelectivePayload(sections) {
+  const p = { version: 3, savedAt: new Date().toISOString(), sections };
+  if (sections.includes('plan'))     { p.plan = state.plan; p.extraFoods = state.extraFoods; }
+  if (sections.includes('foods'))    { p.recipes = state.recipes; p.customIngredients = state.customIngredients; p.foods = state.foods; }
+  if (sections.includes('targets'))  { p.targets = state.targets; p.disabledTargets = state.disabledTargets; }
+  if (sections.includes('profile'))  { p.userProfile = state.userProfile; }
+  if (sections.includes('settings')) { p.appConfig = { usdaKey: config.usdaKey, pdfPagePerRecipe: config.pdfPagePerRecipe, pdfShowMacros: config.pdfShowMacros, shoppingListFormat: config.shoppingListFormat }; }
+  return p;
+}
+
+function _applySelectivePayload(payload, sections) {
+  if (sections.includes('plan')) {
+    if (payload.plan) {
+      state.plan = payload.plan;
+      DAYS.forEach(d => { if (!state.plan[d]) state.plan[d]={}; MEALS.forEach(m => { if (!state.plan[d][m]) state.plan[d][m]=[]; }); });
+    }
+    if (payload.extraFoods) state.extraFoods = payload.extraFoods;
+  }
+  if (sections.includes('foods')) {
+    if (payload.recipes)           state.recipes           = payload.recipes;
+    if (payload.customIngredients) state.customIngredients = payload.customIngredients;
+    if (payload.foods)             state.foods             = payload.foods;
+  }
+  if (sections.includes('targets')) {
+    if (payload.targets) Object.keys(payload.targets).forEach(k => {
+      if (!state.targets[k]) return;
+      state.targets[k].val = payload.targets[k].val;
+      if (payload.targets[k].max !== undefined) state.targets[k].max = payload.targets[k].max;
+    });
+    if (payload.disabledTargets) state.disabledTargets = payload.disabledTargets;
+  }
+  if (sections.includes('profile')) {
+    if (payload.userProfile) state.userProfile = { ...state.userProfile, ...payload.userProfile };
+  }
+  if (sections.includes('settings')) {
+    if (payload.appConfig) {
+      if (payload.appConfig.usdaKey != null) {
+        config.usdaKey = payload.appConfig.usdaKey;
+        try { localStorage.setItem('nourish_usda_key', config.usdaKey); } catch(e) {}
+      }
+      if (payload.appConfig.pdfPagePerRecipe !== undefined) {
+        config.pdfPagePerRecipe = payload.appConfig.pdfPagePerRecipe;
+        try { localStorage.setItem('nourish_pdf_split', config.pdfPagePerRecipe ? '1' : '0'); } catch(e) {}
+      }
+      if (payload.appConfig.pdfShowMacros !== undefined) {
+        config.pdfShowMacros = payload.appConfig.pdfShowMacros;
+        try { localStorage.setItem('nourish_pdf_macros', config.pdfShowMacros ? '1' : '0'); } catch(e) {}
+      }
+      if (payload.appConfig.shoppingListFormat) {
+        config.shoppingListFormat = payload.appConfig.shoppingListFormat;
+        try { localStorage.setItem('nourish_shopping_format', config.shoppingListFormat); } catch(e) {}
+      }
+    }
+  }
+}
+
+function openExportModal() {
+  ['exp-plan', 'exp-foods', 'exp-targets', 'exp-profile', 'exp-settings'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.checked = true;
+  });
+  const planItems = Object.values(state.plan || {}).flatMap(d => Object.values(d)).flat().length;
+  const extraCount = Object.keys(state.extraFoods || {}).length;
+  const recipeCount = Object.keys(state.recipes || {}).length;
+  const customCount = Object.keys(state.customIngredients || {}).length;
+  const targetCount = Object.keys(state.targets || {}).length;
+  const p = state.userProfile || {};
+  const planDesc = `${planItems} meal item${planItems !== 1 ? 's' : ''} across 7 days` + (extraCount ? `, ${extraCount} extra food${extraCount !== 1 ? 's' : ''}` : '');
+  const foodsDesc = `${recipeCount} recipe${recipeCount !== 1 ? 's' : ''}, ${customCount} custom ingredient${customCount !== 1 ? 's' : ''}`;
+  const profileParts = [];
+  if (p.sex) profileParts.push(p.sex);
+  if (p.age) profileParts.push(`age ${p.age}`);
+  if (p.weight) profileParts.push(`${p.weight} kg`);
+  if (p.height) profileParts.push(`${p.height} cm`);
+  const setDesc = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  setDesc('exp-plan-desc',    planDesc);
+  setDesc('exp-foods-desc',   foodsDesc);
+  setDesc('exp-targets-desc', `${targetCount} nutrient target${targetCount !== 1 ? 's' : ''}`);
+  setDesc('exp-profile-desc', profileParts.length ? profileParts.join(', ') : 'Age, weight, height, activity level, goal');
+  document.getElementById('export-options-modal').classList.add('open');
+}
+
+function doExport() {
+  const sections = [];
+  if (document.getElementById('exp-plan')?.checked)     sections.push('plan');
+  if (document.getElementById('exp-foods')?.checked)    sections.push('foods');
+  if (document.getElementById('exp-targets')?.checked)  sections.push('targets');
+  if (document.getElementById('exp-profile')?.checked)  sections.push('profile');
+  if (document.getElementById('exp-settings')?.checked) sections.push('settings');
+  if (!sections.length) { alert('Select at least one section to export.'); return; }
+  const blob = new Blob([JSON.stringify(_buildSelectivePayload(sections), null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `nourish-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
+  document.getElementById('export-options-modal').classList.remove('open');
+  _setExportWarning(false);
 }
 
 function importPlan(e) {
@@ -1425,2022 +1683,492 @@ function importPlan(e) {
   const reader = new FileReader();
   reader.onload = ev => {
     try {
-      const payload = JSON.parse(ev.target.result);
-      if (!payload.plan) throw new Error('Invalid file');
-      applyPayload(payload);
-      saveFallback();
-      renderPlan();
-      alert('Import successful!');
-    } catch(err) {
-      alert('Could not read this file. Make sure it\'s a Nourish export (.json).');
-    }
+      const payload = applyMigrations(JSON.parse(ev.target.result));
+      const available = _detectSections(payload);
+      if (!available.length) throw new Error('No recognizable data');
+      _pendingImportPayload = payload;
+      const LABELS = {
+        plan: 'Weekly Plan',
+        foods: 'Recipes & Custom Ingredients',
+        targets: 'Nutrient Targets',
+        profile: 'Profile',
+        settings: 'App Settings'
+      };
+      const _importDesc = key => {
+        if (key === 'plan') {
+          const items = Object.values(payload.plan || {}).flatMap(d => Object.values(d)).flat().length;
+          const extras = Object.keys(payload.extraFoods || {}).length;
+          return `${items} meal item${items !== 1 ? 's' : ''} across 7 days` + (extras ? `, ${extras} extra food${extras !== 1 ? 's' : ''}` : '');
+        }
+        if (key === 'foods') {
+          const r = Object.keys(payload.recipes || {}).length;
+          const c = Object.keys(payload.customIngredients || {}).length;
+          return `${r} recipe${r !== 1 ? 's' : ''}, ${c} custom ingredient${c !== 1 ? 's' : ''}`;
+        }
+        if (key === 'targets') {
+          const t = Object.keys(payload.targets || {}).length;
+          return `${t} nutrient target${t !== 1 ? 's' : ''}`;
+        }
+        if (key === 'profile') {
+          const p = payload.userProfile || {};
+          const parts = [];
+          if (p.sex) parts.push(p.sex);
+          if (p.age) parts.push(`age ${p.age}`);
+          if (p.weight) parts.push(`${p.weight} kg`);
+          if (p.height) parts.push(`${p.height} cm`);
+          return parts.length ? parts.join(', ') : 'Profile data';
+        }
+        if (key === 'settings') return 'USDA API key, PDF options';
+        return '';
+      };
+      let html = `<div style="font-size:12px;color:var(--text-dimmer);margin-bottom:12px;word-break:break-all">${escapeHtml(file.name)}</div>`;
+      html += `<p style="font-size:13px;color:var(--text-dim);margin:0 0 14px">This file contains the following sections. Select what to import:</p>`;
+      html += `<div style="display:flex;flex-direction:column;gap:10px">`;
+      const allKeys = ['plan','foods','targets','profile','settings'];
+      allKeys.forEach((key, i) => {
+        const has = available.includes(key);
+        if (i === 2) html += `<div style="border-top:1px solid var(--border);margin:2px 0"></div>`;
+        html += `<label style="display:flex;align-items:flex-start;gap:10px;${has?'cursor:pointer':'opacity:0.4'}">
+          <input type="checkbox" id="imp-${key}" ${has?'checked':'disabled'} style="margin-top:2px;accent-color:var(--accent)">
+          <div>
+            <div style="font-size:13px;font-weight:600">${LABELS[key]}</div>
+            <div style="font-size:11px;color:var(--text-dimmer)">${has ? _importDesc(key) : 'not in this file'}</div>
+          </div>
+        </label>`;
+      });
+      html += `</div><div style="margin-top:14px;padding:10px 12px;background:var(--bg2);border-radius:6px;font-size:11px;color:var(--warn)">⚠ Importing will overwrite the selected sections in your current data.</div>`;
+      document.getElementById('import-preview-body').innerHTML = html;
+      document.getElementById('import-preview-modal').classList.add('open');
+    } catch { alert("Could not read this file. Make sure it's a Nourish export (.json)."); }
   };
   reader.readAsText(file);
   e.target.value = '';
 }
 
-// ── Navigation ─────────────────────────────────────────────────────────────
+function doImport() {
+  if (!_pendingImportPayload) return;
+  const sections = [];
+  if (document.getElementById('imp-plan')?.checked)     sections.push('plan');
+  if (document.getElementById('imp-foods')?.checked)    sections.push('foods');
+  if (document.getElementById('imp-targets')?.checked)  sections.push('targets');
+  if (document.getElementById('imp-profile')?.checked)  sections.push('profile');
+  if (document.getElementById('imp-settings')?.checked) sections.push('settings');
+  if (!sections.length) { alert('Select at least one section to import.'); return; }
+  _applySelectivePayload(_pendingImportPayload, sections);
+  _pendingImportPayload = null;
+  document.getElementById('import-preview-modal').classList.remove('open');
+  dispatch({ type: 'PAYLOAD_LOAD' });
+  alert('Import successful!');
+}
+
+// ── Navigation ──────────────────────────────────────────────────────────────
+let _historyNav = false;
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  const navItem = document.querySelector(`.nav-item[onclick*="'${id}'"]`);
+  const navItem = document.querySelector(`.nav-item[data-page="${id}"]`);
   if (navItem) navItem.classList.add('active');
   if (id !== 'nutrients') closeBlame();
   if (id === 'nutrients') renderNutrients();
-  if (id === 'recipes') renderRecipes();
-  if (id === 'targets') renderTargets();
-  if (id === 'config') renderConfig();
-}
-
-// ── Search Modal ───────────────────────────────────────────────────────────
-function openModal(day, meal) {
-  modalCtx = { day, meal };
-  selectedFood = null;
-  document.getElementById('search-input').value = '';
-  document.getElementById('amount-row').style.display = 'none';
-  document.getElementById('mode-tab-recipes').style.display = '';
-  document.getElementById('modal').classList.add('open');
-  switchMode('search');
-  setTimeout(() => document.getElementById('search-input').focus(), 100);
-}
-
-function closeModal() {
-  document.getElementById('modal').classList.remove('open');
-  document.getElementById('custom-unit-row').style.display = 'none';
-  modalCtx = null;
-  selectedFood = null;
-}
-
-function closeModalIfBg(e) {
-  if (e.target === document.getElementById('modal')) closeModal();
-}
-
-function switchMode(mode) {
-  document.getElementById('mode-search-wrap').style.display = mode === 'search' ? 'block' : 'none';
-  document.getElementById('mode-tab-recipes').style.display = mode === 'search' ? '' : 'none';
-  document.getElementById('amount-row').style.display = 'none';
-  selectedFood = null;
-  if (mode === 'search') {
-    document.getElementById('search-results-wrap').innerHTML = '<div class="search-status">Search by name (OFF + USDA) or enter/paste a barcode</div>';
-    setBarcodeImgStatus('', 'dim');
-    setTimeout(() => document.getElementById('search-input').focus(), 50);
-  } else {
-    renderRecipesTab();
-  }
-}
-
-// ── Open Food Facts barcode lookup ────────────────────────────────────────
-
-// ── Barcode image decode ───────────────────────────────────────────────────
-function setBarcodeImgStatus(msg, type) {
-  const el = document.getElementById('barcode-img-status');
-  if (!el) return;
-  el.textContent = msg;
-  el.style.color = type === 'ok' ? 'var(--good)' : type === 'err' ? 'var(--danger)' : 'var(--text-dim)';
-}
-
-async function handleBarcodePaste(event) {
-  const items = Array.from(event.clipboardData?.items || []);
-  const imageItem = items.find(i => i.type.startsWith('image/'));
-  if (!imageItem) return;
-  event.preventDefault();
-  await decodeBarcodeFromBlob(imageItem.getAsFile(), {
-    onStatus: setBarcodeImgStatus,
-    onCode: code => {
-      if (!code) return;
-      document.getElementById('search-input').value = code;
-      setBarcodeImgStatus(`✓ Decoded: ${code}`, 'ok');
-      runBarcodeLookup(code, 'modal');
-    },
-  });
-}
-
-async function pasteImageFromClipboard() {
-  if (!navigator.clipboard?.read) {
-    setBarcodeImgStatus('Use Ctrl+V while the search field is focused', 'dim');
-    document.getElementById('search-input').focus();
-    return;
-  }
-  setBarcodeImgStatus('Reading clipboard…', 'dim');
-  try {
-    const items = await navigator.clipboard.read();
-    for (const item of items) {
-      const imageType = item.types.find(t => t.startsWith('image/'));
-      if (imageType) {
-        const blob = await item.getType(imageType);
-        await decodeBarcodeFromBlob(blob, {
-          onStatus: setBarcodeImgStatus,
-          onCode: code => {
-            if (!code) return;
-            document.getElementById('search-input').value = code;
-            setBarcodeImgStatus(`✓ Decoded: ${code}`, 'ok');
-            runBarcodeLookup(code, 'modal');
-          },
-        });
-        return;
-      }
-    }
-    setBarcodeImgStatus('No image in clipboard — copy a barcode photo first', 'err');
-  } catch {
-    setBarcodeImgStatus('Could not read clipboard — focus the search field and press Ctrl+V', 'dim');
-    document.getElementById('search-input').focus();
-  }
-}
-
-async function handleBarcodeDrop(event) {
-  event.preventDefault();
-  const file = event.dataTransfer?.files?.[0];
-  if (file?.type.startsWith('image/')) {
-    await decodeBarcodeFromBlob(file, {
-      onStatus: setBarcodeImgStatus,
-      onCode: code => {
-        if (!code) return;
-        document.getElementById('search-input').value = code;
-        setBarcodeImgStatus(`✓ Decoded: ${code}`, 'ok');
-        runBarcodeLookup(code, 'modal');
-      },
-    });
-  } else {
-    setBarcodeImgStatus('Drop an image file (PNG, JPG, etc.)', 'err');
-  }
-}
-
-function triggerSearch() {
-  const raw = document.getElementById('search-input').value.trim();
-  const val = raw.replace(/\s/g, '');
-  if (val.length < 2) {
-    document.getElementById('search-results-wrap').innerHTML = '<div class="search-status">Enter at least 2 characters</div>';
-    return;
-  }
-  if (/^\d{6,20}$/.test(val)) {
-    document.getElementById('search-results-wrap').innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Looking up barcode…</div>';
-    runBarcodeLookup(val, 'modal');
-  } else {
-    document.getElementById('search-results-wrap').innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Searching…</div>';
-    doSearch(raw, 'modal');
-  }
-}
-
-let _offSearchResults = []; // temp store for current OFF search products (modal context)
-
-// ── Unified search ─────────────────────────────────────────────────────────
-let _foodsOFFResults  = [];   // foods-page context
-
-function buildResultsHtml(offProducts, usdaFoods, offFnName, usdaFnName) {
-  let html = '';
-  offProducts.forEach((p, idx) => {
-    const name = p.product_name;
-    const brand = p.brands ? ` (${p.brands})` : '';
-    const n = p.nutriments || {};
-    const kcal = n['energy-kcal_100g']
-      ? Math.round(n['energy-kcal_100g'])
-      : n['energy_100g'] ? Math.round(n['energy_100g'] / 4.184) : '—';
-    html += `<div class="result-item" onclick="${offFnName}(${idx})">
-      <div><div class="result-name"><span class="src-badge src-off">OFF</span>${escapeHtml(name)}${escapeHtml(brand)}</div></div>
-      <div class="result-kcal">${kcal} kcal/100g</div>
-    </div>`;
-  });
-  usdaFoods.forEach(f => {
-    const kcal = f.foodNutrients?.find(n => n.nutrientName === 'Energy')?.value || '—';
-    const cat = f.foodCategory || f.dataType || '';
-    html += `<div class="result-item" onclick="${usdaFnName}(${f.fdcId})">
-      <div><div class="result-name"><span class="src-badge src-usda">USDA</span>${escapeHtml(f.description)}</div><div class="result-cat">${escapeHtml(cat)}</div></div>
-      <div class="result-kcal">${kcal} kcal/100g</div>
-    </div>`;
-  });
-  return html || '<div class="search-status">No results found. Try a different term.</div>';
-}
-
-async function doSearch(query, context) {
-  const isFoods = context === 'foods';
-  const wrap = document.getElementById(isFoods ? 'foods-search-results' : 'search-results-wrap');
-  if (isFoods) _foodsOFFResults = []; else _offSearchResults = [];
-  try {
-    const [offRes, usdaRes] = await Promise.allSettled([searchOFF(query), searchUSDA(query, USDA_KEY)]);
-    const offProducts = offRes.status === 'fulfilled'
-      ? (offRes.value.products || []).filter(p => p.product_name).slice(0, 10) : [];
-    const usdaFoods = usdaRes.status === 'fulfilled' ? (usdaRes.value.foods || []).slice(0, 10) : [];
-    if (isFoods) _foodsOFFResults = offProducts; else _offSearchResults = offProducts;
-    const offFn = isFoods ? 'foodsSelectOFFResult' : 'selectOFFResult';
-    const usdaFn = isFoods ? 'foodsSelectFood' : 'selectFood';
-    wrap.innerHTML = buildResultsHtml(offProducts, usdaFoods, offFn, usdaFn);
-  } catch {
-    wrap.innerHTML = '<div class="search-status">Error searching. Check your connection.</div>';
-  }
-}
-
-async function runBarcodeLookup(code, context) {
-  const isFoods = context === 'foods';
-  const wrap = document.getElementById(isFoods ? 'foods-search-results' : 'search-results-wrap');
-  if (!code || code.length < 6) {
-    wrap.innerHTML = '<div class="search-status" style="color:var(--danger)">Please enter a valid barcode (at least 6 digits)</div>';
-    return;
-  }
-  wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Looking up barcode in Open Food Facts…</div>';
-  const p = await lookupOFFProduct(code);
-  if (!p) {
-    if (isFoods) {
-      wrap.innerHTML = '<div class="search-status" style="color:var(--danger)">Barcode not found in Open Food Facts. Try searching by name.</div>';
-    } else {
-      wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Not found in Open Food Facts, trying USDA…</div>';
-      await _barcodeFallbackUSDA(code);
-    }
-    return;
-  }
-  const name = p.product_name || p.generic_name || `Product ${code}`;
-  const brand = p.brands ? ` (${p.brands})` : '';
-  const nutrients = normalizeOFFNutrients(p);
-  if (isFoods) {
-    const totals = {};
-    Object.keys(TARGETS).forEach(k => { totals[k] = findNutrientVal(nutrients, k); });
-    const fullName = name + brand;
-    _lastFoodsDetail = { title: fullName, sub: '100g · Open Food Facts · % of daily target', totals };
-    showNutritionDetail(_lastFoodsDetail.title, _lastFoodsDetail.sub, totals, null);
-    wrap.innerHTML = _foodsSuccessHtml(fullName);
-  } else {
-    const kcal = Math.round(nutrients['Energy'] || 0);
-    selectedFood = { fdcId: 'off_' + code, name: name + brand, nutrients, source: 'Open Food Facts' };
-    document.getElementById('selected-food-name').textContent = selectedFood.name;
-    populateUnitSelector(extractMeasuresOFF(p));
-    document.getElementById('amount-row').style.display = 'flex';
-    const img = p.image_small_url ? `<img src="${escapeHtml(p.image_small_url)}" style="width:50px;height:50px;object-fit:contain;border-radius:6px;margin-bottom:8px" onerror="this.style.display='none'">` : '';
-    wrap.innerHTML = `<div class="search-status" style="color:var(--good)">${img}<br>✓ Found: <strong>${escapeHtml(name)}${escapeHtml(brand)}</strong><br><span style="font-size:11px;color:var(--text-dimmer)">${kcal} kcal/100g · Source: Open Food Facts</span></div>`;
-  }
-}
-
-async function _barcodeFallbackUSDA(code) {
-  try {
-    const r = await fetch(`https://api.nal.usda.gov/fdc/v1/foods/search?query=${code}&dataType=Branded&pageSize=5&api_key=${USDA_KEY}`);
-    const data = await r.json();
-    const match = (data.foods || []).find(f => f.gtinUpc === code);
-    if (!match) {
-      document.getElementById('search-results-wrap').innerHTML = '<div class="search-status" style="color:var(--danger)">Barcode not found in either database.<br><span style="font-size:11px">Try searching by name instead.</span></div>';
-      return;
-    }
-    await selectFood(match.fdcId, match.description);
-  } catch {
-    document.getElementById('search-results-wrap').innerHTML = '<div class="search-status" style="color:var(--danger)">Barcode not found. Try searching by name instead.</div>';
-  }
-}
-
-function selectOFFResult(idx) {
-  const p = _offSearchResults[idx];
-  if (!p) return;
-  const name = p.product_name || 'Unknown';
-  const brand = p.brands ? ` (${p.brands})` : '';
-  const nutrients = normalizeOFFNutrients(p);
-  const kcal = Math.round(nutrients['Energy'] || 0);
-  const code = p.code ? ('off_' + p.code) : ('off_search_' + idx);
-  selectedFood = { fdcId: code, name: name + brand, nutrients, source: 'Open Food Facts' };
-  document.getElementById('selected-food-name').textContent = selectedFood.name;
-  populateUnitSelector(extractMeasuresOFF(p));
-  document.getElementById('amount-row').style.display = 'flex';
-  const img = p.image_small_url ? `<img src="${escapeHtml(p.image_small_url)}" style="width:44px;height:44px;object-fit:contain;border-radius:6px;float:right;margin-left:8px" onerror="this.style.display='none'">` : '';
-  document.getElementById('search-results-wrap').innerHTML = `<div class="search-status" style="color:var(--good)">${img}✓ <strong>${escapeHtml(name)}${escapeHtml(brand)}</strong><br><span style="font-size:11px;color:var(--text-dimmer)">${kcal} kcal/100g · Open Food Facts</span></div>`;
-}
-
-async function selectFood(fdcId, name) {
-  document.getElementById('search-results-wrap').innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Loading nutrition data…</div>';
-  try {
-    const data = await fetchFoodDetails(fdcId, USDA_KEY);
-    const nutrients = extractNutrients(data);
-    selectedFood = { fdcId, name: data.description || name, nutrients };
-    document.getElementById('selected-food-name').textContent = selectedFood.name;
-    populateUnitSelector(extractMeasuresUSDA(data));
-    document.getElementById('amount-row').style.display = 'flex';
-    document.getElementById('search-results-wrap').innerHTML = `<div class="search-status" style="color:var(--good)">✓ Selected: <strong>${escapeHtml(selectedFood.name)}</strong><br><span style="font-size:11px;color:var(--text-dimmer)">Set the amount below and click Add</span></div>`;
-  } catch(e) {
-    document.getElementById('search-results-wrap').innerHTML = '<div class="search-status">Failed to load details. Try another item.</div>';
-  }
-}
-
-function clearSelection() {
-  selectedFood = null;
-  document.getElementById('amount-row').style.display = 'none';
-  document.getElementById('custom-unit-row').style.display = 'none';
-  document.getElementById('search-results-wrap').innerHTML = '<div class="search-status">Search by name (OFF + USDA) or enter/paste a barcode</div>';
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-input').focus();
-}
-
-// ── Unit selector helpers ──────────────────────────────────────────────────
-let _currentUnitFactor = 1;
-let _currentUnitLabel = 'g';
-let _allMeasures = [];
-
-function populateUnitSelector(measures) {
-  // For ml-containing measures, add tbsp and tsp as convenience options
-  const mlMeasure = measures.find(m => m.label === 'ml');
-  _allMeasures = [...measures];
-  if (mlMeasure) {
-    const f = mlMeasure.factor;
-    _allMeasures.push({ label: 'tbsp', factor: Math.round(f * 15 * 1000) / 1000 });
-    _allMeasures.push({ label: 'tsp',  factor: Math.round(f * 5  * 1000) / 1000 });
-  }
-
-  const first = _allMeasures[0] || { label: 'g', factor: 1 };
-  _currentUnitFactor = first.factor;
-  _currentUnitLabel = first.label;
-
-  _renderUnitSelector();
-
-  document.getElementById('amount-input').value = first.factor >= 10 ? 1 : 100;
-}
-
-function _renderUnitSelector() {
-  const sel = document.getElementById('unit-selector');
-  const currentLabel = _currentUnitLabel;
-  sel.innerHTML = '';
-  _allMeasures.forEach((m, i) => {
-    const opt = document.createElement('option');
-    opt.value = i;
-    opt.textContent = m.label;
-    if (m.label === currentLabel) opt.selected = true;
-    sel.appendChild(opt);
-  });
-  // "Custom unit…" sentinel option
-  const customOpt = document.createElement('option');
-  customOpt.value = 'custom';
-  customOpt.textContent = 'Custom unit…';
-  sel.appendChild(customOpt);
-  sel.onchange = () => {
-    if (sel.value === 'custom') {
-      showCustomUnitRow();
-      // Revert visual selection to current unit so the dropdown looks stable
-      sel.value = _allMeasures.findIndex(m => m.label === _currentUnitLabel);
-    } else {
-      selectUnit(_allMeasures[parseInt(sel.value)]);
-    }
-  };
-}
-
-function showCustomUnitRow() {
-  // Populate the reference-unit dropdown with current available measures
-  const refSel = document.getElementById('custom-unit-ref');
-  refSel.innerHTML = '';
-  _allMeasures.forEach(m => {
-    const opt = document.createElement('option');
-    opt.value = m.label;
-    opt.textContent = m.label;
-    refSel.appendChild(opt);
-  });
-  document.getElementById('custom-unit-name').value = '';
-  document.getElementById('custom-unit-equiv').value = '';
-  document.getElementById('custom-unit-row').style.display = 'flex';
-  document.getElementById('custom-unit-name').focus();
-}
-
-function hideCustomUnitRow() {
-  document.getElementById('custom-unit-row').style.display = 'none';
-}
-
-function applyCustomUnit() {
-  const name = document.getElementById('custom-unit-name').value.trim();
-  const equiv = parseFloat(document.getElementById('custom-unit-equiv').value);
-  const refLabel = document.getElementById('custom-unit-ref').value;
-
-  if (!name) { document.getElementById('custom-unit-name').focus(); return; }
-  if (!equiv || equiv <= 0) { document.getElementById('custom-unit-equiv').focus(); return; }
-
-  const refMeasure = _allMeasures.find(m => m.label === refLabel);
-  if (!refMeasure) return;
-
-  // factor = grams per 1 custom unit
-  const factor = Math.round(equiv * refMeasure.factor * 10000) / 10000;
-
-  // Add to measures (or update if same name already exists)
-  const existing = _allMeasures.findIndex(m => m.label === name);
-  if (existing >= 0) {
-    _allMeasures[existing].factor = factor;
-  } else {
-    _allMeasures.push({ label: name, factor });
-  }
-
-  // Convert current qty from old unit to new unit before overwriting factors
-  const currentQty = parseFloat(document.getElementById('amount-input').value) || 0;
-  const newQty = currentQty > 0
-    ? Math.round((currentQty * _currentUnitFactor / factor) * 100) / 100
-    : 1;
-
-  _currentUnitFactor = factor;
-  _currentUnitLabel = name;
-
-  _renderUnitSelector();
-  hideCustomUnitRow();
-
-  document.getElementById('amount-input').value = newQty || 1;
-}
-
-function selectUnit(measure) {
-  const currentQty = parseFloat(document.getElementById('amount-input').value) || 0;
-  const newQty = (currentQty * _currentUnitFactor) / measure.factor;
-
-  _currentUnitFactor = measure.factor;
-  _currentUnitLabel = measure.label;
-
-  document.getElementById('amount-input').value = Math.round(newQty * 10) / 10 || 1;
-}
-
-function confirmAdd() {
-  if (!selectedFood || !modalCtx) return;
-  const qty = parseFloat(document.getElementById('amount-input').value) || 1;
-  const amountG = Math.round(qty * _currentUnitFactor * 10) / 10;
-  const unit = _currentUnitLabel;
-
-  if (modalCtx.mode === 'recipe') {
-    let ing;
-    if (selectedFood.type === 'recipe') {
-      ing = { type: 'recipe', recipeId: selectedFood.recipeId, name: selectedFood.name, amountG, unit, qty };
-    } else if (selectedFood.servingMode) {
-      ing = { type: 'food', fdcId: selectedFood.fdcId, name: selectedFood.name, amountG: 0, unit, qty, nutrients: selectedFood.nutrients, servingMode: true };
-    } else {
-      ing = { type: 'food', fdcId: selectedFood.fdcId, name: selectedFood.name, amountG, unit, qty, nutrients: selectedFood.nutrients };
-    }
-    currentEditRecipe.ingredients.push(ing);
-    closeModal();
-    renderRecipeEditor();
-    return;
-  }
-
-  // Adding to meal plan
-  let ing;
-  if (selectedFood.type === 'recipe') {
-    ing = { type: 'recipe', recipeId: selectedFood.recipeId, name: selectedFood.name, amountG, unit, qty };
-  } else if (selectedFood.servingMode) {
-    ing = { type: 'food', name: selectedFood.name, fdcId: selectedFood.fdcId, amountG: 0, unit, qty, nutrients: selectedFood.nutrients, servingMode: true };
-  } else {
-    ing = { type: 'food', name: selectedFood.name, fdcId: selectedFood.fdcId, amountG, unit, qty, nutrients: selectedFood.nutrients };
-  }
-  plan[modalCtx.day][modalCtx.meal].push(ing);
-  savePlan();
-  closeModal();
-  renderPlan();
-}
-
-// ── Render Plan ────────────────────────────────────────────────────────────
-function renderPlan() {
-  const wrap = document.getElementById('week-grid-wrap');
-  let html = '<div class="week-grid">';
-  DAYS.forEach(day => {
-    const kcal = dayKcal(day);
-    html += `<div class="day-col">
-      <div class="day-header">
-        <div class="day-name">${day.slice(0,3)}</div>
-        <div class="day-kcal">${kcal ? kcal.toLocaleString()+' kcal' : '—'}</div>
-      </div>`;
-    MEALS.forEach(meal => {
-      const ings = plan[day][meal] || [];
-      html += `<div class="meal-slot">
-        <div class="meal-label">${meal}</div>`;
-      ings.forEach((ing, i) => {
-        const badge = ing.type === 'recipe'
-          ? `<span class="re-badge rec">REC</span>`
-          : `<span class="re-badge food">FOOD</span>`;
-        html += `<div class="ingredient-chip">
-          <span class="chip-name" title="${escapeHtml(ing.name)}">${badge}${escapeHtml(ing.name)} <span style="color:var(--text-dimmer)">${Math.round((ing.qty !== undefined ? ing.qty : ing.amountG) * 100) / 100}${escapeHtml(ing.unit||'g')}</span></span>
-          <button class="chip-remove" onclick="removeIngredient('${day}','${meal}',${i})">×</button>
-        </div>`;
-      });
-      html += `<button class="add-ingredient-btn" onclick="openModal('${day}','${meal}')">+ add</button>
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  html += '</div>';
-  wrap.innerHTML = html;
-}
-
-function removeIngredient(day, meal, idx) {
-  plan[day][meal].splice(idx, 1);
-  savePlan();
-  renderPlan();
-}
-
-// ── Recipe helpers ─────────────────────────────────────────────────────────
-function genId() { return 'r' + Date.now() + Math.random().toString(36).slice(2,6); }
-
-// ── Recipes page ───────────────────────────────────────────────────────────
-function renderRecipes() {
-  const wrap = document.getElementById('recipes-wrap');
-  const ids = Object.keys(recipes);
-  const allSelected = ids.length > 0 && ids.every(id => selectedRecipeIds.has(id));
-  const nSelected = ids.filter(id => selectedRecipeIds.has(id)).length;
-  const exportBtns = recipeExportMode
-    ? `<button class="btn sm" onclick="toggleRecipeExportMode()">Cancel</button>
-       <button class="btn sm" onclick="toggleSelectAllRecipes()">${allSelected ? 'Deselect All' : 'Select All'}</button>
-       <button class="btn sm" onclick="generateRecipePDF()" ${!nSelected ? 'disabled' : ''} style="${!nSelected ? 'opacity:0.45;cursor:default' : ''}">${nSelected ? `Export ${nSelected} as PDF` : 'Select recipes…'}</button>`
-    : `${ids.length ? `<button class="btn sm" onclick="toggleRecipeExportMode()">Export as PDF…</button>` : ''}`;
-  let html = `<div style="padding-top:32px;border-top:1px solid var(--border)">
-    <div class="section-hdr" style="margin-bottom:16px">
-      <div class="section-title">Recipes</div>
-      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-        ${exportBtns}
-        <button class="btn primary" onclick="openRecipeEditor()">+ New Recipe</button>
-      </div>
-    </div>`;
-  if (!ids.length) {
-    html += `<div class="empty-msg"><div class="e-icon">📖</div><div class="e-title">No recipes yet</div><p>Create a recipe to use across your meal plan.</p></div>`;
-    html += '</div>';
-    wrap.innerHTML = html;
-    return;
-  }
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">';
-  ids.forEach(id => {
-    const r = recipes[id];
-    const totalG = getRecipeWeightG(r);
-    const servingG = r.yields > 0 ? Math.round(totalG / r.yields) : Math.round(totalG);
-    const n = totalG ? getRecipeNutrientsPer100g(r) : {};
-    const kcal = totalG ? Math.round(findNutrientVal(n, 'energy')) : 0;
-    const kcalServ = servingG ? Math.round(kcal * servingG / 100) : 0;
-    const macroScale = servingG / 100;
-    const protS = totalG ? (findNutrientVal(n, 'protein') * macroScale).toFixed(1) : '—';
-    const carbS = totalG ? (netCarbsFromMap(n) * macroScale).toFixed(1) : '—';
-    const fatS  = totalG ? ((findNutrientVal(n, 'lipid') || findNutrientVal(n, 'fat')) * macroScale).toFixed(1) : '—';
-    const isSelected = selectedRecipeIds.has(id);
-    const titleEl = recipeExportMode
-      ? `<label style="display:flex;align-items:center;gap:7px;cursor:pointer;flex:1;min-width:0;overflow:hidden">
-           <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="toggleRecipeSelection('${id}')" style="flex-shrink:0;cursor:pointer;accent-color:var(--accent);width:14px;height:14px">
-           <span class="recipe-card-title" style="margin:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(r.name || 'Unnamed')}</span>
-         </label>`
-      : `<div class="recipe-card-title">${escapeHtml(r.name || 'Unnamed')}</div>`;
-    html += `<div class="recipe-card" style="${isSelected && recipeExportMode ? 'border:2px solid var(--accent);' : ''}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start">
-        ${titleEl}
-        <button class="btn sm" onclick="openRecipeEditor('${id}')" style="flex-shrink:0;margin-left:8px">Edit</button>
-      </div>
-      <div style="font-size:11px;color:var(--text-dim)">${r.ingredients.length} ingredient${r.ingredients.length!==1?'s':''} · ${r.yields} serving${r.yields !== 1 ? 's' : ''}</div>
-      <div style="font-size:11px;color:var(--text-dimmer)">${totalG?Math.round(totalG*10)/10+'g total':'—'} · ${servingG?servingG+'g/serving':'—'}</div>
-      <div style="font-size:11px;color:var(--text-dimmer);margin-top:3px">per serving: ${kcalServ||'—'} kcal · P ${protS}g · C ${carbS}g · F ${fatS}g</div>
-    </div>`;
-  });
-  html += '</div>';
-  html += '</div>'; // close recipes section wrapper
-  // ── Custom Ingredients section ────────────────────────────────────────────
-  html += `<div style="margin-top:36px;padding-top:32px;border-top:1px solid var(--border)">
-    <div class="section-hdr" style="margin-bottom:14px">
-      <div class="section-title">Custom Ingredients</div>
-      <button class="btn sm" onclick="openCustomIngEditor()">+ New</button>
-    </div>`;
-  const cids = Object.keys(customIngredients);
-  if (!cids.length) {
-    html += `<div style="color:var(--text-dimmer);font-size:12px;padding:16px 0">No custom ingredients yet. Add one for foods not found in any database.</div>`;
-  } else {
-    html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">`;
-    cids.forEach(id => {
-      const ci = customIngredients[id];
-      const n = ci.nutrients || {};
-      const kcal = Math.round(n['Energy'] || 0);
-      const prot = (n['Protein'] || 0).toFixed(1);
-      const carb = (n['Carbohydrate, by difference'] || 0).toFixed(1);
-      const fat  = (n['Total lipid (fat)'] || 0).toFixed(1);
-      html += `<div class="card" style="padding:14px;display:flex;flex-direction:column;gap:5px">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start">
-          <div style="font-size:13px;font-weight:600;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(ci.name)}</div>
-          <div style="display:flex;gap:4px;flex-shrink:0;margin-left:8px">
-            <button class="btn sm" onclick="openCustomIngEditor('${id}')">Edit</button>
-          </div>
-        </div>
-        <div style="font-size:11px;color:var(--text-dim)">${kcal} kcal/${ci.servingMode ? escapeHtml(ci.servingLabel || 'serving') : '100g'}</div>
-        <div style="font-size:10px;color:var(--text-dimmer)">P ${prot}g · C ${carb}g · F ${fat}g</div>
-      </div>`;
-    });
-    html += '</div>';
-  }
-  html += '</div>';
-  wrap.innerHTML = html;
-}
-
-// ── Recipe PDF export ──────────────────────────────────────────────────────
-function toggleRecipeExportMode() {
-  recipeExportMode = !recipeExportMode;
-  if (!recipeExportMode) selectedRecipeIds.clear();
-  renderRecipes();
-}
-
-function toggleRecipeSelection(id) {
-  if (selectedRecipeIds.has(id)) {
-    selectedRecipeIds.delete(id);
-  } else {
-    selectedRecipeIds.add(id);
-  }
-  renderRecipes();
-}
-
-function toggleSelectAllRecipes() {
-  const ids = Object.keys(recipes);
-  const allSelected = ids.length > 0 && ids.every(id => selectedRecipeIds.has(id));
-  if (allSelected) {
-    selectedRecipeIds.clear();
-  } else {
-    ids.forEach(id => selectedRecipeIds.add(id));
-  }
-  renderRecipes();
-}
-
-async function generateRecipePDF() {
-  const ids = [...selectedRecipeIds].filter(id => recipes[id]);
-  if (!ids.length) return;
-
-  // Lazy-load jsPDF on first use
-  if (!window.jspdf) {
-    await new Promise((resolve, reject) => {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js';
-      s.onload = resolve;
-      s.onerror = () => reject(new Error('Failed to load jsPDF'));
-      document.head.appendChild(s);
-    });
-  }
-
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const pageW = 210;
-  const margin = 18;
-  const contentW = pageW - margin * 2;
-
-  ids.forEach((id, recipeIdx) => {
-    if (recipeIdx > 0) doc.addPage();
-    const r = recipes[id];
-    const totalG = getRecipeWeightG(r);
-    const servingG = r.yields > 0 ? Math.round(totalG / r.yields) : Math.round(totalG);
-    const n = totalG ? getRecipeNutrientsPer100g(r) : {};
-    const macroScale = servingG / 100;
-
-    const kcalPerServ  = servingG ? Math.round(findNutrientVal(n, 'energy') * macroScale) : 0;
-    const protPerServ  = servingG ? (findNutrientVal(n, 'protein') * macroScale).toFixed(1) : '0';
-    const carbPerServ  = servingG ? (netCarbsFromMap(n) * macroScale).toFixed(1) : '0';
-    const fatPerServ   = servingG ? ((findNutrientVal(n, 'lipid') || findNutrientVal(n, 'fat')) * macroScale).toFixed(1) : '0';
-    const fiberPerServ = servingG ? (findNutrientVal(n, 'fiber') * macroScale).toFixed(1) : '0';
-
-    let y = margin;
-
-    // Recipe title
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(22);
-    doc.setTextColor(45, 90, 39);
-    const nameLines = doc.splitTextToSize(r.name || 'Unnamed Recipe', contentW);
-    doc.text(nameLines, margin, y);
-    y += nameLines.length * 9 + 4;
-
-    // Divider line
-    doc.setDrawColor(210, 210, 200);
-    doc.line(margin, y, pageW - margin, y);
-    y += 7;
-
-    // Yield / weight info
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    doc.setTextColor(110, 110, 110);
-    doc.text(
-      `Makes ${r.yields} serving${r.yields !== 1 ? 's' : ''} · ${totalG ? Math.round(totalG) + 'g total' : '—'} · ${servingG ? servingG + 'g per serving' : '—'}`,
-      margin, y
-    );
-    y += 11;
-
-    // Nutrition summary box
-    doc.setFillColor(248, 248, 244);
-    doc.setDrawColor(220, 220, 210);
-    doc.roundedRect(margin, y, contentW, 24, 2, 2, 'FD');
-    const colW = contentW / 5;
-    [
-      ['Calories', kcalPerServ + ' kcal'],
-      ['Protein',  protPerServ + 'g'],
-      ['Carbs',    carbPerServ + 'g'],
-      ['Fat',      fatPerServ + 'g'],
-      ['Fiber',    fiberPerServ + 'g'],
-    ].forEach(([label, val], i) => {
-      const cx = margin + colW * i + colW / 2;
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(110, 110, 110);
-      doc.text(label, cx, y + 8, { align: 'center' });
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(11);
-      doc.setTextColor(40, 40, 40);
-      doc.text(String(val), cx, y + 17, { align: 'center' });
-    });
-    y += 31;
-
-    // Ingredients heading
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(13);
-    doc.setTextColor(45, 90, 39);
-    doc.text('Ingredients', margin, y);
-    y += 8;
-
-    // Ingredient rows — quantity in bold, name in normal
-    doc.setFontSize(10);
-    doc.setTextColor(40, 40, 40);
-
-    r.ingredients.forEach(ing => {
-      if (y > 272) { doc.addPage(); y = margin; }
-
-      let qtyPart, namePart;
-      if (ing.type === 'recipe') {
-        const sub = recipes[ing.recipeId];
-        const qty = ing.qty || 1;
-        qtyPart = `${qty} serving${qty !== 1 ? 's' : ''}`;
-        namePart = ` ${sub ? sub.name : (ing.name || '?')}`;
-      } else {
-        const g = effectiveAmountG(ing);
-        const gFmt = g % 1 === 0 ? String(g) : g.toFixed(1);
-        if (ing.servingMode) {
-          qtyPart = `${ing.qty || 1} ${ing.unit || 'serving'}`;
-          namePart = ` ${ing.name}`;
-        } else if (!ing.unit || ing.unit === 'g') {
-          qtyPart = `${gFmt}g`;
-          namePart = ` ${ing.name}`;
-        } else {
-          qtyPart = `${ing.qty || gFmt} ${ing.unit} (${gFmt}g)`;
-          namePart = ` ${ing.name}`;
-        }
-      }
-
-      doc.setFillColor(45, 90, 39);
-      doc.circle(margin + 2, y - 1.5, 1, 'F');
-      doc.setFont('helvetica', 'bold');
-      doc.text(qtyPart, margin + 7, y);
-      const qtyW = doc.getTextWidth(qtyPart);
-      doc.setFont('helvetica', 'normal');
-      doc.text(namePart, margin + 7 + qtyW, y);
-      y += 7.5;
-    });
-
-    // Page footer
-    doc.setFont('helvetica', 'italic');
-    doc.setFontSize(8);
-    doc.setTextColor(190, 190, 190);
-    doc.text('Generated by Nourish · Meal Planner', pageW / 2, 290, { align: 'center' });
-  });
-
-  const dateStr = new Date().toISOString().split('T')[0];
-  doc.save(`nourish-recipes-${dateStr}.pdf`);
-}
-
-// ── Recipe editor ──────────────────────────────────────────────────────────
-function openRecipeEditor(id) {
-  if (id && recipes[id]) {
-    currentEditRecipe = JSON.parse(JSON.stringify(recipes[id]));
-    document.getElementById('re-title').textContent = 'Edit Recipe';
-    document.getElementById('re-delete-btn').style.display = '';
-    document.getElementById('re-copy-btn').style.display = '';
-  } else {
-    currentEditRecipe = { id: genId(), name: '', yields: 1, yieldUnit: 'servings', ingredients: [] };
-    document.getElementById('re-title').textContent = 'New Recipe';
-    document.getElementById('re-delete-btn').style.display = 'none';
-    document.getElementById('re-copy-btn').style.display = 'none';
-  }
-  document.getElementById('re-name').value = currentEditRecipe.name;
-  document.getElementById('re-yields').value = currentEditRecipe.yields;
-  document.getElementById('recipe-editor').classList.add('open');
-  renderRecipeEditor();
-  setTimeout(() => document.getElementById('re-name').focus(), 100);
-}
-
-function closeRecipeEditor() {
-  document.getElementById('recipe-editor').classList.remove('open');
-  currentEditRecipe = null;
-}
-
-function closeRecipeEditorBg(e) {
-  if (e.target === document.getElementById('recipe-editor')) closeRecipeEditor();
-}
-
-function ingMacroLine(ing, idx) {
-  let n;
-  if (ing.type === 'recipe') {
-    const r = recipes[ing.recipeId];
-    if (!r) return `<div id="re-macros-${idx}" style="font-size:10px;height:14px"></div>`;
-    n = getRecipeNutrientsPer100g(r);
-  } else {
-    n = ing.nutrients || {};
-  }
-  if (!Object.keys(n).length) return `<div id="re-macros-${idx}" style="font-size:10px;height:14px"></div>`;
-  const scale = ing.servingMode ? (ing.qty || 1) : effectiveAmountG(ing) / 100;
-  const kcal = Math.round(findNutrientVal(n, 'energy') * scale);
-  const prot = (findNutrientVal(n, 'protein') * scale).toFixed(1);
-  const carb = (netCarbsFromMap(n) * scale).toFixed(1);
-  const fat  = ((findNutrientVal(n, 'lipid') || findNutrientVal(n, 'fat')) * scale).toFixed(1);
-  return `<div id="re-macros-${idx}" style="font-size:10px;color:var(--text-dimmer)">${kcal} kcal · P ${prot}g · C ${carb}g · F ${fat}g</div>`;
-}
-
-function getRecipeIngMeasures(ing) {
-  const unit = ing.unit || 'g';
-  const qty  = ing.qty;
-  // Recipe sub-ingredient: always offer serving + g, using the live serving size
-  if (ing.type === 'recipe') {
-    const r = recipes[ing.recipeId];
-    const currentServG = r && r.yields > 0 ? getRecipeWeightG(r) / r.yields : (qty > 0 ? ing.amountG / qty : 100);
-    return [
-      { label: 'serving', factor: currentServG },
-      { label: 'g',       factor: 1 },
-    ];
-  }
-  if (ing.servingMode) {
-    return [{ label: ing.unit || 'serving', factor: 1 }];
-  }
-  if (qty > 0 && ['ml', 'tbsp', 'tsp'].includes(unit)) {
-    const unitFactor = ing.amountG / qty;
-    const mlF = unit === 'ml' ? unitFactor : unit === 'tbsp' ? unitFactor / 15 : unitFactor / 5;
-    return [
-      { label: 'ml',   factor: mlF },
-      { label: 'g',    factor: 1 },
-      { label: 'tbsp', factor: mlF * 15 },
-      { label: 'tsp',  factor: mlF * 5  },
-    ];
-  }
-  return [{ label: unit, factor: qty > 0 ? ing.amountG / qty : 1 }];
-}
-
-function recipeUnitWidget(ing, i) {
-  const ms = getRecipeIngMeasures(ing);
-  const opts = ms.map(m =>
-    `<option value="${escapeHtml(m.label)}" data-factor="${m.factor}"${m.label === (ing.unit||'g') ? ' selected' : ''}>${escapeHtml(m.label)}</option>`
-  ).join('');
-  const disabled = ms.length === 1 ? ' disabled' : '';
-  return `<select class="unit-select" style="font-size:10px;padding:3px 5px;width:46px" onchange="updateRecipeIngUnit(${i},this.value,this.options[this.selectedIndex].dataset.factor)"${disabled}>${opts}</select>`;
-}
-
-function updateRecipeIngUnit(idx, newLabel, newFactor) {
-  const ing = currentEditRecipe.ingredients[idx];
-  if (!ing) return;
-  ing.qty  = Math.round(ing.amountG / parseFloat(newFactor) * 10) / 10 || 1;
-  ing.unit = newLabel;
-  renderRecipeEditor();
-}
-
-function renderRecipeEditor() {
-  if (!currentEditRecipe) return;
-  const ings = currentEditRecipe.ingredients;
-  let html = '';
-  if (!ings.length) {
-    html = '<div style="padding:24px;text-align:center;color:var(--text-dim);font-size:12px">No ingredients yet — click + Add ingredient below</div>';
-  } else {
-    ings.forEach((ing, i) => {
-      const isRec = ing.type === 'recipe';
-      const badge = isRec ? `<span class="re-badge rec">REC</span>` : `<span class="re-badge food">FOOD</span>`;
-      html += `<div class="re-ing-row" style="flex-direction:column;align-items:stretch;gap:3px">
-        <div style="display:flex;align-items:center;gap:8px">
-          ${badge}
-          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;text-decoration:underline;text-decoration-color:var(--border2);text-underline-offset:3px" title="View full nutrition" onclick="openIngredientDetail(${i})">${escapeHtml(ing.name)}</span>
-          <input type="number" class="amount-input" value="${Math.round((ing.qty !== undefined ? ing.qty : ing.amountG) * 100) / 100}" min="1" style="width:65px;text-align:right"
-            oninput="updateRecipeIngAmount(${i},this.value)">
-          ${recipeUnitWidget(ing, i)}
-          <button class="chip-remove" onclick="removeRecipeIngredient(${i})" style="font-size:14px">×</button>
-        </div>
-        ${ingMacroLine(ing, i)}
-      </div>`;
-    });
-  }
-  document.getElementById('re-ingredients-list').innerHTML = html;
-  updateRecipeNutritionStrip();
-}
-
-function updateRecipeIngAmount(idx, val) {
-  if (!currentEditRecipe) return;
-  const v = parseFloat(val);
-  if (v > 0) {
-    const ing = currentEditRecipe.ingredients[idx];
-    if (ing.servingMode) {
-      ing.qty = v;
-    } else if (ing.type === 'recipe' && ing.unit === 'serving') {
-      const r = recipes[ing.recipeId];
-      const servG = r && r.yields > 0 ? getRecipeWeightG(r) / r.yields : (ing.qty > 0 ? ing.amountG / ing.qty : 1);
-      ing.amountG = Math.round(v * servG * 10) / 10;
-      ing.qty = v;
-    } else if (ing.qty !== undefined && ing.qty > 0) {
-      // Derive the unit→gram factor from the stored values and scale amountG accordingly
-      ing.amountG = Math.round(v * (ing.amountG / ing.qty) * 10) / 10;
-      ing.qty = v;
-    } else {
-      ing.amountG = v;
-    }
-  }
-  updateRecipeNutritionStrip();
-  const el = document.getElementById('re-macros-' + idx);
-  if (el) el.outerHTML = ingMacroLine(currentEditRecipe.ingredients[idx], idx);
-}
-
-function removeRecipeIngredient(idx) {
-  if (!currentEditRecipe) return;
-  currentEditRecipe.ingredients.splice(idx, 1);
-  renderRecipeEditor();
-}
-
-function updateRecipeNutritionStrip() {
-  const strip = document.getElementById('re-nutrition-strip');
-  if (!currentEditRecipe) return;
-  const totalG = getRecipeWeightG(currentEditRecipe);
-  if (!totalG) { strip.innerHTML = '<span style="color:var(--text-dimmer)">Add ingredients to see nutrition</span>'; return; }
-  const n = getRecipeNutrientsPer100g(currentEditRecipe);
-  const kcal100 = findNutrientVal(n, 'energy');
-  const prot100 = findNutrientVal(n, 'protein');
-  const carb100 = netCarbsFromMap(n);
-  const fat100  = findNutrientVal(n, 'lipid') || findNutrientVal(n, 'fat');
-  const yields = parseInt(document.getElementById('re-yields').value) || currentEditRecipe.yields || 1;
-  const servG  = Math.round(totalG / yields);
-  const scale  = servG / 100;
-  const kcalS  = Math.round(kcal100 * scale);
-  const protS  = prot100 * scale;
-  const carbS  = carb100 * scale;
-  const fatS   = fat100  * scale;
-  strip.innerHTML = `
-    <span><strong>${Math.round(totalG * 10) / 10}g</strong> total · <strong>${servG}g</strong>/serving</span>
-    <span>per serving: <strong>${kcalS||'—'} kcal</strong></span>
-    <span style="color:var(--text-dimmer)">P ${protS?protS.toFixed(1)+'g':'—'} · C ${carbS?carbS.toFixed(1)+'g':'—'} · F ${fatS?fatS.toFixed(1)+'g':'—'}</span>
-  `;
-}
-
-function saveCurrentRecipe() {
-  if (!currentEditRecipe) return;
-  currentEditRecipe.name = document.getElementById('re-name').value.trim() || 'Unnamed Recipe';
-  currentEditRecipe.yields = parseInt(document.getElementById('re-yields').value) || 1;
-  currentEditRecipe.yieldUnit = 'servings';
-  recipes[currentEditRecipe.id] = currentEditRecipe;
-  saveFallback();
-  closeRecipeEditor();
-  renderRecipes();
-  renderPlan();
-}
-
-function confirmDeleteRecipe() {
-  if (!currentEditRecipe) return;
-  if (!confirm(`Delete "${currentEditRecipe.name}"? This cannot be undone.`)) return;
-  delete recipes[currentEditRecipe.id];
-  saveFallback();
-  closeRecipeEditor();
-  renderRecipes();
-  renderPlan();
-}
-
-function copyCurrentRecipe() {
-  if (!currentEditRecipe) return;
-  const copy = JSON.parse(JSON.stringify(currentEditRecipe));
-  copy.id = genId();
-  copy.name = currentEditRecipe.name + ' (copy)';
-  recipes[copy.id] = copy;
-  saveFallback();
-  closeRecipeEditor();
-  renderRecipes();
-}
-
-function copyCustomIng(id) {
-  const src = customIngredients[id];
-  if (!src) return;
-  const copy = JSON.parse(JSON.stringify(src));
-  copy.id = genId();
-  copy.name = src.name + ' (copy)';
-  customIngredients[copy.id] = copy;
-  saveFallback();
-  renderRecipes();
-}
-
-function copyCustomIngFromEditor() {
-  if (!_editingCustomIngId) return;
-  copyCustomIng(_editingCustomIngId);
-  closeCustomIngEditor();
-}
-
-// ── Custom Ingredient Editor ───────────────────────────────────────────────
-let _editingCustomIngId = null;
-
-function renderCustomIngEditor(ci) {
-  const n = (ci && ci.nutrients) || {};
-  const servingMode = (ci && ci.servingMode) || false;
-  const servingLabel = (ci && ci.servingLabel) || '';
-  const macros = [
-    { key: 'Energy',                      label: 'Energy',        unit: 'kcal', step: '1',   placeholder: 'e.g. 350' },
-    { key: 'Protein',                     label: 'Protein',       unit: 'g',    step: '0.1', placeholder: 'e.g. 12'  },
-    { key: 'Carbohydrate, by difference', label: 'Carbohydrates', unit: 'g',    step: '0.1', placeholder: 'e.g. 40'  },
-    { key: 'Total lipid (fat)',            label: 'Fat',           unit: 'g',    step: '0.1', placeholder: 'e.g. 8'   },
-  ];
-
-  // Check if any optional nutrients are already filled so we auto-expand
-  const allMicroKeys = CUSTOM_ING_MICRO_FIELDS.flatMap(s => s.fields.map(f => f.key));
-  const hasOptionals = allMicroKeys.some(k => n[k] != null && n[k] !== 0);
-  const perLabel = servingMode ? 'per serving' : 'per 100 g';
-
-  // Mode toggle
-  let html = `<div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border)">
-    <div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:8px">Nutrient values are</div>
-    <div style="display:flex;gap:20px;margin-bottom:10px">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
-        <input type="radio" name="cie-mode" value="per100g" ${!servingMode ? 'checked' : ''} onchange="cieToggleMode(this.value)">
-        Per 100 g
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px">
-        <input type="radio" name="cie-mode" value="serving" ${servingMode ? 'checked' : ''} onchange="cieToggleMode(this.value)">
-        Per serving
-      </label>
-    </div>
-    <div id="cie-serving-label-row" style="display:${servingMode ? 'block' : 'none'}">
-      <label style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px">Serving label <span style="color:var(--text-dimmer)">(e.g. pill, tablet, capsule, scoop)</span></label>
-      <input class="tgt-input" type="text" id="cie-serving-label" placeholder="e.g. pill" value="${escapeHtml(servingLabel)}" style="width:100%;max-width:220px">
-    </div>
-  </div>`;
-
-  html += `<div class="cie-section-label" style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:14px">Macros — ${perLabel} (required)</div>`;
-  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px">`;
-  macros.forEach(m => {
-    const val = n[m.key] != null ? n[m.key] : '';
-    html += `<div>
-      <label style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px">${m.label} <span style="color:var(--text-dimmer)">(${m.unit})</span></label>
-      <input class="tgt-input" type="number" data-cie-key="${m.key}" min="0" step="${m.step}" placeholder="${m.placeholder}" value="${val}" style="width:100%">
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Optional micros toggle
-  html += `<div style="border-top:1px solid var(--border);padding-top:14px">
-    <button class="btn sm" type="button" onclick="toggleCieMicros(this)" style="font-size:11px;margin-bottom:14px" data-open="${hasOptionals ? 'true' : 'false'}">
-      ${hasOptionals ? '▴ Hide optional nutrients' : '▾ Show optional nutrients'}
-    </button>
-    <div id="cie-optionals" style="display:${hasOptionals ? 'block' : 'none'}">`;
-
-  CUSTOM_ING_MICRO_FIELDS.forEach(({ section, fields }) => {
-    html += `<div style="margin-bottom:16px">
-      <div class="cie-section-label" style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:10px">${section} — ${perLabel}</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">`;
-    fields.forEach(f => {
-      const val = n[f.key] != null ? n[f.key] : '';
-      html += `<div>
-        <label style="font-size:10px;color:var(--text-dim);display:block;margin-bottom:3px">${f.label} <span style="color:var(--text-dimmer)">(${f.unit})</span></label>
-        <input class="tgt-input" type="number" data-cie-key="${f.key}" min="0" step="any" value="${val}" style="width:100%;font-size:11px;padding:5px 8px">
-      </div>`;
-    });
-    html += `</div></div>`;
-  });
-
-  html += `</div></div>`;
-  document.getElementById('cie-body').innerHTML = html;
-}
-
-function cieToggleMode(mode) {
-  const isServing = mode === 'serving';
-  document.getElementById('cie-serving-label-row').style.display = isServing ? 'block' : 'none';
-  const perLabel = isServing ? 'per serving' : 'per 100 g';
-  document.querySelectorAll('#cie-body .cie-section-label').forEach(el => {
-    const text = el.textContent;
-    const dashIdx = text.indexOf(' — ');
-    if (dashIdx !== -1) {
-      el.textContent = text.substring(0, dashIdx) + ` — ${perLabel}` + (text.includes('(required)') ? ' (required)' : '');
-    }
-  });
-}
-
-function toggleCieMicros(btn) {
-  const open = btn.dataset.open !== 'true';
-  btn.dataset.open = open ? 'true' : 'false';
-  btn.textContent = open ? '▴ Hide optional nutrients' : '▾ Show optional nutrients';
-  document.getElementById('cie-optionals').style.display = open ? 'block' : 'none';
-}
-
-function openCustomIngEditor(id) {
-  _editingCustomIngId = id || null;
-  const isNew = !id;
-  document.getElementById('cie-title').textContent = isNew ? 'New Custom Ingredient' : 'Edit Custom Ingredient';
-  document.getElementById('cie-copy-btn').style.display = isNew ? 'none' : '';
-  document.getElementById('cie-delete-btn').style.display = isNew ? 'none' : '';
-  const ci = id ? customIngredients[id] : null;
-  document.getElementById('cie-name').value = ci?.name || '';
-  renderCustomIngEditor(ci);
-  document.getElementById('custom-ing-editor').classList.add('open');
-  setTimeout(() => document.getElementById('cie-name').focus(), 100);
-}
-
-function closeCustomIngEditor() {
-  document.getElementById('custom-ing-editor').classList.remove('open');
-  _editingCustomIngId = null;
-}
-
-function closeCustomIngEditorBg(e) {
-  if (e.target === document.getElementById('custom-ing-editor')) closeCustomIngEditor();
-}
-
-function saveCustomIng() {
-  const name = document.getElementById('cie-name').value.trim();
-  if (!name) { document.getElementById('cie-name').focus(); return; }
-  const nutrients = {};
-  document.querySelectorAll('#cie-body input[data-cie-key]').forEach(input => {
-    const v = parseFloat(input.value);
-    if (!isNaN(v)) nutrients[input.dataset.cieKey] = v;
-  });
-  const servingModeEl = document.querySelector('#cie-body input[name="cie-mode"][value="serving"]');
-  const servingMode = servingModeEl?.checked || false;
-  const id = _editingCustomIngId || genId();
-  const ci = { id, name, nutrients };
-  if (servingMode) {
-    ci.servingMode = true;
-    ci.servingLabel = document.getElementById('cie-serving-label')?.value.trim() || 'serving';
-  }
-  customIngredients[id] = ci;
-  saveFallback();
-  closeCustomIngEditor();
-  renderRecipes();
-}
-
-function deleteCustomIng() {
-  if (!_editingCustomIngId) return;
-  const ci = customIngredients[_editingCustomIngId];
-  if (!confirm(`Delete "${ci?.name || 'this ingredient'}"? This cannot be undone.`)) return;
-  delete customIngredients[_editingCustomIngId];
-  saveFallback();
-  closeCustomIngEditor();
-  renderRecipes();
-}
-
-function selectCustomIng(id) {
-  const ci = customIngredients[id];
-  if (!ci) return;
-  selectedFood = { fdcId: 'custom_' + id, name: ci.name, nutrients: ci.nutrients, customIngId: id,
-    servingMode: ci.servingMode || false, servingLabel: ci.servingLabel || 'serving' };
-  document.getElementById('selected-food-name').textContent = ci.name;
-  const unitLabel = ci.servingMode ? (ci.servingLabel || 'serving') : 'g';
-  populateUnitSelector([{ label: unitLabel, factor: 1 }]);
-  document.getElementById('amount-row').style.display = 'flex';
-  const kcal = Math.round(ci.nutrients['Energy'] || 0);
-  const perLabel = ci.servingMode ? `kcal/${unitLabel}` : 'kcal/100g';
-  document.getElementById('search-results-wrap').innerHTML = `<div class="search-status" style="color:var(--good)">✓ Selected: <strong>${escapeHtml(ci.name)}</strong><br><span style="font-size:11px;color:var(--text-dimmer)">${kcal} ${escapeHtml(perLabel)} · Custom ingredient</span></div>`;
-}
-
-// Adding food to recipe (reuses search modal in recipe context)
-function recipeAddFood() {
-  if (!currentEditRecipe) return;
-  modalCtx = { mode: 'recipe' };
-  selectedFood = null;
-  document.getElementById('search-input').value = '';
-  document.getElementById('search-results-wrap').innerHTML = '<div class="search-status">Search by name (OFF + USDA) or enter/paste a barcode</div>';
-  document.getElementById('amount-row').style.display = 'none';
-  document.getElementById('modal').classList.add('open');
-  switchMode('search');
-  setTimeout(() => document.getElementById('search-input').focus(), 100);
-}
-
-
-// Recipes tab in meal-plan search modal
-function renderRecipesTab() {
-  const wrap = document.getElementById('search-results-wrap');
-  const backBtn = '<button class="btn sm" onclick="switchMode(\'search\')" style="margin-bottom:10px;font-size:11px">← Back to Search</button>';
-  // When adding to a recipe, exclude self and anything that would form a cycle
-  let ids = Object.keys(recipes);
-  if (modalCtx?.mode === 'recipe' && currentEditRecipe) {
-    ids = ids.filter(id => id !== currentEditRecipe.id && !wouldCreateCycle(currentEditRecipe.id, id));
-  }
-  const cids = Object.keys(customIngredients);
-  if (!ids.length && !cids.length) {
-    wrap.innerHTML = `<div class="search-status">${backBtn}<br>No recipes yet.<br><button class="btn sm" style="margin-top:8px" onclick="closeModal();showPage('recipes')">Go to Foods →</button></div>`;
-    return;
-  }
-  let html = `<div style="padding:8px">${backBtn}`;
-  if (ids.length) {
-    ids.forEach(id => {
-      const r = recipes[id];
-      const totalG = getRecipeWeightG(r);
-      const servG  = Math.round(r.yields > 0 ? totalG / r.yields : totalG);
-      const n = totalG ? getRecipeNutrientsPer100g(r) : {};
-      const kcal = totalG ? Math.round(findNutrientVal(n, 'energy')) : 0;
-      const kcalS = servG ? Math.round(kcal * servG / 100) : 0;
-      html += `<div class="result-item" onclick="selectRecipeForMeal('${id}')">
-        <div>
-          <div class="result-name">${escapeHtml(r.name)}</div>
-          <div class="result-cat">${r.ingredients.length} ingredients · ${r.yields} serving${r.yields !== 1 ? 's' : ''} · ${servG||'?'}g/serving</div>
-        </div>
-        <div class="result-kcal">${kcalS?kcalS+' kcal/srv':kcal?kcal+' kcal/100g':'—'}</div>
-      </div>`;
-    });
-  }
-  if (cids.length) {
-    html += `<div style="font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dimmer);padding:10px 8px 4px;${ids.length ? 'border-top:1px solid var(--border);margin-top:4px' : ''}">Custom Ingredients</div>`;
-    cids.forEach(id => {
-      const ci = customIngredients[id];
-      const kcal = Math.round(ci.nutrients['Energy'] || 0);
-      html += `<div class="result-item" onclick="selectCustomIng('${id}')">
-        <div>
-          <div class="result-name">${escapeHtml(ci.name)}</div>
-        </div>
-        <div class="result-kcal">${kcal} kcal/${ci.servingMode ? escapeHtml(ci.servingLabel || 'serving') : '100g'}</div>
-      </div>`;
-    });
-  }
-  html += '</div>';
-  wrap.innerHTML = html;
-}
-
-function selectRecipeForMeal(recipeId) {
-  const r = recipes[recipeId];
-  if (!r) return;
-  const totalG = getRecipeWeightG(r);
-  const servG  = r.yields > 0 ? Math.round(totalG / r.yields) : totalG || 100;
-  selectedFood = { type: 'recipe', recipeId, name: r.name };
-  document.getElementById('selected-food-name').textContent = `${r.name}  (1 serving ≈ ${servG}g)`;
-  const measures = servG > 0
-    ? [{ label: 'serving', factor: servG }, { label: 'g', factor: 1 }]
-    : [{ label: 'g', factor: 1 }];
-  populateUnitSelector(measures);
-  document.getElementById('amount-row').style.display = 'flex';
-  const n = totalG ? getRecipeNutrientsPer100g(r) : {};
-  const kcal = Math.round(findNutrientVal(n, 'energy') * servG / 100);
-  document.getElementById('search-results-wrap').innerHTML = `<div class="search-status" style="color:var(--good)">✓ <strong>${escapeHtml(r.name)}</strong><br><span style="font-size:11px;color:var(--text-dimmer)">${r.yields} serving${r.yields !== 1 ? 's' : ''} · 1 serving ≈ ${servG}g${kcal?' · '+kcal+' kcal/serving':''}</span></div>`;
-}
-
-// ── Render Nutrients ───────────────────────────────────────────────────────
-function renderNutrients() {
-  const wrap = document.getElementById('nutrients-wrap');
-  const filledDays = DAYS.filter(d => MEALS.some(m => (plan[d][m]||[]).length > 0));
-
-  if (!filledDays.length) {
-    wrap.innerHTML = `<div class="empty-msg"><div class="e-icon">🥦</div><div class="e-title">No meals added yet</div><p>Go to Weekly Plan and add some ingredients first.</p></div>`;
-    return;
-  }
-
-  const { totals, days } = weeklyAvg();
-
-  // Day tabs
-  let html = `<div class="day-tabs">
-    <div class="day-tab ${analysisDay===null?'active':''}" onclick="setAnalysisDay(null)">Weekly avg</div>`;
-  filledDays.forEach(d => {
-    html += `<div class="day-tab ${analysisDay===d?'active':''}" onclick="setAnalysisDay('${d}')">${d.slice(0,3)}</div>`;
-  });
-  html += `</div>`;
-  html += `<div style="font-size:10px;color:var(--text-dimmer);margin:-10px 0 16px;text-align:right">click any nutrient to see what's contributing →</div>`;
-
-  const current = analysisDay ? sumDay(analysisDay) : totals;
-
-  // Score card
-  const alerts = [];
-  Object.entries(TARGETS).forEach(([k, t]) => {
-    const v = current[k] || 0;
-    const pct = getPct(k, v);
-    if (MACRO_KEYS.includes(k)) {
-      if (pct > 110) alerts.push({ key: k, type: 'danger', label: t.label });
-      else if (t.val > 0 && pct < 90) alerts.push({ key: k, type: 'warn', label: t.label });
-    } else {
-      if (t.max && v > t.max) alerts.push({ key: k, type: 'danger', label: t.label });
-      else if (t.val > 0 && pct < 70) alerts.push({ key: k, type: 'warn', label: t.label });
-    }
-  });
-
-  const totalTracked = Object.keys(TARGETS).length;
-  const onTrack = totalTracked - alerts.length;
-  const overTarget = alerts.filter(a => a.type === 'danger');
-  const underTarget = alerts.filter(a => a.type === 'warn');
-  const numColor = onTrack === totalTracked ? 'var(--good)' : onTrack >= totalTracked * 0.7 ? 'var(--warn)' : 'var(--danger)';
-
-  let scoreGroupsHtml = '';
-  if (!alerts.length) {
-    scoreGroupsHtml = `<div class="score-perfect">✓ All nutrients on track</div>`;
-  } else {
-    if (overTarget.length) {
-      const chips = overTarget.map(a =>
-        `<span class="score-chip danger blameble" data-bkey="${a.key}" onclick="openBlame(this.dataset.bkey)">${a.label}</span>`
-      ).join('');
-      scoreGroupsHtml += `<div class="score-group"><span class="score-group-icon danger">⚠</span><div class="score-chips">${chips}</div></div>`;
-    }
-    if (underTarget.length) {
-      const chips = underTarget.map(a =>
-        `<span class="score-chip warn blameble" data-bkey="${a.key}" onclick="openBlame(this.dataset.bkey)">${a.label}</span>`
-      ).join('');
-      scoreGroupsHtml += `<div class="score-group"><span class="score-group-icon warn">↓</span><div class="score-chips">${chips}</div></div>`;
-    }
-  }
-
-  html += `<div class="nutrient-score">
-    <div class="score-main">
-      <div class="score-num" style="color:${numColor}">${onTrack}<span class="score-denom">/${totalTracked}</span></div>
-      <div class="score-sublabel">on track</div>
-    </div>
-    <div class="score-divider"></div>
-    <div class="score-groups">${scoreGroupsHtml}</div>
-  </div>`;
-
-  // Summary strip — Big 4 with achievement %
-  const BIG4 = [
-    { key: 'Energy',       label: 'Calories' },
-    { key: 'Protein',      label: 'Protein' },
-    { key: 'Carbohydrate', label: 'Carbs' },
-    { key: 'Total lipid',  label: 'Fat' },
-  ];
-  html += `<div class="summary-strip">`;
-  BIG4.forEach(({ key, label }) => {
-    const val = current[key] || 0;
-    const t = TARGETS[key];
-    const pct = Math.round(val / t.val * 100);
-    const status = getStatus(key, val);
-    const scale = Math.max(val, t.val, t.max || 0) || 1;
-    const fillPct = (val / scale * 100).toFixed(1);
-    const targetPos = (t.val / scale * 100).toFixed(1);
-    const stripClass = 'strip-item blameble';
-    const stripClick = ` data-bkey="${key}" onclick="openBlame(this.dataset.bkey)"`;
-    html += `<div class="${stripClass}"${stripClick}>
-      <div class="strip-val ${status}">${fmt(val, t.unit)}</div>
-      <div class="strip-label">${label}</div>
-      <div class="strip-pct ${status}">${pct}%</div>
-      <div class="strip-bar-outer">
-        <div class="strip-bar-wrap"><div class="strip-bar-fill ${status}" style="width:${fillPct}%"></div></div>
-        <div class="n-bar-tick tick-target" style="left:${targetPos}%" title="Target: ${fmt(t.val, t.unit)}"></div>
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // Bars
-  html += `<div class="card" style="padding:24px"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px 40px">`;
-  Object.entries(NUTRIENT_SECTIONS).forEach(([section, keys]) => {
-    html += `<div class="nutrient-section"><div class="nutrient-section-title">${section}</div>`;
-    keys.forEach(k => {
-      if (!TARGETS[k]) return;
-      const val = current[k] || 0;
-      const t = TARGETS[k];
-      const pct = getPct(k, val);
-      const status = getStatus(k, val);
-      const scale = Math.max(val, t.max || t.val, t.val) || 1;
-      const fillPct = (val / scale * 100).toFixed(1);
-      let ticks;
-      if (MACRO_KEYS.includes(k)) {
-        const targetPos = (t.val / scale * 100).toFixed(1);
-        ticks = `<div class="n-bar-tick tick-target" style="left:${targetPos}%" title="Target: ${fmt(t.val, t.unit)}"></div>`;
-      } else if (t.max) {
-        const minPos = (t.val / scale * 100).toFixed(1);
-        const maxPos = (t.max / scale * 100).toFixed(1);
-        ticks = `<div class="n-bar-tick tick-min" style="left:${minPos}%" title="Recommended: ${fmt(t.val, t.unit)}"></div><div class="n-bar-tick tick-max" style="left:${maxPos}%" title="Max (UL): ${fmt(t.max, t.unit)}"></div>`;
-      } else {
-        const minPos = (t.val / scale * 100).toFixed(1);
-        ticks = `<div class="n-bar-tick tick-min" style="left:${minPos}%" title="Recommended: ${fmt(t.val, t.unit)}"></div>`;
-      }
-      const rowClass = 'n-row blameble';
-      const rowClick = ` data-bkey="${k}" onclick="openBlame(this.dataset.bkey)"`;
-      html += `<div class="${rowClass}"${rowClick}>
-        <div class="n-label">${t.label}</div>
-        <div class="n-bar-outer"><div class="n-bar-wrap"><div class="n-bar ${status}" style="width:${fillPct}%"></div></div>${ticks}</div>
-        <div class="n-pct ${status}">${isFinite(pct) ? pct + '%' : '—'}</div>
-        <div class="n-val">${fmt(val, t.unit)}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  html += `</div></div>`;
-
-  wrap.innerHTML = html;
-}
-
-function setAnalysisDay(d) {
-  analysisDay = d;
-  closeBlame();
-  renderNutrients();
-}
-
-// ── Nutrient Blame ─────────────────────────────────────────────────────────
-let blameKey          = null;
-let blameMode         = 'subtotal'; // 'subtotal' | 'target'
-let blameSubtotalLabel = '% of day';
-let blameIsRecipe     = false;
-let blameDetailRecipe = null; // recipe context for the nutrition detail modal
-
-function renderBlameNodes(nodes, dayTotal, targetVal, unit, depth) {
-  let html = '';
-  nodes.forEach((node, idx) => {
-    const denom = blameMode === 'target' ? targetVal : dayTotal;
-    const pct   = denom > 0 ? Math.round(node.value / denom * 100) : 0;
-    const barW  = Math.min(100, pct);
-    const isLeaf = !node.children;
-    const nmClass = isLeaf ? 'blame-nm blame-leaf' : 'blame-nm';
-    const extra = depth === 0 && idx === 0 ? ' blame-first' : '';
-    const row = `<div class="blame-node d${depth}${extra}">
-      <span class="blame-tog"></span>
-      <span class="${nmClass}">${escapeHtml(node.name)}</span>
-      <div class="blame-bar-w"><div class="blame-bar-bg"><div class="blame-bar-fg" style="width:${barW}%"></div></div></div>
-      <span class="blame-pct">${pct}%</span>
-      <span class="blame-val">${fmt(node.value, unit)}</span>
-    </div>`;
-    if (node.children) {
-      html += `<details class="blame-grp" open><summary>${row}</summary>${renderBlameNodes(node.children, dayTotal, targetVal, unit, depth + 1)}</details>`;
-    } else {
-      html += row;
-    }
-  });
-  return html;
-}
-
-function blameExpandAll()   { document.querySelectorAll('#blame-tree details').forEach(d => d.open = true);  }
-function blameCollapseAll() { document.querySelectorAll('#blame-tree details').forEach(d => d.open = false); }
-
-function _renderDayBlameContent(key) {
-  const t = TARGETS[key];
-  const dayTotal = (sumDay(analysisDay))[key] || 0;
-  const meals = getDayBlameTree(analysisDay, key);
-  document.getElementById('blame-hdr-day').textContent = analysisDay;
-  document.getElementById('blame-hdr-name').textContent = t.label;
-  const _pctDay = getPct(key, dayTotal);
-  document.getElementById('blame-hdr-total').textContent = `${fmt(dayTotal, t.unit)} · ${isFinite(_pctDay) ? _pctDay + '% of target' : 'no target set'}`;
-  const _scale = Math.max(dayTotal, t.max || t.val, t.val) || 1;
-  const _barEl = document.getElementById('blame-hdr-bar-outer');
-  let _ticksHtml;
-  if (MACRO_KEYS.includes(key)) {
-    _ticksHtml = `<div class="n-bar-tick tick-target" style="left:${(t.val/_scale*100).toFixed(1)}%" title="Target: ${fmt(t.val,t.unit)}"></div>`;
-  } else if (t.max) {
-    _ticksHtml = `<div class="n-bar-tick tick-min" style="left:${(t.val/_scale*100).toFixed(1)}%" title="Recommended: ${fmt(t.val,t.unit)}"></div><div class="n-bar-tick tick-max" style="left:${(t.max/_scale*100).toFixed(1)}%" title="Max (UL): ${fmt(t.max,t.unit)}"></div>`;
-  } else {
-    _ticksHtml = `<div class="n-bar-tick tick-min" style="left:${(t.val/_scale*100).toFixed(1)}%" title="Recommended: ${fmt(t.val,t.unit)}"></div>`;
-  }
-  _barEl.style.display = '';
-  _barEl.innerHTML = `<div class="blame-hdr-bar-wrap"><div class="blame-hdr-bar-fill ${getStatus(key,dayTotal)}" style="width:${(dayTotal/_scale*100).toFixed(1)}%"></div></div>${_ticksHtml}`;
-  document.getElementById('blame-tree').innerHTML = meals.length
-    ? renderBlameNodes(meals, dayTotal, t.val, t.unit, 0)
-    : `<div style="padding:20px;color:var(--text-dimmer);font-size:12px">No data for ${analysisDay}</div>`;
-}
-
-function _renderRecipeBlameContent(key) {
-  const recipe = blameDetailRecipe;
-  const t = TARGETS[key];
-  const yields = recipe.yields || 1;
-  const items = recipe.ingredients
-    .map(ing => buildBlameNode(ing, key, 1 / yields))
-    .filter(n => n.value > 0.0005)
-    .sort((a, b) => b.value - a.value);
-  const servingTotal = items.reduce((s, n) => s + n.value, 0);
-  document.getElementById('blame-hdr-day').textContent = recipe.name;
-  document.getElementById('blame-hdr-name').textContent = t.label;
-  document.getElementById('blame-hdr-total').textContent = `${fmt(servingTotal, t.unit)} per serving`;
-  document.getElementById('blame-hdr-bar-outer').style.display = 'none';
-  document.getElementById('blame-tree').innerHTML = items.length
-    ? renderBlameNodes(items, servingTotal, t.val, t.unit, 0)
-    : `<div style="padding:20px;color:var(--text-dimmer);font-size:12px">No data</div>`;
-}
-
-function refreshBlameTree() {
-  if (!blameKey) return;
-  if (blameIsRecipe) _renderRecipeBlameContent(blameKey);
-  else if (analysisDay) _renderDayBlameContent(blameKey);
-  else _renderWeeklyBlameContent(blameKey);
-}
-
-function toggleBlameMode() {
-  blameMode = blameMode === 'subtotal' ? 'target' : 'subtotal';
-  document.getElementById('blame-mode-btn').textContent =
-    blameMode === 'subtotal' ? blameSubtotalLabel : '% of target';
-  refreshBlameTree();
-}
-
-function _openBlamePanelFor(key, activeAttr) {
-  document.getElementById('blame-panel').classList.add('open');
-  document.querySelectorAll('.blame-active').forEach(el => el.classList.remove('blame-active'));
-  document.querySelectorAll(`[${activeAttr}="${key}"]`).forEach(el => el.classList.add('blame-active'));
-  document.getElementById('blame-mode-btn').textContent =
-    blameMode === 'subtotal' ? blameSubtotalLabel : '% of target';
-}
-
-function _renderWeeklyBlameContent(key) {
-  const t = TARGETS[key];
-  const { totals } = weeklyAvg();
-  const weeklyTotal = (totals && totals[key]) || 0;
-  const days = getWeeklyBlameTree(key);
-  document.getElementById('blame-hdr-day').textContent = 'Weekly avg';
-  document.getElementById('blame-hdr-name').textContent = t.label;
-  const _pctWeek = getPct(key, weeklyTotal);
-  document.getElementById('blame-hdr-total').textContent = `${fmt(weeklyTotal, t.unit)} avg · ${isFinite(_pctWeek) ? _pctWeek + '% of target' : 'no target set'}`;
-  const _scale = Math.max(weeklyTotal, t.max || t.val, t.val) || 1;
-  const _barEl = document.getElementById('blame-hdr-bar-outer');
-  let _ticksHtml;
-  if (MACRO_KEYS.includes(key)) {
-    _ticksHtml = `<div class="n-bar-tick tick-target" style="left:${(t.val/_scale*100).toFixed(1)}%" title="Target: ${fmt(t.val,t.unit)}"></div>`;
-  } else if (t.max) {
-    _ticksHtml = `<div class="n-bar-tick tick-min" style="left:${(t.val/_scale*100).toFixed(1)}%" title="Recommended: ${fmt(t.val,t.unit)}"></div><div class="n-bar-tick tick-max" style="left:${(t.max/_scale*100).toFixed(1)}%" title="Max (UL): ${fmt(t.max,t.unit)}"></div>`;
-  } else {
-    _ticksHtml = `<div class="n-bar-tick tick-min" style="left:${(t.val/_scale*100).toFixed(1)}%" title="Recommended: ${fmt(t.val,t.unit)}"></div>`;
-  }
-  _barEl.style.display = '';
-  _barEl.innerHTML = `<div class="blame-hdr-bar-wrap"><div class="blame-hdr-bar-fill ${getStatus(key,weeklyTotal)}" style="width:${(weeklyTotal/_scale*100).toFixed(1)}%"></div></div>${_ticksHtml}`;
-  document.getElementById('blame-tree').innerHTML = days.length
-    ? renderBlameNodes(days, weeklyTotal, t.val, t.unit, 0)
-    : `<div style="padding:20px;color:var(--text-dimmer);font-size:12px">No data</div>`;
-}
-
-function openBlame(key) {
-  const t = TARGETS[key];
-  if (!t) return;
-  if (blameKey === key && !blameIsRecipe) { closeBlame(); return; }
-  blameKey = key; blameIsRecipe = false;
-  if (analysisDay) {
-    blameSubtotalLabel = '% of day';
-    _renderDayBlameContent(key);
-  } else {
-    blameSubtotalLabel = '% of week avg';
-    _renderWeeklyBlameContent(key);
-  }
-  _openBlamePanelFor(key, 'data-bkey');
-}
-
-function openRecipeBlame(key) {
-  if (!blameDetailRecipe) return;
-  const t = TARGETS[key];
-  if (!t) return;
-  if (blameKey === key && blameIsRecipe) { closeBlame(); return; }
-  blameKey = key; blameIsRecipe = true; blameSubtotalLabel = '% of recipe';
-  _renderRecipeBlameContent(key);
-  _openBlamePanelFor(key, 'data-rkey');
-}
-
-function closeBlame() {
-  if (!blameKey && !document.getElementById('blame-panel').classList.contains('open')) return;
-  blameKey = null; blameIsRecipe = false;
-  document.getElementById('blame-panel').classList.remove('open');
-  document.querySelectorAll('.blame-active').forEach(el => el.classList.remove('blame-active'));
-}
-
-// ── Render Targets ─────────────────────────────────────────────────────────
-function renderConfig() {
-  const keyInput = document.getElementById('usda-key-input');
-  const keyStatus = document.getElementById('api-key-status');
-  keyInput.value = USDA_KEY;
-  keyStatus.textContent = USDA_KEY === 'DEMO_KEY' ? 'Using shared DEMO_KEY — searches may be slow or rate-limited' : '✓ Custom key active';
-  keyStatus.style.color = USDA_KEY === 'DEMO_KEY' ? 'var(--warn)' : 'var(--good)';
-}
-
-function renderTargets() {
-  // Populate profile fields from saved profile
-  document.getElementById('prof-sex').value = userProfile.sex || 'male';
-  document.getElementById('prof-age').value = userProfile.age || 30;
-  document.getElementById('prof-weight').value = userProfile.weight || 75;
-  document.getElementById('prof-height').value = userProfile.height || 175;
-  document.getElementById('prof-activity').value = userProfile.activity || 'moderate';
-  const mp = userProfile.macroPct || { p: 25, c: 45, f: 30 };
-  document.getElementById('macro-protein-pct').value = mp.p;
-  document.getElementById('macro-carbs-pct').value = mp.c;
-  document.getElementById('macro-fat-pct').value = mp.f;
-  updateMacroTotal();
-
-  const adj = userProfile.goalAdj ?? 0;
-  const presetVals = ['-500', '0', '300'];
-  const presetMatch = presetVals.find(v => parseInt(v) === adj);
-  document.getElementById('prof-goal').value = presetMatch ?? 'custom';
-  document.getElementById('prof-adj').value = adj;
-  document.getElementById('prof-adj-row').style.display = presetMatch ? 'none' : 'flex';
-
-  const grid = document.getElementById('targets-grid');
-  let html = `<div class="tgt-col-headers">
-    <div class="tgt-col-spacer"></div>
-    <div class="tgt-col-header">Recommended</div>
-    <div class="tgt-col-header">Max (UL)</div>
-  </div>`;
-
-  html += `<div class="tgt-section-hdr">Macros</div>`;
-  ['Energy', 'Protein', 'Carbohydrate', 'Total lipid'].forEach(k => {
-    const t = TARGETS[k];
-    if (!t) return;
-    const onInput = k === 'Energy' ? ' oninput="updateMacroTotal()"' : '';
-    html += `<div class="tgt-row">
-      <label class="tgt-label">${t.label} <span class="tgt-unit">${t.unit}</span></label>
-      <input class="tgt-input" type="number" id="tgt_${k}" value="${t.val}" step="any"${onInput}>
-      <input class="tgt-input" type="number" id="tgt_${k}_max" value="" step="any" placeholder="none" disabled style="opacity:0.35">
-    </div>`;
-  });
-
-  Object.entries(NUTRIENT_SECTIONS).forEach(([section, keys]) => {
-    html += `<div class="tgt-section-hdr">${section}</div>`;
-    keys.forEach(k => {
-      const t = TARGETS[k];
-      if (!t) return;
-      const hasMax = t.max !== null && t.max !== undefined;
-      html += `<div class="tgt-row">
-        <label class="tgt-label">${t.label} <span class="tgt-unit">${t.unit}</span></label>
-        <input class="tgt-input" type="number" id="tgt_${k}" value="${t.val}" step="any">
-        <input class="tgt-input" type="number" id="tgt_${k}_max" value="${hasMax ? t.max : ''}" step="any" placeholder="none">
-      </div>`;
-    });
-  });
-  grid.innerHTML = html;
-}
-
-function saveApiKey() {
-  const val = document.getElementById('usda-key-input').value.trim();
-  USDA_KEY = val || 'DEMO_KEY';
-  try { localStorage.setItem('nourish_usda_key', USDA_KEY); } catch(e) {}
-  const status = document.getElementById('api-key-status');
-  status.textContent = USDA_KEY === 'DEMO_KEY' ? 'Using shared DEMO_KEY' : '✓ Custom key saved';
-  status.style.color = USDA_KEY === 'DEMO_KEY' ? 'var(--warn)' : 'var(--good)';
-}
-
-function loadApiKey() {
-  try {
-    const stored = localStorage.getItem('nourish_usda_key');
-    if (stored) USDA_KEY = stored;
-  } catch(e) {}
-}
-
-function saveTargets() {
-  // Persist profile fields
-  const goalSel = document.getElementById('prof-goal').value;
-  userProfile = {
-    ...userProfile,
-    sex: document.getElementById('prof-sex').value,
-    age: parseInt(document.getElementById('prof-age').value) || 30,
-    weight: parseFloat(document.getElementById('prof-weight').value) || 75,
-    height: parseFloat(document.getElementById('prof-height').value) || 175,
-    activity: document.getElementById('prof-activity').value,
-    goalAdj: goalSel === 'custom'
-      ? (parseInt(document.getElementById('prof-adj').value) || 0)
-      : parseInt(goalSel),
-    macroPct: {
-      p: parseInt(document.getElementById('macro-protein-pct').value) || 0,
-      c: parseInt(document.getElementById('macro-carbs-pct').value) || 0,
-      f: parseInt(document.getElementById('macro-fat-pct').value) || 0,
-    },
-  };
-
-  // Persist target values
-  Object.keys(TARGETS).forEach(k => {
-    const el = document.getElementById('tgt_' + k);
-    if (el) { const v = parseFloat(el.value); TARGETS[k].val = isNaN(v) ? TARGETS[k].val : v; }
-    const maxEl = document.getElementById('tgt_' + k + '_max');
-    if (maxEl) { const v = parseFloat(maxEl.value); TARGETS[k].max = isNaN(v) ? null : v; }
-  });
-  saveFallback();
-  renderNutrients();
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-nutrients').classList.add('active');
-  document.querySelectorAll('.nav-item')[1].classList.add('active');
-}
-
-// ── User Profile ───────────────────────────────────────────────────────────
-let userProfile = { sex: 'male', age: 30, weight: 75, height: 175, activity: 'moderate', goalAdj: 0 };
-
-function updateMacroTotal() {
-  const p = parseInt(document.getElementById('macro-protein-pct').value) || 0;
-  const c = parseInt(document.getElementById('macro-carbs-pct').value) || 0;
-  const f = parseInt(document.getElementById('macro-fat-pct').value) || 0;
-  const total = p + c + f;
-  const badge = document.getElementById('macro-total-badge');
-  const preview = document.getElementById('macro-gram-preview');
-  badge.textContent = total + '%';
-  const ok = total === 100;
-  badge.style.background = ok ? 'var(--good-bg)' : 'var(--danger-bg)';
-  badge.style.color = ok ? 'var(--good)' : 'var(--danger)';
-  if (preview) {
-    preview.style.opacity = ok ? '1' : '0.5';
-  }
-}
-
-function onGoalPresetChange() {
-  const sel = document.getElementById('prof-goal').value;
-  const adjRow = document.getElementById('prof-adj-row');
-  if (sel === 'custom') {
-    adjRow.style.display = 'flex';
-    document.getElementById('prof-adj').focus();
-  } else {
-    adjRow.style.display = 'none';
-    document.getElementById('prof-adj').value = sel;
-  }
-}
-
-function applyProfileTargets() {
-  const goalSel = document.getElementById('prof-goal').value;
-  const goalAdj = goalSel === 'custom'
-    ? (parseInt(document.getElementById('prof-adj').value) || 0)
-    : parseInt(goalSel);
-  const profile = {
-    ...userProfile,
-    sex: document.getElementById('prof-sex').value,
-    age: parseInt(document.getElementById('prof-age').value) || 30,
-    weight: parseFloat(document.getElementById('prof-weight').value) || 75,
-    height: parseFloat(document.getElementById('prof-height').value) || 175,
-    activity: document.getElementById('prof-activity').value,
-    goalAdj,
-  };
-  const calc = calcTargetsFromProfile(profile);
-
-  // Use macro % from profile section to derive macro grams
-  const pp = parseInt(document.getElementById('macro-protein-pct').value) || 0;
-  const cp = parseInt(document.getElementById('macro-carbs-pct').value) || 0;
-  const fp = parseInt(document.getElementById('macro-fat-pct').value) || 0;
-  if (pp + cp + fp === 100) {
-    const kcal = calc['Energy'];
-    calc['Protein'] = Math.round((kcal * pp / 100) / 4);
-    calc['Carbohydrate'] = Math.round((kcal * cp / 100) / 4);
-    calc['Total lipid'] = Math.round((kcal * fp / 100) / 9);
-  }
-
-  // Fill target input fields only — do not mutate TARGETS or save
-  Object.entries(calc).forEach(([k, v]) => {
-    const el = document.getElementById('tgt_' + k);
-    if (el) el.value = v;
-  });
-  updateMacroTotal();
-}
-
-// ── Nutrition detail modal (shared by ingredient click + recipe button) ────
-function _ingBarData(key, val) {
-  const t = TARGETS[key];
-  const pct = getPct(key, val);
-  const status = getStatus(key, val);
-  const fillPct = Math.min(100, (val / (t.val || 1)) * 100).toFixed(1);
-  const tick = `<div class="n-bar-tick tick-target" style="left:100%" title="Daily target: ${fmt(t.val, t.unit)}"></div>`;
-  return { pct, status, fillPct, tick };
-}
-
-function showNutritionDetail(title, sub, totals, recipeForBlame) {
-  blameDetailRecipe = recipeForBlame || null;
-  document.getElementById('ing-detail-title').textContent = title;
-  document.getElementById('ing-detail-sub').textContent = sub;
-
-  const BIG4 = [
-    { key: 'Energy', label: 'Calories' },
-    { key: 'Protein', label: 'Protein' },
-    { key: 'Carbohydrate', label: 'Carbs' },
-    { key: 'Total lipid', label: 'Fat' },
-  ];
-
-  let html = `<div class="summary-strip" style="margin-bottom:20px">`;
-  BIG4.forEach(({ key, label }) => {
-    const val = totals[key] || 0;
-    const t = TARGETS[key];
-    const { pct, status, fillPct } = _ingBarData(key, val);
-    const sc = recipeForBlame ? 'strip-item blameble' : 'strip-item';
-    const sa = recipeForBlame ? ` data-rkey="${key}" onclick="openRecipeBlame(this.dataset.rkey)"` : '';
-    html += `<div class="${sc}"${sa}>
-      <div class="strip-val ${status}">${fmt(val, t.unit)}</div>
-      <div class="strip-label">${label}</div>
-      <div class="strip-pct ${status}">${pct}%</div>
-      <div class="strip-bar-outer">
-        <div class="strip-bar-wrap"><div class="strip-bar-fill ${status}" style="width:${fillPct}%"></div></div>
-        <div class="n-bar-tick tick-target" style="left:100%" title="Daily target: ${fmt(t.val, t.unit)}"></div>
-      </div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  html += `<div class="card" style="padding:20px"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px 40px">`;
-  Object.entries(NUTRIENT_SECTIONS).forEach(([section, keys]) => {
-    html += `<div class="nutrient-section"><div class="nutrient-section-title">${section}</div>`;
-    keys.forEach(k => {
-      if (!TARGETS[k]) return;
-      const val = totals[k] || 0;
-      const t = TARGETS[k];
-      const { pct, status, fillPct, tick } = _ingBarData(k, val);
-      const rc = recipeForBlame ? 'n-row blameble' : 'n-row';
-      const ra = recipeForBlame ? ` data-rkey="${k}" onclick="openRecipeBlame(this.dataset.rkey)"` : '';
-      html += `<div class="${rc}"${ra}>
-        <div class="n-label">${t.label}</div>
-        <div class="n-bar-outer"><div class="n-bar-wrap"><div class="n-bar ${status}" style="width:${fillPct}%"></div></div>${tick}</div>
-        <div class="n-pct ${status}">${isFinite(pct) ? pct + '%' : '—'}</div>
-        <div class="n-val">${fmt(val, t.unit)}</div>
-      </div>`;
-    });
-    html += `</div>`;
-  });
-  html += `</div></div>`;
-  if (recipeForBlame) html += `<div style="font-size:10px;color:var(--text-dimmer);padding:8px 20px 4px;text-align:right">click any nutrient to see what's contributing →</div>`;
-
-  document.getElementById('ing-detail-body').innerHTML = html;
-  document.getElementById('ing-detail-modal').classList.add('open');
-}
-
-function openIngredientDetail(idx) {
-  if (!currentEditRecipe) return;
-  const ing = currentEditRecipe.ingredients[idx];
-  if (!ing) return;
-  const totals = {};
-  Object.keys(TARGETS).forEach(k => { totals[k] = getIngredientNutrient(ing, k); });
-  const recipeCtx = ing.type === 'recipe' ? recipes[ing.recipeId] : null;
-  showNutritionDetail(
-    ing.name,
-    `${Math.round((ing.qty !== undefined ? ing.qty : ing.amountG) * 100) / 100}${ing.unit || 'g'} · % of daily target shown on bars`,
-    totals,
-    recipeCtx
-  );
-}
-
-function openCurrentRecipeDetail() {
-  if (!currentEditRecipe) return;
-  const r = currentEditRecipe;
-  const totalG = getRecipeWeightG(r);
-  if (!totalG) return;
-  const n100g = getRecipeNutrientsPer100g(r);
-  const yields = parseInt(document.getElementById('re-yields').value) || r.yields || 1;
-  const servingG = Math.round(totalG / yields);
-  const scale = servingG / 100;
-  const totals = {};
-  Object.keys(TARGETS).forEach(k => {
-    totals[k] = k === 'Carbohydrate' ? netCarbsFromMap(n100g) * scale : findNutrientVal(n100g, k) * scale;
-  });
-  const name = document.getElementById('re-name').value.trim() || r.name || 'Recipe';
-  showNutritionDetail(
-    name,
-    `per serving · ${servingG}g · ${yields} serving${yields !== 1 ? 's' : ''} · % of daily target`,
-    totals,
-    r
-  );
-}
-
-function closeIngDetail() {
-  document.getElementById('ing-detail-modal').classList.remove('open');
-  closeBlame();
-}
-
-function closeIngDetailIfBg(e) {
-  if (e.target === document.getElementById('ing-detail-modal')) closeIngDetail();
-}
-
-// ── Foods page — ingredient searcher ──────────────────────────────────────
-let _lastFoodsDetail = null; // { title, sub, totals }
-
-function foodsReopenDetail() {
-  if (_lastFoodsDetail) showNutritionDetail(_lastFoodsDetail.title, _lastFoodsDetail.sub, _lastFoodsDetail.totals, null);
-}
-
-function _foodsSuccessHtml(name) {
-  return `<div class="search-status" style="color:var(--good);cursor:pointer" onclick="foodsReopenDetail()" title="Click to reopen nutrition details">
-    ✓ <strong>${escapeHtml(name)}</strong> <span style="font-size:10px;color:var(--text-dimmer);margin-left:6px">click to reopen details</span>
-  </div>`;
-}
-
-async function foodsHandlePaste(event) {
-  const items = Array.from(event.clipboardData?.items || []);
-  const imageItem = items.find(i => i.type.startsWith('image/'));
-  if (imageItem) {
-    event.preventDefault();
-    const wrap = document.getElementById('foods-search-results');
-    wrap.style.display = 'block';
-    wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Decoding barcode image…</div>';
-    await decodeBarcodeFromBlob(imageItem.getAsFile(), {
-      onStatus: () => {},
-      onCode: code => {
-        if (!code) {
-          wrap.innerHTML = '<div class="search-status" style="color:var(--danger)">Could not decode barcode — try a clearer image or type the number manually</div>';
-          return;
-        }
-        document.getElementById('foods-search-input').value = code;
-        wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Looking up barcode…</div>';
-        runBarcodeLookup(code, 'foods');
-      },
-    });
-    return;
-  }
-  // plain text paste — auto-trigger search after the value settles
-  setTimeout(() => foodsTriggerSearch(), 50);
-}
-
-function foodsTriggerSearch() {
-  const raw = document.getElementById('foods-search-input').value.trim();
-  const val = raw.replace(/\s/g, '');
-  const wrap = document.getElementById('foods-search-results');
-  wrap.style.display = 'block';
-  if (val.length < 2) {
-    wrap.innerHTML = '<div class="search-status">Enter at least 2 characters</div>';
-    return;
-  }
-  if (/^\d{6,20}$/.test(val)) {
-    wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Looking up barcode in Open Food Facts…</div>';
-    runBarcodeLookup(val, 'foods');
-  } else {
-    wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Searching USDA + Open Food Facts…</div>';
-    doSearch(raw, 'foods');
-  }
-}
-
-function foodsSelectOFFResult(idx) {
-  const p = _foodsOFFResults[idx];
-  if (!p) return;
-  const name = p.product_name + (p.brands ? ` (${p.brands})` : '');
-  const nutrients = normalizeOFFNutrients(p);
-  const totals = {};
-  Object.keys(TARGETS).forEach(k => { totals[k] = findNutrientVal(nutrients, k); });
-  _lastFoodsDetail = { title: name, sub: '100g · Open Food Facts · % of daily target', totals };
-  showNutritionDetail(_lastFoodsDetail.title, _lastFoodsDetail.sub, totals, null);
-  document.getElementById('foods-search-results').innerHTML = _foodsSuccessHtml(name);
-}
-
-async function foodsSelectFood(fdcId) {
-  const wrap = document.getElementById('foods-search-results');
-  wrap.innerHTML = '<div class="search-status"><div class="loading-spinner"></div> Loading nutrition data…</div>';
-  try {
-    const data = await fetchFoodDetails(fdcId, USDA_KEY);
-    const nutrients = extractNutrients(data);
-    const totals = {};
-    Object.keys(TARGETS).forEach(k => { totals[k] = findNutrientVal(nutrients, k); });
-    const label = data.description;
-    _lastFoodsDetail = { title: label, sub: '100g · USDA · % of daily target', totals };
-    showNutritionDetail(_lastFoodsDetail.title, _lastFoodsDetail.sub, totals, null);
-    wrap.innerHTML = _foodsSuccessHtml(label);
-  } catch {
-    wrap.innerHTML = '<div class="search-status">Failed to load details. Try another item.</div>';
-  }
-}
-
-// ── Keyboard shortcuts ─────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (e.key !== 'Escape') return;
-  if (document.getElementById('blame-panel').classList.contains('open'))     { closeBlame();        return; }
-  if (document.getElementById('ing-detail-modal').classList.contains('open')){ closeIngDetail();    return; }
-  if (document.getElementById('modal').classList.contains('open'))           { closeModal();        return; }
-  if (document.getElementById('recipe-editor').classList.contains('open'))  { closeRecipeEditor(); }
+  if (id === 'recipes')   renderRecipes();
+  if (id === 'targets')   renderTargets();
+  if (id === 'config')    renderConfig();
+  if (!_historyNav) history.pushState({ page: id }, '');
+}
+window.addEventListener('popstate', e => {
+  const id = e.state?.page ?? 'plan';
+  _historyNav = true;
+  showPage(id);
+  _historyNav = false;
 });
 
-// ── Blame panel resize ─────────────────────────────────────────────────────
-function initBlameResize() {
-  const panel  = document.getElementById('blame-panel');
-  const handle = document.getElementById('blame-resize');
-  const saved  = localStorage.getItem('blamePanelWidth');
-  if (saved) panel.style.width = parseInt(saved) + 'px';
-
-  handle.addEventListener('pointerdown', e => {
-    handle.setPointerCapture(e.pointerId);
-    const startX = e.clientX;
-    const startW = panel.offsetWidth;
-    panel.classList.add('resizing');
-    document.body.style.cursor     = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    function onMove(e) {
-      // dragging left = larger panel (panel is anchored to the right)
-      const w = Math.max(280, Math.min(700, startW + startX - e.clientX));
-      panel.style.width = w + 'px';
-    }
-    function onUp() {
-      panel.classList.remove('resizing');
-      document.body.style.cursor     = '';
-      document.body.style.userSelect = '';
-      localStorage.setItem('blamePanelWidth', panel.offsetWidth);
-      handle.removeEventListener('pointermove', onMove);
-      handle.removeEventListener('pointerup',   onUp);
-    }
-    handle.addEventListener('pointermove', onMove);
-    handle.addEventListener('pointerup',   onUp);
-    e.preventDefault();
-  });
-}
-
-// ── Sidebar resize ─────────────────────────────────────────────────────────
-function initSidebarResize() {
-  const sidebar = document.querySelector('.sidebar');
-  const handle  = document.getElementById('sidebar-drag');
-  const saved   = localStorage.getItem('sidebarWidth');
-  if (saved) sidebar.style.width = parseInt(saved) + 'px';
-
-  handle.addEventListener('pointerdown', e => {
-    handle.setPointerCapture(e.pointerId);
-    const startX = e.clientX;
-    const startW = sidebar.offsetWidth;
-    sidebar.classList.add('resizing');
-    document.body.style.cursor     = 'col-resize';
-    document.body.style.userSelect = 'none';
-
-    function onMove(e) {
-      const w = Math.max(120, Math.min(400, startW + e.clientX - startX));
-      sidebar.style.width = w + 'px';
-    }
-    function onUp() {
-      sidebar.classList.remove('resizing');
-      document.body.style.cursor     = '';
-      document.body.style.userSelect = '';
-      localStorage.setItem('sidebarWidth', sidebar.offsetWidth);
-      handle.removeEventListener('pointermove', onMove);
-      handle.removeEventListener('pointerup',   onUp);
-    }
-    handle.addEventListener('pointermove', onMove);
-    handle.addEventListener('pointerup',   onUp);
-    e.preventDefault();
-  });
-}
-
-// ── Init ───────────────────────────────────────────────────────────────────
+// ── Init ────────────────────────────────────────────────────────────────────
 function init() {
+  state.targets = JSON.parse(JSON.stringify(TARGETS));
+  DAYS.forEach(d => { state.plan[d] = {}; MEALS.forEach(m => { state.plan[d][m] = []; }); });
+
   loadApiKey();
-  loadFallback();
+  const saved = loadPersisted();
+  if (saved) applyPayload(saved);
+
+  subscribe(() => invalidateRecipeMemo());
+
+  const PERSIST_ON = new Set([
+    'PLAN_ADD_ITEM','PLAN_REMOVE_ITEM','PLAN_INSERT_ITEM','RECIPE_SAVE','RECIPE_DELETE','RECIPE_COPY',
+    'CUSTOM_ING_SAVE','CUSTOM_ING_DELETE','CUSTOM_ING_COPY','FOODS_UPSERT',
+    'EXTRA_FOOD_ADD','EXTRA_FOOD_REMOVE','EXTRA_FOOD_INSERT',
+    'TARGETS_SAVE','PAYLOAD_LOAD','NUTRIENTS_REFETCH_COMPLETE',
+    'FOOD_ALIAS_SET','FOOD_SERVING_SET','FOOD_SERVING_DEL',
+  ]);
+  subscribe(action => { if (PERSIST_ON.has(action.type)) debouncedSave(state); });
+  subscribe(action => { if (EXPORT_DIRTY_ON.has(action.type)) _setExportWarning(true); });
+
+  subscribe(action => {
+    switch (action.type) {
+      case 'PLAN_ADD_ITEM':
+      case 'PLAN_REMOVE_ITEM':
+      case 'PLAN_INSERT_ITEM':
+      case 'EXTRA_FOOD_ADD':
+      case 'EXTRA_FOOD_REMOVE':
+      case 'EXTRA_FOOD_INSERT':          renderPlan();      break;
+      case 'RECIPE_SAVE':
+      case 'RECIPE_DELETE':              renderRecipes(); renderPlan(); break;
+      case 'RECIPE_COPY':
+      case 'CUSTOM_ING_SAVE':
+      case 'CUSTOM_ING_DELETE':
+      case 'CUSTOM_ING_COPY':            renderRecipes();   break;
+      case 'NUTRIENTS_REFETCH_COMPLETE': renderNutrients(); break;
+      case 'PAYLOAD_LOAD':               renderPlan();      break;
+      case 'TARGETS_SAVE':               showPage('nutrients'); break;
+      case 'FOOD_ALIAS_SET':             renderPlan(); renderRecipes(); break;
+      case 'FOOD_SERVING_SET':
+      case 'FOOD_SERVING_DEL':           renderRecipes(); break;
+    }
+  });
+
+  // ── Delegated click ─────────────────────────────────────────────────────
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('modal-overlay')) {
+      const id = e.target.id;
+      if (id === 'modal')               closeModal();
+      else if (id === 'recipe-editor')      closeRecipeEditor();
+      else if (id === 'custom-ing-editor')  closeCustomIngEditor();
+      else if (id === 'ing-detail-modal')   { closeIngDetail(); restoreFoodsSearch(); }
+      else if (id === 'food-manage-modal')  { closeFoodManageModal(); refreshSearchModalUnits(); }
+      else if (id === 'usage-modal')        closeUsageModal();
+      else if (id === 'delete-confirm-modal') closeDeleteConfirm();
+      return;
+    }
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    switch (el.dataset.action) {
+      case 'nav':                         showPage(el.dataset.page); break;
+      case 'export-plan':                 openExportModal(); break;
+      case 'cancel-export':               document.getElementById('export-options-modal').classList.remove('open'); break;
+      case 'do-export':                   doExport(); break;
+      case 'cancel-import':               document.getElementById('import-preview-modal').classList.remove('open'); _pendingImportPayload = null; break;
+      case 'do-import':                   doImport(); break;
+      case 'trigger-import':              document.getElementById('import-input').click(); break;
+      case 'blame':                       openBlame(el.dataset.bkey); break;
+      case 'recipe-blame':                openRecipeBlame(el.dataset.rkey); break;
+      case 'close-blame':                 closeBlame(); break;
+      case 'blame-expand-all':            blameExpandAll(); break;
+      case 'blame-collapse-all':          blameCollapseAll(); break;
+      case 'toggle-blame-mode':           toggleBlameMode(); break;
+      case 'remove-ing':                  removeIngredient(el.dataset.day, el.dataset.meal, parseInt(el.dataset.idx)); break;
+      case 'add-ing':                     openModal(el.dataset.day, el.dataset.meal); break;
+      case 'plan-goto-day':               setAnalysisDay(el.dataset.day); showPage('nutrients'); break;
+      case 'plan-ing-detail': {
+        const _ing = state.plan[el.dataset.day]?.[el.dataset.meal]?.[parseInt(el.dataset.idx)];
+        if (_ing) {
+          if (_ing.type === 'recipe') openRecipeEditor(_ing.recipeId);
+          else if (_ing.fdcId?.startsWith('custom_')) openCustomIngEditor(_ing.fdcId.slice(7));
+          else if (_ing.fdcId) openFoodManageModal(null, _ing.fdcId);
+        }
+        break;
+      }
+      case 'plan-extra-ing-detail': {
+        const _ing = (state.extraFoods || [])[parseInt(el.dataset.idx)];
+        if (_ing) {
+          if (_ing.type === 'recipe') openRecipeEditor(_ing.recipeId);
+          else if (_ing.fdcId?.startsWith('custom_')) openCustomIngEditor(_ing.fdcId.slice(7));
+          else if (_ing.fdcId) openFoodManageModal(null, _ing.fdcId);
+        }
+        break;
+      }
+      case 'add-extra-food':              openModalForExtras(); break;
+      case 'remove-extra-food':           removeExtraFood(parseInt(el.dataset.idx)); break;
+      case 'set-day':                     setAnalysisDay(el.dataset.day || null); break;
+      case 'new-recipe':                  openRecipeEditor(); break;
+      case 'edit-recipe':                 openRecipeEditor(el.dataset.id); break;
+      case 'new-custom-ing':              openCustomIngEditor(); break;
+      case 'edit-custom-ing':             openCustomIngEditor(el.dataset.id); break;
+      case 'select-recipe':               selectRecipeForMeal(el.dataset.id); break;
+      case 'select-custom-ing':           selectCustomIng(el.dataset.id); break;
+      case 'export-recipes-pdf':           showRecipePDFDialog(); break;
+      case 'generate-shopping-list':       generateShoppingList(); break;
+      case 'ing-detail': {
+        const ingType = el.dataset.type;
+        const fdcId   = el.dataset.fdcid;
+        const idx     = parseInt(el.dataset.idx);
+        if (ingType === 'recipe')              openIngOrRecipeDetail(idx);
+        else if (fdcId?.startsWith('custom_')) openCustomIngEditor(fdcId.slice(7));
+        else if (fdcId)                        openFoodManageModal(idx, fdcId);
+        break;
+      }
+      case 'ing-nutrition':               openIngredientDetail(parseInt(el.dataset.idx)); break;
+      case 'fm-view-nutrition':           openFoodNutritionDetailFromManage(); break;
+      case 'fm-carb-basis':              changeFoodCarbBasis(el.dataset.fdcid, el.dataset.basis); refreshFoodManageModal(); break;
+      case 'close-carb-basis-dialog':    refreshFoodManageModal(); break;
+      case 'fm-carb-basis-dialog': {
+        const _fdcId  = el.dataset.fdcid;
+        const _food   = state.foods[_fdcId];
+        if (!_food) break;
+        const _stored  = _food.nutrients?.['Carbohydrate, by difference'] || 0;
+        const _fiber   = _food.nutrients?.['Fiber, total dietary'] || 0;
+        const _cur     = _food.carbBasis || 'net';
+        const _raw     = _cur === 'total' ? _stored : Math.max(0, _stored - _fiber);
+        const _netIfNet   = _raw.toFixed(1);
+        const _netIfTotal = Math.max(0, _raw - _fiber).toFixed(1);
+        const _fEsc      = escapeHtml(_fdcId);
+        const _tentative = _food.carbBasisInference?.tentative || _cur;
+        const _reason    = escapeHtml(_food.carbBasisInference?.assumptions?.[0] || '');
+        document.getElementById('fm-actions').innerHTML = `
+          <div style="font-size:12px;font-weight:600;margin-bottom:10px">Net or total carbohydrates?</div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:12px">
+            Label shows <b>${_raw.toFixed(1)}g carbs</b> · <b>${_fiber.toFixed(1)}g fiber</b> per 100g
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">
+            <button class="btn${_tentative === 'net' ? ' primary' : ''} sm" data-action="fm-carb-basis" data-basis="net" data-fdcid="${_fEsc}" style="justify-content:space-between;padding:8px 12px">
+              <span><b>Net carbs</b> — fiber already excluded</span>
+              <span style="font-size:11px;opacity:0.7">→ ${_netIfNet}g net</span>
+            </button>
+            <button class="btn${_tentative === 'total' ? ' primary' : ''} sm" data-action="fm-carb-basis" data-basis="total" data-fdcid="${_fEsc}" style="justify-content:space-between;padding:8px 12px">
+              <span><b>Total carbs</b> — fiber included</span>
+              <span style="font-size:11px;opacity:0.7">→ ${_netIfTotal}g net</span>
+            </button>
+          </div>
+          ${_reason ? `<div style="font-size:10px;color:var(--text-dimmer);margin-bottom:10px">${_reason}</div>` : ''}
+          <button class="btn sm" data-action="close-carb-basis-dialog" style="width:100%;font-size:11px">Cancel</button>`;
+        break;
+      }
+      case 'cie-backed-carb-basis': {
+        const _b = el.dataset.basis;
+        changeFoodCarbBasis(el.dataset.fdcid, _b);
+        document.getElementById('cie-forked-banner')?.querySelectorAll('[data-action="cie-backed-carb-basis"]').forEach(btn => btn.classList.toggle('primary', btn.dataset.basis === _b));
+        break;
+      }
+      case 'close-food-manage':           closeFoodManageModal(); refreshSearchModalUnits(); break;
+      case 'cie-view-backed-food':        openFoodManageModal(null, el.dataset.fdcid); break;
+      case 'remove-recipe-ing':           removeRecipeIngredient(parseInt(el.dataset.idx)); break;
+      case 'select-off':                  selectOFFResult(parseInt(el.dataset.idx)); break;
+      case 'off-carb-basis':              confirmCarbBasis(el.dataset.basis); break;
+      case 'select-usda':                 selectFood(el.dataset.fdcId); break;
+      case 'select-local':                selectLocalFood(el.dataset.fdcId); break;
+      case 'foods-select-off':            foodsSelectOFFResult(parseInt(el.dataset.idx)); break;
+      case 'foods-select-usda':           foodsSelectFood(el.dataset.fdcId); break;
+      case 'foods-select-local':          foodsSelectLocalFood(el.dataset.fdcId); break;
+      case 'foods-trigger-search':        foodsTriggerSearch(); break;
+      case 'foods-clear-search':          foodsClearSearch(); break;
+      case 'clear-search': {
+        document.getElementById('search-input').value = '';
+        document.getElementById('search-results-wrap').innerHTML = '';
+        document.getElementById('search-clear-btn').style.display = 'none';
+        document.getElementById('search-input').focus();
+        break;
+      }
+      case 'switch-mode':                 switchMode(el.dataset.mode); break;
+      case 'goto-foods':                  closeModal(); showPage('recipes'); break;
+      case 'trigger-search':              triggerSearch(); break;
+      case 'paste-from-clipboard':        pasteImageFromClipboard(); break;
+      case 'confirm-add':                 confirmAdd(); break;
+      case 'clear-selection':             clearSelection(); break;
+      case 'close-modal':                 closeModal(); break;
+      case 'close-ing-detail':            closeIngDetail(); restoreFoodsSearch(); break;
+      case 'copy-current-recipe':         copyCurrentRecipe(); break;
+      case 'confirm-delete-recipe':       confirmDeleteRecipe(); break;
+      case 'usage-dismiss':               closeUsageModal(); break;
+      case 'delete-confirm-cancel':       closeDeleteConfirm(); break;
+      case 'delete-confirm-ok':           executeDeleteConfirm(); break;
+      case 'snackbar-undo':               executeUndo(); break;
+      case 'usage-remove-one':            handleUsageRemoveOne(parseInt(el.dataset.idx)); break;
+      case 'usage-remove-all':            handleUsageRemoveAll(); break;
+      case 'usage-goto-plan':             closeUsageModal(); closeRecipeEditor(); closeCustomIngEditor(); showPage('plan'); break;
+      case 'usage-open-recipe':           closeUsageModal(); openRecipeEditor(el.dataset.id); break;
+      case 'recipe-add-food':             recipeAddFood(); break;
+      case 'open-recipe-detail':          openCurrentRecipeDetail(); break;
+      case 'close-recipe-editor':         closeRecipeEditor(); break;
+      case 'save-current-recipe':         saveCurrentRecipe(); break;
+      case 'copy-custom-ing-from-editor': copyCustomIngFromEditor(); break;
+      case 'delete-custom-ing':           deleteCustomIng(); break;
+      case 'close-custom-ing-editor':     closeCustomIngEditor(); break;
+      case 'save-custom-ing':             saveCustomIng(); break;
+      case 'apply-profile-targets':       applyProfileTargets(); break;
+      case 'save-targets':                saveTargets(); break;
+      case 'save-api-key':                saveApiKey(); break;
+      case 'reset-api-key':               document.getElementById('usda-key-input').value = 'DEMO_KEY'; break;
+      case 'refetch-all':                 refetchAllNutrients(); break;
+      case 'cie-micros-toggle':           toggleCieMicros(el); break;
+      case 'cie-view-nutrition':          viewCieNutrition(); break;
+      case 'cie-edit-serving':            showCieServingForm(); break;
+      case 'cie-add-serving':             showCieServingForm(); break;
+      case 'cie-save-serving':            saveCieServing(); break;
+      case 'cie-cancel-serving':          refreshCieServing(); break;
+      case 'cie-del-serving':             deleteCieServing(); break;
+      case 'cie-remove-serving':          removeSelectedCieServing(el); break;
+      case 'open-food-manage-from-search': openFoodManageFromSearch(); break;
+      case 'food-alias-rename':           openFoodAliasRename(el.dataset.fdcid); refreshFoodManageModal(); break;
+      case 'food-serving-edit':           openFoodServingEdit(el.dataset.fdcid); refreshFoodManageModal(); break;
+      case 'food-fork':                   closeFoodManageModal(); openCustomIngEditorForFork(el.dataset.fdcid); break;
+      case 'food-refresh': (async () => {
+        const fdcId  = el.dataset.fdcid;
+        const btn    = el;
+        btn.disabled = true;
+        btn.textContent = '↻ Refreshing…';
+        try {
+          const existing    = state.foods[fdcId] || {};
+          const userMeasures = (existing.measures || []).filter(m => m.userAdded);
+          let nutrients, newMeasures, name, carbBasisInference;
+          if (fdcId.startsWith('off_')) {
+            const barcode = fdcId.slice(4);
+            const product = await lookupOFFProduct(barcode);
+            if (!product) throw new Error('Product not found');
+            const carbBasis = existing.carbBasis || null;
+            nutrients   = normalizeOFFNutrients(product, carbBasis);
+            newMeasures = extractMeasuresOFF(product);
+            name        = product.product_name || existing.name || fdcId;
+            const { tentative, assumptions } = inferCarbBasis(product);
+            carbBasisInference = { tentative, assumptions };
+          } else {
+            const data  = await fetchFoodDetails(fdcId, config.usdaKey);
+            nutrients   = extractNutrients(data);
+            newMeasures = extractMeasuresUSDA(data);
+            name        = data.description || existing.name || fdcId;
+          }
+          const merged = [...newMeasures, ...userMeasures.filter(u => !newMeasures.some(m => m.label === u.label))];
+          dispatch({ type: 'FOODS_UPSERT', payload: { [fdcId]: { ...existing, fdcId, name, nutrients, measures: merged, ...(carbBasisInference ? { carbBasisInference } : {}) } } });
+          refreshFoodManageModal();
+        } catch(e) {
+          btn.disabled    = false;
+          btn.textContent = '↻ Refresh from source';
+          const actEl = document.getElementById('fm-actions');
+          if (actEl) {
+            const errEl = document.createElement('div');
+            errEl.style.cssText = 'font-size:11px;color:var(--bad);margin-top:6px';
+            errEl.textContent   = `Refresh failed: ${e.message || 'network error'}`;
+            actEl.appendChild(errEl);
+          }
+        }
+      })(); break;
+      case 'cie-reset-key':               resetCieField(el.dataset.key); break;
+    }
+  });
+
+  // ── Delegated change ────────────────────────────────────────────────────
+  document.addEventListener('change', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    switch (el.dataset.action) {
+      case 'recipe-ing-unit':    updateRecipeIngUnit(parseInt(el.dataset.idx), el.value, el.options[el.selectedIndex].dataset.factor); break;
+      case 'goal-preset-change': onGoalPresetChange(); break;
+      case 'toggle-target': {
+        const row = el.closest('.tgt-row');
+        const on  = el.checked;
+        row.classList.toggle('tgt-row--off', !on);
+        row.querySelectorAll('input[type="number"]').forEach(inp => { inp.disabled = !on; });
+        break;
+      }
+      case 'import-file':        importPlan(e); break;
+      case 'cie-basis-unit-change':        cieBasisUnitChange(el.value); break;
+      case 'cie-basis-qty-change':         cieBasisQtyChange(); break;
+      case 'toggle-pdf-split':        togglePdfSplit(el); break;
+      case 'toggle-pdf-macros':       togglePdfMacros(el); break;
+      case 'set-shopping-format':     setShoppingFormat(el.value); break;
+    }
+  });
+
+  // ── Delegated input ─────────────────────────────────────────────────────
+  document.addEventListener('input', e => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    switch (el.dataset.action) {
+      case 'recipe-ing-amount':      updateRecipeIngAmount(parseInt(el.dataset.idx), el.value); break;
+      case 'update-recipe-strip':    updateRecipeNutritionStrip(); break;
+      case 'update-macro-total':     updateMacroTotal(); break;
+      case 'cie-basis-unit-change':        cieBasisUnitLive(el.value); break;
+    }
+  });
+
+  // ── Keyboard shortcuts ──────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      // Close the topmost open modal-overlay first; fall through to non-overlay panels.
+      const topId = getTopmostOpenModalId();
+      if (topId === 'usage-modal')          { closeUsageModal();      return; }
+      if (topId === 'delete-confirm-modal') { closeDeleteConfirm();   return; }
+      if (topId === 'food-manage-modal')    { closeFoodManageModal(); refreshSearchModalUnits(); return; }
+      if (topId === 'ing-detail-modal')     { closeIngDetail(); restoreFoodsSearch(); return; }
+      if (topId === 'modal')               { closeModal();           return; }
+      if (topId === 'recipe-editor')       { closeRecipeEditor();    return; }
+      if (topId === 'custom-ing-editor')   { closeCustomIngEditor(); return; }
+      // Panels and modals not in .modal-overlay stack:
+      if (document.getElementById('blame-panel').classList.contains('open'))             { closeBlame();           return; }
+      if (document.getElementById('import-preview-modal').classList.contains('open'))   { document.getElementById('import-preview-modal').classList.remove('open'); _pendingImportPayload = null; return; }
+      if (document.getElementById('export-options-modal').classList.contains('open'))   { document.getElementById('export-options-modal').classList.remove('open'); return; }
+      return;
+    }
+    if (e.key === 'Enter') {
+      if (e.target.id === 'search-input')       triggerSearch();
+      if (e.target.id === 'foods-search-input') foodsTriggerSearch();
+    }
+  });
+
+  // ── Search clear button visibility ─────────────────────────────────────
+  document.addEventListener('input', e => {
+    if (e.target.id === 'search-input')
+      document.getElementById('search-clear-btn').style.display = e.target.value ? 'block' : 'none';
+    if (e.target.id === 'foods-search-input')
+      document.getElementById('foods-search-clear-btn').style.display = e.target.value ? 'block' : 'none';
+  });
+
+  // ── Paste (barcode images) ──────────────────────────────────────────────
+  document.addEventListener('paste', e => {
+    if (e.target.id === 'search-input')       handleBarcodePaste(e);
+    if (e.target.id === 'foods-search-input') foodsHandlePaste(e);
+  });
+
+  // ── Drag events (barcode drop zone) ────────────────────────────────────
+  document.addEventListener('dragover', e => {
+    if (e.target.id === 'barcode-drop-zone') { e.preventDefault(); e.target.classList.add('drag-over'); }
+  });
+  document.addEventListener('dragleave', e => {
+    if (e.target.id === 'barcode-drop-zone') e.target.classList.remove('drag-over');
+  });
+  document.addEventListener('drop', e => {
+    if (e.target.id === 'barcode-drop-zone') { e.target.classList.remove('drag-over'); handleBarcodeDrop(e); }
+  });
+
+  initIngDnd();
   renderPlan();
   initSidebarResize();
   initBlameResize();
 }
 
-// Expose functions to global scope for inline HTML event handlers.
-// These will move to event delegation in Phase 4.
-Object.assign(window, {
-  showPage, exportPlan, importPlan,
-  foodsTriggerSearch, foodsHandlePaste, foodsReopenDetail,
-  foodsSelectOFFResult, foodsSelectFood,
-  applyProfileTargets, saveTargets, onGoalPresetChange, updateMacroTotal,
-  saveApiKey, refetchAllNutrients,
-  closeBlame, blameExpandAll, blameCollapseAll, toggleBlameMode,
-  openBlame, openRecipeBlame,
-  closeRecipeEditorBg, closeRecipeEditor, saveCurrentRecipe,
-  copyCurrentRecipe, confirmDeleteRecipe, recipeAddFood, openCurrentRecipeDetail,
-  openRecipeEditor, renderRecipeEditor, updateRecipeNutritionStrip,
-  updateRecipeIngUnit, updateRecipeIngAmount, removeRecipeIngredient,
-  openIngredientDetail,
-  closeCustomIngEditorBg, closeCustomIngEditor, saveCustomIng, deleteCustomIng,
-  openCustomIngEditor, copyCustomIngFromEditor, cieToggleMode, toggleCieMicros,
-  closeModalIfBg, closeModal, switchMode, triggerSearch,
-  pasteImageFromClipboard, handleBarcodePaste,
-  confirmAdd, clearSelection, applyCustomUnit, hideCustomUnitRow,
-  openModal, removeIngredient,
-  selectOFFResult, selectFood, selectCustomIng, selectRecipeForMeal,
-  closeIngDetailIfBg, closeIngDetail,
-  toggleRecipeExportMode, toggleRecipeSelection, toggleSelectAllRecipes,
-  generateRecipePDF, setAnalysisDay,
-});
+function openFoodServingEdit(fdcId) {
+  if (!fdcId) return;
+  const current = state.foodServings?.[fdcId];
+  const foodName = state.foodAliases?.[fdcId] || state.foods[fdcId]?.name || fdcId;
+  const label = prompt(`Custom serving label for "${foodName}"\n(e.g. "1 cup", leave blank to remove)`, current?.label || '');
+  if (label === null) return;
+  if (!label.trim()) {
+    dispatch({ type: 'FOOD_SERVING_DEL', payload: { fdcId } });
+    if (current) showUndo('Removed serving', () => dispatch({ type: 'FOOD_SERVING_SET', payload: { fdcId, ...current } }));
+    return;
+  }
+  const amtStr = prompt(`Amount in grams for "${label}":`, current?.amountG || '');
+  if (amtStr === null) return;
+  const amountG = parseFloat(amtStr);
+  if (!amountG || amountG <= 0) return;
+  dispatch({ type: 'FOOD_SERVING_SET', payload: { fdcId, label: label.trim(), amountG } });
+  const undoFn = current
+    ? () => dispatch({ type: 'FOOD_SERVING_SET', payload: { fdcId, ...current } })
+    : () => dispatch({ type: 'FOOD_SERVING_DEL', payload: { fdcId } });
+  showUndo('Saved serving', undoFn);
+}
+
+function openFoodAliasRename(fdcId) {
+  if (!fdcId) return;
+  const current = state.foodAliases?.[fdcId] || '';
+  const foodName = state.foods[fdcId]?.name || fdcId;
+  const input = prompt(`Display name for "${foodName}"\n(leave blank to remove alias)`, current);
+  if (input === null) return;
+  dispatch({ type: 'FOOD_ALIAS_SET', payload: { fdcId, alias: input.trim() } });
+  showUndo('Updated name', () => dispatch({ type: 'FOOD_ALIAS_SET', payload: { fdcId, alias: current } }));
+}
 
 init();
+history.replaceState({ page: 'plan' }, '');
 </script>
 </body>
 </html>

@@ -1,0 +1,53 @@
+export const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+export const MEALS = ['Breakfast','Morning snack','Lunch','Afternoon snack','Dinner'];
+export const MACRO_KEYS = ['Energy', 'Protein', 'Carbohydrate', 'Total lipid'];
+
+export const TARGETS = {
+  'Energy':       { val: 2700,  unit: 'kcal', label: 'Calories',      max: null },
+  'Protein':      { val: 138,   unit: 'g',    label: 'Protein',        max: null },
+  'Carbohydrate': { val: 330,   unit: 'g',    label: 'Net Carbs',      max: null },
+  'Total lipid':  { val: 80,    unit: 'g',    label: 'Fat',            max: null },
+  'Fiber':        { val: 38,    unit: 'g',    label: 'Fiber',          max: null },
+  'Sugars, added': { val: 0,    unit: 'g',    label: 'Added Sugar',    max: 25   },
+  'Sodium':       { val: 1500,  unit: 'mg',   label: 'Sodium',         max: 2300 },
+  'Calcium':      { val: 1000,  unit: 'mg',   label: 'Calcium',        max: 2500 },
+  'Iron':         { val: 18,    unit: 'mg',   label: 'Iron',           max: 45 },
+  'Magnesium':    { val: 420,   unit: 'mg',   label: 'Magnesium',      max: 350 },
+  'Potassium':    { val: 4700,  unit: 'mg',   label: 'Potassium',      max: null },
+  'Zinc':         { val: 11,    unit: 'mg',   label: 'Zinc',           max: 40 },
+  'Selenium':     { val: 55,    unit: 'µg',   label: 'Selenium',       max: 400 },
+  'Iodine':       { val: 150,   unit: 'µg',   label: 'Iodine',         max: 1100 },
+  'Manganese':    { val: 2.3,   unit: 'mg',   label: 'Manganese',      max: 11 },
+  'Phosphorus':   { val: 700,   unit: 'mg',   label: 'Phosphorus',     max: 4000 },
+  'Vitamin A':    { val: 900,   unit: 'µg',   label: 'Vitamin A',      max: 3000 },
+  'Vitamin C':    { val: 90,    unit: 'mg',   label: 'Vitamin C',      max: 2000 },
+  'Vitamin D':    { val: 600,   unit: 'IU',   label: 'Vitamin D',      max: 4000 },
+  'Vitamin E':    { val: 15,    unit: 'mg',   label: 'Vitamin E',      max: 1000 },
+  'Vitamin K':    { val: 120,   unit: 'µg',   label: 'Vitamin K',      max: null },
+  'Thiamin':      { val: 1.2,   unit: 'mg',   label: 'B1 Thiamine',    max: null },
+  'Riboflavin':   { val: 1.3,   unit: 'mg',   label: 'B2 Riboflavin',  max: null },
+  'Niacin':       { val: 16,    unit: 'mg',   label: 'B3 Niacin',      max: 35 },
+  'Pantothenic acid': { val: 5, unit: 'mg',   label: 'B5 Pantothenic', max: null },
+  'Vitamin B-6':  { val: 1.7,   unit: 'mg',   label: 'B6',             max: 100 },
+  'Vitamin B-12': { val: 2.4,   unit: 'µg',   label: 'B12',            max: null },
+  'Folate':       { val: 400,   unit: 'µg',   label: 'Folate',         max: 1000 },
+  'Fatty acids, total omega-3': { val: 1.6, unit: 'g', label: 'Omega-3', max: null },
+  'Histidine':    { val: 0.75,  unit: 'g',    label: 'Histidine',      max: null },
+  'Isoleucine':   { val: 1.5,   unit: 'g',    label: 'Isoleucine',     max: null },
+  'Leucine':      { val: 2.9,   unit: 'g',    label: 'Leucine',        max: null },
+  'Lysine':       { val: 2.25,  unit: 'g',    label: 'Lysine',         max: null },
+  'Methionine':   { val: 0.8,   unit: 'g',    label: 'Methionine',     max: null },
+  'Cystine':      { val: 0.3,   unit: 'g',    label: 'Cystine',        max: null },
+  'Phenylalanine':{ val: 1.1,   unit: 'g',    label: 'Phenylalanine',  max: null },
+  'Tyrosine':     { val: 0.8,   unit: 'g',    label: 'Tyrosine',       max: null },
+  'Threonine':    { val: 1.1,   unit: 'g',    label: 'Threonine',      max: null },
+  'Tryptophan':   { val: 0.3,   unit: 'g',    label: 'Tryptophan',     max: null },
+  'Valine':       { val: 1.95,  unit: 'g',    label: 'Valine',         max: null },
+};
+
+export const NUTRIENT_SECTIONS = {
+  'Key Minerals': ['Sodium','Calcium','Iron','Magnesium','Potassium','Zinc','Selenium','Iodine','Manganese','Phosphorus'],
+  'Vitamins':     ['Vitamin A','Vitamin C','Vitamin D','Vitamin E','Vitamin K','Thiamin','Riboflavin','Niacin','Pantothenic acid','Vitamin B-6','Vitamin B-12','Folate'],
+  'Amino Acids':  ['Histidine','Isoleucine','Leucine','Lysine','Methionine','Cystine','Phenylalanine','Tyrosine','Threonine','Tryptophan','Valine'],
+  'Other':        ['Fiber','Sugars, added','Fatty acids, total omega-3'],
+};

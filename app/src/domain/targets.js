@@ -47,3 +47,13 @@ export function calcTargetsFromProfile(p) {
     'Fatty acids, total omega-3': omega3, 'Lysine': lysine,
   };
 }
+
+
+// Derive macro gram targets from total kcal and macro percentages (P/C/F must sum to 100).
+export function deriveMacrosFromKcal(kcal, pct) {
+  return {
+    protein: Math.round((kcal * pct.p / 100) / 4),
+    carbs:   Math.round((kcal * pct.c / 100) / 4),
+    fat:     Math.round((kcal * pct.f / 100) / 9),
+  };
+}
