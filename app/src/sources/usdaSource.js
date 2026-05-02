@@ -33,6 +33,10 @@ export function extractNutrients(foodData) {
   const out = {};
   let omega3 = 0;
   let omega6 = 0;
+  let vitaminB12 = 0;
+  let folateVal = null;
+  let folateSource = null;
+  let vitaminETot = 0;
 
   const nutrients = foodData.foodNutrients || [];
 
@@ -54,6 +58,29 @@ export function extractNutrients(foodData) {
     if (name.includes('n-6') || name === 'PUFA 18:2') {
       omega6 += val;
     }
+
+    // Vitamin B-12: sum natural + fortification forms
+    if (name === 'Vitamin B-12' || name === 'Vitamin B-12, added') {
+      vitaminB12 += val;
+    }
+
+    // Folate: prefer DFE (Dietary Folate Equivalent, official standard) > total > food
+    if (name === 'Folate, DFE' && folateSource !== 'DFE') {
+      folateVal = val;
+      folateSource = 'DFE';
+    } else if (name === 'Folate, total' && (folateSource === null || folateSource === 'food')) {
+      folateVal = val;
+      folateSource = 'total';
+    } else if (name === 'Folate, food' && folateSource === null) {
+      folateVal = val;
+      folateSource = 'food';
+    }
+
+    // Vitamin E: aggregate all tocopherol forms (alpha, beta, gamma, delta)
+    if (name === 'Vitamin E (alpha-tocopherol)' || name === 'Vitamin E, added' ||
+        name === 'Tocopherol, beta' || name === 'Tocopherol, gamma' || name === 'Tocopherol, delta') {
+      vitaminETot += val;
+    }
   });
 
   // add aggregated values
@@ -62,6 +89,15 @@ export function extractNutrients(foodData) {
   }
   if (omega6 > 0) {
     out['Fatty acids, total omega-6'] = omega6;
+  }
+  if (vitaminB12 > 0) {
+    out['Vitamin B-12'] = vitaminB12;
+  }
+  if (folateVal !== null && folateVal > 0) {
+    out['Folate'] = folateVal;
+  }
+  if (vitaminETot > 0) {
+    out['Vitamin E'] = vitaminETot;
   }
 
   return out;
