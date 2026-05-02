@@ -46,16 +46,17 @@ export function extractNutrients(foodData) {
 
     out[name] = val;
 
-    // 👉 NEW: detect omega-3 / omega-6
-    if (name.includes('n-3')) {
+    // detect omega-3: includes 'n-3' OR is 'PUFA 18:3' (ALA)
+    if (name.includes('n-3') || name === 'PUFA 18:3') {
       omega3 += val;
     }
-    if (name.includes('n-6')) {
+    // detect omega-6: includes 'n-6' OR is 'PUFA 18:2' (linoleic acid)
+    if (name.includes('n-6') || name === 'PUFA 18:2') {
       omega6 += val;
     }
   });
 
-  // 👉 NEW: add aggregated values
+  // add aggregated values
   if (omega3 > 0) {
     out['Fatty acids, total omega-3'] = omega3;
   }
