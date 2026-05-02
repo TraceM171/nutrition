@@ -44,11 +44,8 @@ export function openFoodManageModal(idx, fdcId) {
   const prot = getIngredientNutrient(fakeIng, 'Protein').toFixed(1);
   const carb = getIngredientNutrient(fakeIng, 'Carbohydrate').toFixed(1);
   const fat  = getIngredientNutrient(fakeIng, 'Total lipid').toFixed(1);
-  if (kcal || +prot || +carb || +fat) {
-    actHtml += `<div data-action="fm-view-nutrition" role="button" style="margin-top:12px;cursor:pointer;padding:8px 10px;border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:space-between;gap:8px">
-      <div style="font-size:11px;color:var(--text-dim)">${kcal} kcal &nbsp;·&nbsp; P ${prot}g &nbsp;·&nbsp; C ${carb}g &nbsp;·&nbsp; F ${fat}g <span style="font-size:10px;color:var(--text-dimmer)">per 100g</span></div>
-      <span style="font-size:13px;color:var(--text-dim)">→</span>
-    </div>`;
+  if (food) {
+    actHtml += `<div data-action="fm-view-nutrition" style="margin-top:12px;cursor:pointer;font-size:11px;color:var(--text-dimmer)">per 100g · ${kcal} kcal · P ${prot}g · C ${carb}g · F ${fat}g</div>`;
   }
 
   document.getElementById('fm-actions').innerHTML = actHtml;

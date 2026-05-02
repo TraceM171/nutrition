@@ -31,15 +31,38 @@ export async function fetchFoodDetails(fdcId, apiKey) {
 
 export function extractNutrients(foodData) {
   const out = {};
+  let omega3 = 0;
+  let omega6 = 0;
+
   const nutrients = foodData.foodNutrients || [];
+
   nutrients.forEach(n => {
     const name = n.nutrient?.name || n.name;
     const unit = (n.nutrient?.unitName || '').toUpperCase();
     const val = n.amount ?? n.value ?? 0;
+
     if (!name) return;
     if (name === 'Energy' && unit === 'KJ') return;
+
     out[name] = val;
+
+    // 👉 NEW: detect omega-3 / omega-6
+    if (name.includes('n-3')) {
+      omega3 += val;
+    }
+    if (name.includes('n-6')) {
+      omega6 += val;
+    }
   });
+
+  // 👉 NEW: add aggregated values
+  if (omega3 > 0) {
+    out['Fatty acids, total omega-3'] = omega3;
+  }
+  if (omega6 > 0) {
+    out['Fatty acids, total omega-6'] = omega6;
+  }
+
   return out;
 }
 
