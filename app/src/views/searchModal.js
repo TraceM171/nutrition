@@ -7,11 +7,13 @@ import { populateUnitSelector, getCurrentUnit } from './unitSelector.js';
 import { searchUSDA, fetchFoodDetails, extractNutrients, extractMeasuresUSDA } from '../sources/usdaSource.js';
 import { searchOFF, lookupOFFProduct, normalizeOFFNutrients, extractMeasuresOFF, inferCarbBasis } from '../sources/offSource.js';
 import { loadUPNG, loadZBar, decodeBarcodeFromBlob } from '../sources/barcode/decoder.js';
+import { parseCronometerHTML } from '../sources/cronometerSource.js';
+import { genId } from '../domain/id.js';
 import { findNutrientVal } from '../domain/nutrients.js';
 import { getRecipeWeightG as _getRecipeWeightG, getRecipeNutrientsPer100g as _getRecipeNutrientsPer100g, wouldCreateCycle as _wouldCreateCycle } from '../domain/recipes.js';
 // Circular: recipeEditor imports from searchModal; resolved because imports are only used at call time.
 import { addIngredientToCurrentRecipe, getCurrentEditRecipe, renderRecipeEditor, openRecipeEditor } from './recipeEditor.js';
-import { selectCustomIng as _selectCustomIng } from './customIngEditor.js';
+import { selectCustomIng as _selectCustomIng, openCustomIngEditor } from './customIngEditor.js';
 import { openFoodManageModal } from './ingredientDetail.js';
 
 function getRecipeWeightG(r)         { return _getRecipeWeightG(r, state.recipes); }
@@ -135,6 +137,7 @@ export function closeModal() {
 
 export function switchMode(mode) {
   document.getElementById('mode-search-wrap').style.display = mode === 'search' ? 'block' : 'none';
+  document.getElementById('mode-cronometer-wrap').style.display = mode === 'cronometer' ? 'block' : 'none';
   document.getElementById('mode-tab-recipes').style.display = mode === 'search' ? '' : 'none';
   document.getElementById('amount-row').style.display = 'none';
   selectedFood = null;
@@ -143,9 +146,106 @@ export function switchMode(mode) {
     document.getElementById('search-results-wrap').innerHTML = '';
     setBarcodeImgStatus('', 'dim');
     setTimeout(() => document.getElementById('search-input').focus(), 50);
+  } else if (mode === 'cronometer') {
+    document.getElementById('crono-html-input').value = '';
+    document.getElementById('crono-status').textContent = '';
+    setTimeout(() => document.getElementById('crono-html-input').focus(), 50);
   } else {
     renderRecipesTab();
   }
+}
+
+export function handleCronometerImport() {
+  const html = document.getElementById('crono-html-input').value.trim();
+  const statusEl = document.getElementById('crono-status');
+  if (!html) { statusEl.textContent = 'Paste the Cronometer page HTML first.'; statusEl.style.color = 'var(--danger)'; return; }
+
+  statusEl.textContent = 'Parsing…';
+  statusEl.style.color = 'var(--text-dim)';
+
+  const parsed = parseCronometerHTML(html);
+  if (!parsed) {
+    statusEl.textContent = 'No nutrient data found. Make sure you pasted the full page HTML from a Cronometer food page.';
+    statusEl.style.color = 'var(--danger)';
+    return;
+  }
+
+  const name = parsed.name;
+  if (!name) { statusEl.textContent = 'Food name not found in HTML.'; statusEl.style.color = 'var(--danger)'; return; }
+
+  const id = genId();
+  const crNutrientBasis = parsed.baseUnit === 'serving'
+    ? { unit: 'serving', qty: 1 }
+    : { unit: parsed.baseUnit || 'g', qty: 100 };
+  const payload = {
+    id,
+    name,
+    nutrients: parsed.nutrients,
+    nutrientBasis: crNutrientBasis,
+    source: 'cronometer',
+  };
+  dispatch({ type: 'CUSTOM_ING_SAVE', payload });
+
+  // Add serving measures from Cronometer data (reverse order so first appears first in selector)
+  const crBaseLabel = crNutrientBasis.unit;
+  const extras = parsed.measures.filter(m => m.label !== crBaseLabel && m.label !== 'g');
+  for (let i = extras.length - 1; i >= 0; i--) {
+    dispatch({ type: 'FOOD_MEASURE_SET', payload: { fdcId: 'custom_' + id, label: extras[i].label, factor: extras[i].factor } });
+  }
+
+  statusEl.textContent = '';
+  openCustomIngEditor(id);
+}
+
+// ── Standalone Cronometer import (from Foods tab) ───────────────────────────
+export function openCronometerStandaloneModal() {
+  document.getElementById('crono-sa-html-input').value = '';
+  document.getElementById('crono-sa-status').textContent = '';
+  const el = document.getElementById('crono-standalone-modal');
+  el.classList.add('open');
+  bringToFront(el);
+  setTimeout(() => document.getElementById('crono-sa-html-input').focus(), 50);
+}
+
+export function closeCronometerStandaloneModal() {
+  const el = document.getElementById('crono-standalone-modal');
+  el.classList.remove('open');
+  resetZ(el);
+}
+
+export function handleCronometerImportStandalone() {
+  const html = document.getElementById('crono-sa-html-input').value.trim();
+  const statusEl = document.getElementById('crono-sa-status');
+  if (!html) { statusEl.textContent = 'Paste the Cronometer page HTML first.'; statusEl.style.color = 'var(--danger)'; return; }
+
+  statusEl.textContent = 'Parsing…';
+  statusEl.style.color = 'var(--text-dim)';
+
+  const parsed = parseCronometerHTML(html);
+  if (!parsed) {
+    statusEl.textContent = 'No nutrient data found. Make sure you pasted the full page HTML from a Cronometer food page.';
+    statusEl.style.color = 'var(--danger)';
+    return;
+  }
+
+  const name = parsed.name;
+  if (!name) { statusEl.textContent = 'Food name not found in HTML.'; statusEl.style.color = 'var(--danger)'; return; }
+
+  const id = genId();
+  const saNutrientBasis = parsed.baseUnit === 'serving'
+    ? { unit: 'serving', qty: 1 }
+    : { unit: parsed.baseUnit || 'g', qty: 100 };
+  const payload = { id, name, nutrients: parsed.nutrients, nutrientBasis: saNutrientBasis, source: 'cronometer' };
+  dispatch({ type: 'CUSTOM_ING_SAVE', payload });
+
+  const saBaseLabel = saNutrientBasis.unit;
+  const saExtras = parsed.measures.filter(m => m.label !== saBaseLabel && m.label !== 'g');
+  for (let i = saExtras.length - 1; i >= 0; i--) {
+    dispatch({ type: 'FOOD_MEASURE_SET', payload: { fdcId: 'custom_' + id, label: saExtras[i].label, factor: saExtras[i].factor } });
+  }
+
+  closeCronometerStandaloneModal();
+  openCustomIngEditor(id);
 }
 
 // ── Barcode image helpers ───────────────────────────────────────────────────
@@ -283,13 +383,14 @@ function _localItemHtml({ fdcId, name, food }, isFoods) {
   </div>`;
 }
 
-function _recipeItemHtml(id, r) {
+function _recipeItemHtml(id, r, isFoods) {
   const totalG = getRecipeWeightG(r);
   const servG  = Math.round(r.yields > 0 ? totalG / r.yields : totalG);
   const n      = totalG ? getRecipeNutrientsPer100g(r) : {};
   const kcal   = totalG ? Math.round(findNutrientVal(n, 'energy')) : 0;
   const kcalS  = servG ? Math.round(kcal * servG / 100) : 0;
-  return `<div class="result-item" data-action="select-recipe" data-id="${escapeHtml(id)}">
+  const action = isFoods ? 'foods-select-recipe' : 'select-recipe';
+  return `<div class="result-item" data-action="${action}" data-id="${escapeHtml(id)}">
     <div>
       <div class="result-name"><span class="src-badge src-recipe">Recipe</span>${escapeHtml(r.name)}</div>
       <div class="result-cat">${r.ingredients.length} ing · ${r.yields} srv · ${servG || '?'}g/srv</div>
@@ -298,7 +399,7 @@ function _recipeItemHtml(id, r) {
   </div>`;
 }
 
-function _customIngItemHtml(id, ci) {
+function _customIngItemHtml(id, ci, isFoods) {
   const ciFood = state.foods['custom_' + id];
   const resolvedN = ciFood?.nutrients || ci.nutrients || {};
   const kcal = Math.round(resolvedN['Energy'] || 0);
@@ -307,7 +408,8 @@ function _customIngItemHtml(id, ci) {
     : nb.unit === 'serving' ? escapeHtml(nb.label || 'serving')
     : nb.unit === 'g' || nb.unit === 'ml' ? `${nb.qty}${nb.unit}`
     : `${nb.qty} ${escapeHtml(nb.unit)}`;
-  return `<div class="result-item" data-action="select-custom-ing" data-id="${escapeHtml(id)}">
+  const action = isFoods ? 'foods-select-custom-ing' : 'select-custom-ing';
+  return `<div class="result-item" data-action="${action}" data-id="${escapeHtml(id)}">
     <div><div class="result-name"><span class="src-badge src-custom">Custom</span>${escapeHtml(ci.name)}</div></div>
     <div class="result-kcal">${kcal} kcal/${perLabel}</div>
   </div>`;
@@ -354,8 +456,8 @@ export function buildResultsHtml(offProducts, usdaFoods, context, localFoods = [
   }
   if (hasMyFoods) {
     html += `<div style="${_SECTION_LABEL}${hasLocal ? ';border-top:1px solid var(--border);margin-top:4px' : ''}">My Foods</div>`;
-    matchedRecipes.forEach(({ id, r }) => { html += _recipeItemHtml(id, r); });
-    matchedCustomIngs.forEach(({ id, ci }) => { html += _customIngItemHtml(id, ci); });
+    matchedRecipes.forEach(({ id, r }) => { html += _recipeItemHtml(id, r, isFoods); });
+    matchedCustomIngs.forEach(({ id, ci }) => { html += _customIngItemHtml(id, ci, isFoods); });
   }
   if (hasOther && needDivider) html += `<div style="${_SECTION_LABEL};border-top:1px solid var(--border);margin-top:4px">Other results</div>`;
   offProducts.forEach((p, idx) => {
@@ -368,6 +470,42 @@ export function buildResultsHtml(offProducts, usdaFoods, context, localFoods = [
   return html || '<div class="search-status">No results found. Try a different term.</div>';
 }
 
+export function doLocalSearch(query, context) {
+  const isFoods = context === 'foods';
+  const wrap = document.getElementById(isFoods ? 'foods-search-results' : 'search-results-wrap');
+  const val = query.replace(/\s/g, '');
+  if (val.length < 2) {
+    if (isFoods && !val.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; }
+    return;
+  }
+  if (/^\d{6,20}$/.test(val)) {
+    wrap.innerHTML = '<div class="search-status">Press Enter to look up barcode</div>';
+    if (isFoods) wrap.style.display = 'block';
+    return;
+  }
+  if (isFoods) _foodsOFFResults = []; else _offSearchResults = [];
+  const q = query.toLowerCase();
+  const localFoods = _searchInUseFoods(query);
+  const localFdcIdSet = new Set(localFoods.map(f => f.fdcId));
+  const currentRecipe = getCurrentEditRecipe();
+  const matchedRecipes = Object.entries(state.recipes || {})
+    .filter(([id, r]) => {
+      if (!r.name.toLowerCase().includes(q)) return false;
+      if (!isFoods && modalCtx?.mode === 'recipe' && currentRecipe)
+        return id !== currentRecipe.id && !wouldCreateCycle(currentRecipe.id, id);
+      return true;
+    })
+    .map(([id, r]) => ({ id, r }));
+  const matchedCustomIngs = Object.entries(state.customIngredients || {})
+    .filter(([id, ci]) => ci.name.toLowerCase().includes(q) && !localFdcIdSet.has('custom_' + id))
+    .map(([id, ci]) => ({ id, ci }));
+  const hasLocal = localFoods.length > 0 || matchedRecipes.length > 0 || matchedCustomIngs.length > 0;
+  wrap.innerHTML = hasLocal
+    ? buildResultsHtml([], [], context, localFoods, matchedRecipes, matchedCustomIngs)
+    : '<div class="search-status">No local results — press Enter to search online</div>';
+  if (isFoods) wrap.style.display = 'block';
+}
+
 export async function doSearch(query, context) {
   const isFoods = context === 'foods';
   const wrap = document.getElementById(isFoods ? 'foods-search-results' : 'search-results-wrap');
@@ -375,22 +513,19 @@ export async function doSearch(query, context) {
 
   const localFoods = _searchInUseFoods(query);
   const localFdcIdSet = new Set(localFoods.map(f => f.fdcId));
-  let matchedRecipes = [], matchedCustomIngs = [];
-  if (!isFoods) {
-    const q = query.toLowerCase();
-    const currentRecipe = getCurrentEditRecipe();
-    matchedRecipes = Object.entries(state.recipes || {})
-      .filter(([id, r]) => {
-        if (!r.name.toLowerCase().includes(q)) return false;
-        if (modalCtx?.mode === 'recipe' && currentRecipe)
-          return id !== currentRecipe.id && !wouldCreateCycle(currentRecipe.id, id);
-        return true;
-      })
-      .map(([id, r]) => ({ id, r }));
-    matchedCustomIngs = Object.entries(state.customIngredients || {})
-      .filter(([id, ci]) => ci.name.toLowerCase().includes(q) && !localFdcIdSet.has('custom_' + id))
-      .map(([id, ci]) => ({ id, ci }));
-  }
+  const q = query.toLowerCase();
+  const currentRecipe = getCurrentEditRecipe();
+  const matchedRecipes = Object.entries(state.recipes || {})
+    .filter(([id, r]) => {
+      if (!r.name.toLowerCase().includes(q)) return false;
+      if (!isFoods && modalCtx?.mode === 'recipe' && currentRecipe)
+        return id !== currentRecipe.id && !wouldCreateCycle(currentRecipe.id, id);
+      return true;
+    })
+    .map(([id, r]) => ({ id, r }));
+  const matchedCustomIngs = Object.entries(state.customIngredients || {})
+    .filter(([id, ci]) => ci.name.toLowerCase().includes(q) && !localFdcIdSet.has('custom_' + id))
+    .map(([id, ci]) => ({ id, ci }));
 
   const hasInstant = localFoods.length > 0 || matchedRecipes.length > 0 || matchedCustomIngs.length > 0;
   if (hasInstant) {
@@ -400,12 +535,15 @@ export async function doSearch(query, context) {
   try {
     const [offRes, usdaRes] = await Promise.allSettled([searchOFF(query), searchUSDA(query, config.usdaKey)]);
     const offProducts = offRes.status === 'fulfilled'
-      ? (offRes.value.products || []).filter(p => p.product_name).slice(0, 10) : [];
-    const usdaFoods   = usdaRes.status === 'fulfilled' ? (usdaRes.value.foods || []).slice(0, 10) : [];
+      ? (offRes.value?.products || []).filter(p => p.product_name).slice(0, 10) : [];
+    const usdaFoods   = usdaRes.status === 'fulfilled' ? (usdaRes.value?.foods || []).slice(0, 10) : [];
     if (isFoods) _foodsOFFResults = offProducts; else _offSearchResults = offProducts;
     wrap.innerHTML = buildResultsHtml(offProducts, usdaFoods, context, localFoods, matchedRecipes, matchedCustomIngs);
   } catch {
-    wrap.innerHTML = '<div class="search-status">Error searching. Check your connection.</div>';
+    const hasLocal = localFoods.length > 0 || matchedRecipes.length > 0 || matchedCustomIngs.length > 0;
+    wrap.innerHTML = hasLocal
+      ? buildResultsHtml([], [], context, localFoods, matchedRecipes, matchedCustomIngs)
+      : '<div class="search-status">Error searching. Check your connection.</div>';
   }
 }
 
@@ -592,6 +730,7 @@ export function recipeAddFood() {
   if (!currentRecipe) return;
   modalCtx = { mode: 'recipe' };
   selectedFood = null;
+  document.getElementById('search-input').value = '';
   document.getElementById('amount-row').style.display = 'none';
   const el = document.getElementById('modal');
   el.classList.add('open');
@@ -602,7 +741,7 @@ export function recipeAddFood() {
 
 export function renderRecipesTab() {
   const wrap = document.getElementById('search-results-wrap');
-  const backBtn = '<button class="btn sm" data-action="switch-mode" data-mode="search" style="margin-bottom:10px;font-size:11px">← Back to Search</button>';
+  const backBtn = '<button class="btn sm" data-action="switch-mode" data-mode="search" style="font-size:11px">← Back to Search</button>';
   const currentRecipe = getCurrentEditRecipe();
   let ids = Object.keys(state.recipes);
   if (modalCtx?.mode === 'recipe' && currentRecipe) {
@@ -610,10 +749,10 @@ export function renderRecipesTab() {
   }
   const cids = Object.keys(state.customIngredients);
   if (!ids.length && !cids.length) {
-    wrap.innerHTML = `<div class="search-status">${backBtn}<br>No recipes yet.<br><button class="btn sm" style="margin-top:8px" data-action="goto-foods">Go to Foods →</button></div>`;
+    wrap.innerHTML = `<div class="search-status" style="display:flex;flex-direction:column;align-items:flex-start;padding:8px">${backBtn}<span style="margin-top:10px;color:var(--text-dim)">No recipes or custom ingredients yet.</span></div>`;
     return;
   }
-  let html = `<div style="padding:8px">${backBtn}`;
+  let html = `<div style="padding:8px;display:flex;flex-direction:column;gap:0">${backBtn}<div style="margin-top:8px">`;
   if (ids.length) {
     ids.forEach(id => {
       const r     = state.recipes[id];
@@ -649,7 +788,7 @@ export function renderRecipesTab() {
       </div>`;
     });
   }
-  html += '</div>';
+  html += '</div></div>';
   wrap.innerHTML = html;
 }
 
@@ -674,7 +813,8 @@ export function selectRecipeForMeal(recipeId) {
 export function openFoodManageFromSearch() {
   if (!selectedFood) return;
   if (selectedFood.type === 'recipe') { openRecipeEditor(selectedFood.recipeId); return; }
-  openFoodManageModal(null, selectedFood.fdcId);
+  if (selectedFood.fdcId?.startsWith('custom_')) { openCustomIngEditor(selectedFood.fdcId.slice(7)); return; }
+  openFoodManageModal(null, selectedFood.fdcId, selectedFood);
 }
 
 export function refreshSearchModalUnits() {

@@ -1,7 +1,6 @@
 - never maintain dialog state upon closing, so when opening another with the same type we dont get past info
 - fix bad redimension for diferent screen formats, including mobile
-- when adding ingredient, upon changing unit, do not adapt amount, default should be 1 and not change upon unit change
-- no network search results in ingredient search hides local results
+
 
 ARCHITECTURE REVIEW [PENDING]
 - dialog management, ordering, closing. Dialogs should stack on top of each other as are opened, stack may include multiple ocurrences of same type of dialog, we should NEVER loose a dialog in the stack.

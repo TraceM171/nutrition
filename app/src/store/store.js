@@ -66,8 +66,12 @@ function _reduce(s, { type, payload = {} }) {
         ciMeasures = [{ label: basisLabel, factor: 1 }];
       } else if (basisUnit === 'ml') {
         ciMeasures = [{ label: 'ml', factor: 1 }, { label: 'g', factor: 1 }];
-      } else {
+      } else if (basisUnit === 'g') {
         ciMeasures = [{ label: 'g', factor: 1 }];
+      } else {
+        // Custom unit (e.g. 'pill', 'tablet', 'scoop'). Nutrients are per basisQty of this unit;
+        // factor=1 keeps the scale identity (amountG = qty × 1, basisG = basisQty × 1).
+        ciMeasures = [{ label: basisUnit, factor: 1 }];
       }
       // Preserve existing userAdded measures (e.g. custom serving set by user).
       const existingCiFood = s.foods['custom_' + payload.id];

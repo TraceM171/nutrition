@@ -30,9 +30,12 @@ export function renderBlameNodes(nodes, dayTotal, targetVal, unit, mode, depth =
     const isLeaf = !node.children;
     const nmClass = isLeaf ? 'blame-nm blame-leaf' : 'blame-nm';
     const extra = depth === 0 && idx === 0 ? ' blame-first' : '';
+    const leafAction = isLeaf && (node.fdcId || node.recipeId)
+      ? ` data-action="blame-leaf-open"${node.fdcId ? ` data-fdcid="${escapeHtml(node.fdcId)}"` : ''}${node.recipeId ? ` data-recipeid="${escapeHtml(node.recipeId)}"` : ''}`
+      : '';
     const row = `<div class="blame-node d${depth}${extra}">
       <span class="blame-tog"></span>
-      <span class="${nmClass}">${escapeHtml(node.name)}</span>
+      <span class="${nmClass}"${leafAction}>${escapeHtml(node.name)}</span>
       <div class="blame-bar-w"><div class="blame-bar-bg"><div class="blame-bar-fg" style="width:${barW}%"></div></div></div>
       <span class="blame-pct">${pct}%</span>
       <span class="blame-val">${fmt(node.value, unit)}</span>

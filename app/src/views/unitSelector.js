@@ -45,9 +45,6 @@ function _renderUnitSelector() {
 
 
 export function selectUnit(measure) {
-  const currentQty = parseFloat(document.getElementById('amount-input').value) || 0;
-  const newQty = (currentQty * _currentUnitFactor) / measure.factor;
   _currentUnitFactor = measure.factor;
   _currentUnitLabel  = measure.label;
-  document.getElementById('amount-input').value = Math.round(newQty * 10) / 10 || 1;
 }

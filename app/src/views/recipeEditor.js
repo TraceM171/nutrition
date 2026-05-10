@@ -333,6 +333,19 @@ export function saveCurrentRecipe() {
   currentEditRecipe.name      = document.getElementById('re-name').value.trim() || 'Unnamed Recipe';
   currentEditRecipe.yields    = parseInt(document.getElementById('re-yields').value) || 1;
   currentEditRecipe.yieldUnit = 'servings';
+
+  // Reject duplicate names (different id).
+  const duplicateRecipe = Object.values(state.recipes).find(
+    r => r.name.trim().toLowerCase() === currentEditRecipe.name.toLowerCase() && r.id !== currentEditRecipe.id
+  );
+  if (duplicateRecipe) {
+    const nameEl = document.getElementById('re-name');
+    nameEl.style.outline = '2px solid var(--warn)';
+    setTimeout(() => { nameEl.style.outline = ''; }, 1800);
+    alert(`A recipe named "${duplicateRecipe.name}" already exists.`);
+    return;
+  }
+
   const oldRecipe = state.recipes[currentEditRecipe.id]
     ? JSON.parse(JSON.stringify(state.recipes[currentEditRecipe.id]))
     : null;
