@@ -154,7 +154,7 @@ function _servingsSelectHtml(basisLabel, servings) {
   const header = `<div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:8px">Custom Servings</div>`;
   const rows = servings.map(s =>
     `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:13px">
-      <span style="flex:1">${escapeHtml(s.label)} — ${s.factor} g</span>
+      <span style="flex:1">${escapeHtml(s.label)} — ${+s.factor.toFixed(3)} g</span>
       <button class="btn sm" type="button" data-action="cie-remove-serving" data-label="${escapeHtml(s.label)}" style="font-size:11px;color:var(--danger)">Remove</button>
     </div>`
   ).join('');
@@ -228,7 +228,7 @@ function renderCustomIngEditor(ci, backedNutrients) {
   macros.forEach(m => {
     let val = n[m.key] != null ? n[m.key] : '';
     if (!isForked && m.key === 'Carbohydrate, by difference' && val !== '') {
-      val = Math.max(0, val - (n['Fiber, total dietary'] || 0));
+      val = parseFloat(Math.max(0, val - (n['Fiber, total dietary'] || 0)).toFixed(4));
     }
     html += `<div>
       <label style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:4px">${m.label} <span style="color:var(--text-dimmer)">(${m.unit})</span></label>
@@ -317,7 +317,7 @@ export function openCustomIngEditor(id) {
 function _servingDisplayHtml(fdcId, cs) {
   return `<div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:8px">Custom Serving</div>
     ${cs
-      ? `<div style="display:flex;align-items:center;gap:8px;font-size:13px">${escapeHtml(cs.label)} — ${cs.factor}g
+      ? `<div style="display:flex;align-items:center;gap:8px;font-size:13px">${escapeHtml(cs.label)} — ${+cs.factor.toFixed(3)}g
           <button class="btn sm" type="button" data-action="cie-edit-serving" style="font-size:11px">Edit</button>
           <button class="btn sm" type="button" data-action="cie-del-serving" style="font-size:11px;color:var(--danger)">Remove</button>
         </div>`
@@ -329,7 +329,7 @@ function _servingFormHtml(cs, basisUnit = 'g') {
   return `<div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:8px">Custom Serving</div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <input class="tgt-input" type="text" id="cie-srv-label" placeholder="Label (e.g. cup)" value="${escapeHtml(cs?.label || '')}" style="flex:1;min-width:120px;max-width:180px">
-      <input class="tgt-input" type="number" id="cie-srv-amount" placeholder="amount" value="${cs?.factor ?? ''}" min="0.01" step="0.1" style="width:80px">
+      <input class="tgt-input" type="number" id="cie-srv-amount" placeholder="amount" value="${cs?.factor != null ? +cs.factor.toFixed(3) : ''}" min="0.01" step="0.1" style="width:80px">
       <span style="font-size:12px;color:var(--text-dim);padding:0 4px">${escapeHtml(basisUnit)}</span>
       <button class="btn sm primary" type="button" data-action="cie-save-serving">Save</button>
       <button class="btn sm" type="button" data-action="cie-cancel-serving">Cancel</button>
@@ -359,13 +359,13 @@ function _getForkedServingUnits(ci) {
 function _servingFormHtmlWithSelect(cs, units) {
   const unitCtrl = units.length > 1
     ? `<select id="cie-srv-unit" class="tgt-input" style="width:80px">${
-        units.map(u => `<option value="${u.factor}"${cs?.unit === u.label ? ' selected' : ''}>${escapeHtml(u.label)}</option>`).join('')
+        units.map(u => `<option value="${+u.factor.toFixed(3)}"${cs?.unit === u.label ? ' selected' : ''}>${escapeHtml(u.label)}</option>`).join('')
       }</select>`
     : `<span style="font-size:12px;color:var(--text-dim);padding:0 4px">${escapeHtml(units[0]?.label || 'g')}</span>`;
   return `<div style="font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dimmer);margin-bottom:8px">Custom Serving</div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
       <input class="tgt-input" type="text" id="cie-srv-label" placeholder="Label (e.g. cup)" value="${escapeHtml(cs?.label || '')}" style="flex:1;min-width:120px;max-width:180px">
-      <input class="tgt-input" type="number" id="cie-srv-amount" placeholder="amount" value="${cs?.factor ?? ''}" min="0.01" step="0.1" style="width:80px">
+      <input class="tgt-input" type="number" id="cie-srv-amount" placeholder="amount" value="${cs?.factor != null ? +cs.factor.toFixed(3) : ''}" min="0.01" step="0.1" style="width:80px">
       ${unitCtrl}
       <button class="btn sm primary" type="button" data-action="cie-save-serving">Save</button>
       <button class="btn sm" type="button" data-action="cie-cancel-serving">Cancel</button>
@@ -535,6 +535,18 @@ export function saveCustomIng() {
     basisQty  = savedBasis?.qty ?? 100;
   }
   const id = _editingCustomIngId || genId();
+
+  // Reject duplicate names (different id).
+  const duplicate = Object.values(state.customIngredients).find(
+    c => c.name.trim().toLowerCase() === name.toLowerCase() && c.id !== id
+  );
+  if (duplicate) {
+    const nameEl = document.getElementById('cie-name');
+    nameEl.style.outline = '2px solid var(--warn)';
+    setTimeout(() => { nameEl.style.outline = ''; }, 1800);
+    alert(`A custom ingredient named "${duplicate.name}" already exists.`);
+    return;
+  }
 
   // Collect only filled inputs — in fork mode these are overrides; in normal mode these are nutrients.
   const collected = {};

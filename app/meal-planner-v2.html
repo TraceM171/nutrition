@@ -527,6 +527,8 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
 .blame-nm { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-dim); }
 .blame-node.d0 .blame-nm { color: var(--text); }
 .blame-leaf { font-style: italic; }
+.blame-leaf[data-action] { cursor: pointer; text-decoration: underline dotted; text-underline-offset: 2px; }
+.blame-leaf[data-action]:hover { color: var(--accent); }
 .blame-mode-btn {
   padding: 2px 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.15);
   background: var(--bg2); font-family: 'IBM Plex Mono', monospace;
@@ -1146,7 +1148,23 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
     <div class="modal-header">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
         <div class="modal-title" style="margin:0">Add Ingredient</div>
-        <button class="btn sm" id="mode-tab-recipes" data-action="switch-mode" data-mode="recipes" style="font-size:11px;padding:4px 10px">📖 My Foods</button>
+        <div style="display:flex;gap:6px">
+          <button class="btn sm" id="mode-tab-recipes" data-action="switch-mode" data-mode="recipes" style="font-size:11px;padding:4px 10px">📖 My Foods</button>
+        </div>
+      </div>
+      <div id="mode-cronometer-wrap" style="display:none">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="font-size:11px;color:var(--text-dim);line-height:1.5">
+            Open a food in <b>Cronometer → Foods</b>, save/copy the page (Ctrl+S or browser "Save page as…"), then paste the full HTML below.
+          </div>
+          <textarea id="crono-html-input" placeholder="Paste Cronometer page HTML here…"
+            style="width:100%;height:90px;resize:vertical;font-size:11px;font-family:monospace;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);box-sizing:border-box"></textarea>
+          <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn primary sm" data-action="cronometer-import">Import</button>
+            <button class="btn sm" data-action="switch-mode" data-mode="search">← Back</button>
+            <span id="crono-status" style="font-size:11px;color:var(--text-dim);flex:1"></span>
+          </div>
+        </div>
       </div>
       <div id="mode-search-wrap">
         <div class="search-wrap" style="display:flex;gap:6px;align-items:center">
@@ -1362,6 +1380,26 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
   </div>
 </div>
 
+<div class="modal-overlay" id="crono-standalone-modal">
+  <div class="modal" style="width:480px">
+    <div class="modal-header">
+      <div class="modal-title">Import from Cronometer</div>
+    </div>
+    <div style="padding:20px;display:flex;flex-direction:column;gap:8px">
+      <div style="font-size:11px;color:var(--text-dim);line-height:1.5">
+        Open a food in <b>Cronometer → Foods</b>, save the page (Ctrl+S or browser "Save page as…"), then paste the full HTML below.
+      </div>
+      <textarea id="crono-sa-html-input" placeholder="Paste Cronometer page HTML here…"
+        style="width:100%;height:90px;resize:vertical;font-size:11px;font-family:monospace;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);box-sizing:border-box"></textarea>
+      <div style="display:flex;align-items:center;gap:8px">
+        <button class="btn primary sm" data-action="crono-standalone-import">Import</button>
+        <button class="btn sm" data-action="close-crono-standalone">Cancel</button>
+        <span id="crono-sa-status" style="font-size:11px;color:var(--text-dim);flex:1"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="snackbar"><span id="snackbar-msg"></span><button class="snackbar-undo-btn" data-action="snackbar-undo">Undo</button></div>
 
 <script type="module">
@@ -1381,9 +1419,9 @@ import { openRecipeEditor, closeRecipeEditor, updateRecipeNutritionStrip, update
 import { openCustomIngEditor, openCustomIngEditorForFork, closeCustomIngEditor, saveCustomIng, deleteCustomIng, copyCustomIngFromEditor, cieBasisUnitChange, cieBasisUnitLive, cieBasisQtyChange, toggleCieMicros, resetCieField, viewCieNutrition, refreshCieServing, showCieServingForm, saveCieServing, deleteCieServing, removeSelectedCieServing } from './src/views/customIngEditor.js';
 import { closeUsageModal, handleUsageRemoveOne, handleUsageRemoveAll } from './src/views/usageModal.js';
 import { closeDeleteConfirm, executeDeleteConfirm } from './src/views/deleteConfirmModal.js';
-import { openModal, openModalForExtras, closeModal, switchMode, handleBarcodePaste, pasteImageFromClipboard, handleBarcodeDrop, triggerSearch, confirmAdd, clearSelection, recipeAddFood, selectCustomIng, selectOFFResult, selectFood, selectLocalFood, selectRecipeForMeal, openFoodManageFromSearch, refreshSearchModalUnits, confirmCarbBasis } from './src/views/searchModal.js';
+import { openModal, openModalForExtras, closeModal, switchMode, handleBarcodePaste, pasteImageFromClipboard, handleBarcodeDrop, triggerSearch, doLocalSearch, confirmAdd, clearSelection, recipeAddFood, selectCustomIng, selectOFFResult, selectFood, selectLocalFood, selectRecipeForMeal, openFoodManageFromSearch, refreshSearchModalUnits, confirmCarbBasis, handleCronometerImport, openCronometerStandaloneModal, closeCronometerStandaloneModal, handleCronometerImportStandalone } from './src/views/searchModal.js';
 import { closeIngDetail, openFoodManageModal, closeFoodManageModal, openIngDetailFromManage, openFoodNutritionDetailFromManage, openFoodNutritionDetail, refreshFoodManageModal, changeFoodCarbBasis } from './src/views/ingredientDetail.js';
-import { foodsHandlePaste, foodsTriggerSearch, foodsSelectOFFResult, foodsSelectFood, foodsSelectLocalFood, restoreFoodsSearch, foodsClearSearch } from './src/views/foodsView.js';
+import { foodsHandlePaste, foodsLocalSearch, foodsTriggerSearch, foodsSelectOFFResult, foodsSelectFood, foodsSelectLocalFood, foodsSelectRecipe, foodsSelectCustomIng, restoreFoodsSearch, foodsClearSearch } from './src/views/foodsView.js';
 import { renderTargets, saveTargets, applyProfileTargets, onGoalPresetChange, updateMacroTotal } from './src/views/targetsView.js';
 import { executeUndo, showUndo } from './src/views/snackbar.js';
 import { renderConfig, saveApiKey, loadApiKey, togglePdfSplit, togglePdfMacros, setShoppingFormat } from './src/views/configView.js';
@@ -1838,6 +1876,7 @@ function init() {
       else if (id === 'food-manage-modal')  { closeFoodManageModal(); refreshSearchModalUnits(); }
       else if (id === 'usage-modal')        closeUsageModal();
       else if (id === 'delete-confirm-modal') closeDeleteConfirm();
+      else if (id === 'crono-standalone-modal') closeCronometerStandaloneModal();
       return;
     }
     const el = e.target.closest('[data-action]');
@@ -1856,6 +1895,14 @@ function init() {
       case 'blame-expand-all':            blameExpandAll(); break;
       case 'blame-collapse-all':          blameCollapseAll(); break;
       case 'toggle-blame-mode':           toggleBlameMode(); break;
+      case 'blame-leaf-open': {
+        const _fdcId    = el.dataset.fdcid;
+        const _recipeId = el.dataset.recipeid;
+        if (_recipeId)                          openRecipeEditor(_recipeId);
+        else if (_fdcId?.startsWith('custom_')) openCustomIngEditor(_fdcId.slice(7));
+        else if (_fdcId)                        openFoodManageModal(null, _fdcId);
+        break;
+      }
       case 'remove-ing':                  removeIngredient(el.dataset.day, el.dataset.meal, parseInt(el.dataset.idx)); break;
       case 'add-ing':                     openModal(el.dataset.day, el.dataset.meal); break;
       case 'plan-goto-day':               setAnalysisDay(el.dataset.day); showPage('nutrients'); break;
@@ -1949,6 +1996,8 @@ function init() {
       case 'foods-select-off':            foodsSelectOFFResult(parseInt(el.dataset.idx)); break;
       case 'foods-select-usda':           foodsSelectFood(el.dataset.fdcId); break;
       case 'foods-select-local':          foodsSelectLocalFood(el.dataset.fdcId); break;
+      case 'foods-select-recipe':         foodsSelectRecipe(el.dataset.id); break;
+      case 'foods-select-custom-ing':     foodsSelectCustomIng(el.dataset.id); break;
       case 'foods-trigger-search':        foodsTriggerSearch(); break;
       case 'foods-clear-search':          foodsClearSearch(); break;
       case 'clear-search': {
@@ -1960,6 +2009,10 @@ function init() {
       }
       case 'switch-mode':                 switchMode(el.dataset.mode); break;
       case 'goto-foods':                  closeModal(); showPage('recipes'); break;
+      case 'cronometer-import':           handleCronometerImport(); break;
+      case 'open-crono-standalone':       openCronometerStandaloneModal(); break;
+      case 'crono-standalone-import':     handleCronometerImportStandalone(); break;
+      case 'close-crono-standalone':      closeCronometerStandaloneModal(); break;
       case 'trigger-search':              triggerSearch(); break;
       case 'paste-from-clipboard':        pasteImageFromClipboard(); break;
       case 'confirm-add':                 confirmAdd(); break;
@@ -2092,6 +2145,7 @@ function init() {
       if (topId === 'modal')               { closeModal();           return; }
       if (topId === 'recipe-editor')       { closeRecipeEditor();    return; }
       if (topId === 'custom-ing-editor')   { closeCustomIngEditor(); return; }
+      if (topId === 'crono-standalone-modal') { closeCronometerStandaloneModal(); return; }
       // Panels and modals not in .modal-overlay stack:
       if (document.getElementById('blame-panel').classList.contains('open'))             { closeBlame();           return; }
       if (document.getElementById('import-preview-modal').classList.contains('open'))   { document.getElementById('import-preview-modal').classList.remove('open'); _pendingImportPayload = null; return; }
@@ -2104,12 +2158,16 @@ function init() {
     }
   });
 
-  // ── Search clear button visibility ─────────────────────────────────────
+  // ── Search clear button visibility + live local search ─────────────────
   document.addEventListener('input', e => {
-    if (e.target.id === 'search-input')
+    if (e.target.id === 'search-input') {
       document.getElementById('search-clear-btn').style.display = e.target.value ? 'block' : 'none';
-    if (e.target.id === 'foods-search-input')
+      doLocalSearch(e.target.value.trim(), 'modal');
+    }
+    if (e.target.id === 'foods-search-input') {
       document.getElementById('foods-search-clear-btn').style.display = e.target.value ? 'block' : 'none';
+      foodsLocalSearch();
+    }
   });
 
   // ── Paste (barcode images) ──────────────────────────────────────────────

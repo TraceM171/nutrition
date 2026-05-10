@@ -111,12 +111,33 @@ function showShoppingListRaw(items) {
     const role = e.target.closest('[data-role]')?.dataset.role;
     if (role === 'close') close();
     if (role === 'copy') {
-      navigator.clipboard.writeText(text).then(() => {
+      const html = items.map(item => {
+        const amt = item.unit === 'g' ? `${item.qty}g` : `${item.qty} ${item.unit}`;
+        return `<p>[${amt}] ${item.name}</p>`;
+      }).join('');
+      const showCopied = () => {
         const st = overlay.querySelector('[data-role=copy-status]');
         st.textContent = 'Copied!';
         st.style.opacity = '1';
         setTimeout(() => { st.style.opacity = '0'; }, 1800);
-      }).catch(() => {
+      };
+      // contenteditable select → execCommand: works in Firefox on file:// URLs
+      const el = document.createElement('div');
+      el.contentEditable = 'true';
+      el.style.cssText = 'position:fixed;opacity:0;pointer-events:none;top:0;left:0';
+      el.innerHTML = html;
+      document.body.appendChild(el);
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      const ok = document.execCommand('copy');
+      sel.removeAllRanges();
+      el.remove();
+      if (ok) { showCopied(); return; }
+      // async fallback
+      navigator.clipboard.writeText(text).then(showCopied).catch(() => {
         overlay.querySelector('[data-role=text]').select();
       });
     }

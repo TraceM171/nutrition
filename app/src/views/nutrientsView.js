@@ -42,13 +42,13 @@ export function renderNutrients() {
   Object.entries(state.targets).forEach(([k, t]) => {
     if (!MACRO_KEYS.includes(k) && disabledSet.has(k)) return;
     const v = current[k] || 0;
-    const pct = getPct(k, v);
     if (MACRO_KEYS.includes(k)) {
-      if (pct > 110) alerts.push({ key: k, type: 'danger', label: t.label });
-      else if (t.val > 0 && pct < 90) alerts.push({ key: k, type: 'warn', label: t.label });
+      const rawPct = t.val > 0 ? v / t.val * 100 : 0;
+      if (rawPct > 110) alerts.push({ key: k, type: 'danger', label: t.label });
+      else if (t.val > 0 && rawPct < 90) alerts.push({ key: k, type: 'warn', label: t.label });
     } else {
       if (t.max && v > t.max) alerts.push({ key: k, type: 'danger', label: t.label });
-      else if (t.val > 0 && pct < 70) alerts.push({ key: k, type: 'warn', label: t.label });
+      else if (t.val > 0 && getPct(k, v) < 100) alerts.push({ key: k, type: 'warn', label: t.label });
     }
   });
 

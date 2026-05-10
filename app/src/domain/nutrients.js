@@ -123,7 +123,7 @@ export function getStatus(key, val, targets, macroKeys) {
     return 'high';
   }
   if (t.max && val > t.max) return 'high';
-  if (t.val > 0 && val < t.val) return 'low';
+  if (t.val > 0 && Math.round(val / t.val * 100) < 100) return 'low';
   return 'ok';
 }
 

@@ -12,7 +12,7 @@ export const TARGETS = {
   'Sodium':       { val: 1500,  unit: 'mg',   label: 'Sodium',         max: 2300 },
   'Calcium':      { val: 1000,  unit: 'mg',   label: 'Calcium',        max: 2500 },
   'Iron':         { val: 18,    unit: 'mg',   label: 'Iron',           max: 45 },
-  'Magnesium':    { val: 420,   unit: 'mg',   label: 'Magnesium',      max: 350 },
+  'Magnesium':    { val: 400,   unit: 'mg',   label: 'Magnesium',      max: null },
   'Potassium':    { val: 4700,  unit: 'mg',   label: 'Potassium',      max: null },
   'Zinc':         { val: 11,    unit: 'mg',   label: 'Zinc',           max: 40 },
   'Selenium':     { val: 55,    unit: 'µg',   label: 'Selenium',       max: 400 },

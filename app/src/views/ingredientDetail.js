@@ -12,13 +12,15 @@ export function setRecipeGetter(fn) { _getRecipe = fn; }
 function getIngredientNutrient(ing, key) { return _getIngredientNutrient(ing, key, state.recipes, state.foods); }
 
 // ── Food manage modal state ─────────────────────────────────────────────────
-let _managedIngIdx = null;
-let _managedFdcId  = null;
+let _managedIngIdx    = null;
+let _managedFdcId     = null;
+let _managedFallback  = null;
 
-export function openFoodManageModal(idx, fdcId) {
-  _managedIngIdx = idx;
-  _managedFdcId  = fdcId;
-  const food    = state.foods[fdcId];
+export function openFoodManageModal(idx, fdcId, fallbackFood) {
+  _managedIngIdx   = idx;
+  _managedFdcId    = fdcId;
+  _managedFallback = fallbackFood || null;
+  const food    = state.foods[fdcId] || fallbackFood || null;
   const isCustom = fdcId?.startsWith('custom_');
   const fdcEsc  = escapeHtml(fdcId);
 
@@ -39,13 +41,14 @@ export function openFoodManageModal(idx, fdcId) {
     </div>`;
   }
 
-  const fakeIng = { fdcId, amountG: 100 };
+  const fakeIng = { fdcId, amountG: 100, nutrients: food?.nutrients };
   const kcal = Math.round(getIngredientNutrient(fakeIng, 'Energy'));
   const prot = getIngredientNutrient(fakeIng, 'Protein').toFixed(1);
   const carb = getIngredientNutrient(fakeIng, 'Carbohydrate').toFixed(1);
   const fat  = getIngredientNutrient(fakeIng, 'Total lipid').toFixed(1);
   if (food) {
-    actHtml += `<div data-action="fm-view-nutrition" style="margin-top:12px;cursor:pointer;font-size:11px;color:var(--text-dimmer)">per 100g · ${kcal} kcal · P ${prot}g · C ${carb}g · F ${fat}g</div>`;
+    const basisUnit = food?.nutrientBasis?.unit || 'g';
+    actHtml += `<div data-action="fm-view-nutrition" style="margin-top:12px;cursor:pointer;font-size:11px;color:var(--text-dimmer)">per 100${basisUnit} · ${kcal} kcal · P ${prot}g · C ${carb}g · F ${fat}g</div>`;
   }
 
   document.getElementById('fm-actions').innerHTML = actHtml;
@@ -58,8 +61,9 @@ export function closeFoodManageModal() {
   const el = document.getElementById('food-manage-modal');
   el.classList.remove('open');
   resetZ(el);
-  _managedIngIdx = null;
-  _managedFdcId  = null;
+  _managedIngIdx   = null;
+  _managedFdcId    = null;
+  _managedFallback = null;
 }
 
 export function refreshFoodManageModal() {
@@ -73,17 +77,20 @@ export function openIngDetailFromManage() {
 }
 
 export function openFoodNutritionDetailFromManage() {
-  const fdcId = _managedFdcId;
+  const fdcId    = _managedFdcId;
+  const fallback = _managedFallback;
   closeFoodManageModal();
-  if (fdcId) openFoodNutritionDetail(fdcId);
+  if (fdcId) openFoodNutritionDetail(fdcId, fallback);
 }
 
-export function openFoodNutritionDetail(fdcId) {
-  const food = state.foods[fdcId];
+export function openFoodNutritionDetail(fdcId, fallbackFood) {
+  const food = state.foods[fdcId] || fallbackFood || null;
   if (!food) return;
   const totals = {};
-  Object.keys(state.targets).forEach(k => { totals[k] = getIngredientNutrient({ fdcId, amountG: 100 }, k); });
-  showNutritionDetail(food.name, 'per 100g · % of daily target shown on bars', totals, null);
+  const fakeIng = { fdcId, amountG: 100, nutrients: food.nutrients };
+  Object.keys(state.targets).forEach(k => { totals[k] = getIngredientNutrient(fakeIng, k); });
+  const detailUnit = food.nutrientBasis?.unit || 'g';
+  showNutritionDetail(food.name, `per 100${detailUnit} · % of daily target shown on bars`, totals, null);
 }
 
 export function showNutritionDetail(title, sub, totals, recipeForBlame) {

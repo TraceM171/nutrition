@@ -1,12 +1,14 @@
-import { state } from '../store/store.js';
-import { findNutrientVal } from '../domain/nutrients.js';
-import { normalizeOFFNutrients } from '../sources/offSource.js';
-import { extractNutrients, fetchFoodDetails } from '../sources/usdaSource.js';
+import { state, dispatch } from '../store/store.js';
+import { normalizeOFFNutrients, inferCarbBasis, extractMeasuresOFF } from '../sources/offSource.js';
+import { extractNutrients, fetchFoodDetails, extractMeasuresUSDA } from '../sources/usdaSource.js';
 import { decodeBarcodeFromBlob } from '../sources/barcode/decoder.js';
+import { getRecipeNutrientsPer100g as _getRecipeNutrientsPer100g } from '../domain/recipes.js';
 import { config } from './uiState.js';
 import { escapeHtml } from './escape.js';
-import { showNutritionDetail } from './ingredientDetail.js';
-import { doSearch, runBarcodeLookup, getFoodsOFFResults } from './searchModal.js';
+import { openFoodManageModal } from './ingredientDetail.js';
+import { openRecipeEditor } from './recipeEditor.js';
+import { openCustomIngEditor } from './customIngEditor.js';
+import { doSearch, doLocalSearch, runBarcodeLookup, getFoodsOFFResults } from './searchModal.js';
 
 export function restoreFoodsSearch() {
   const wrap = document.getElementById('foods-search-results');
@@ -49,6 +51,22 @@ export async function foodsHandlePaste(event) {
   setTimeout(() => foodsTriggerSearch(), 50);
 }
 
+export function foodsLocalSearch() {
+  const raw = document.getElementById('foods-search-input').value.trim();
+  const val = raw.replace(/\s/g, '');
+  const wrap = document.getElementById('foods-search-results');
+  if (val.length < 2) {
+    if (!val.length) { wrap.style.display = 'none'; wrap.innerHTML = ''; }
+    return;
+  }
+  if (/^\d{6,20}$/.test(val)) {
+    wrap.style.display = 'block';
+    wrap.innerHTML = '<div class="search-status">Press Enter to look up barcode</div>';
+    return;
+  }
+  doLocalSearch(raw, 'foods');
+}
+
 export function foodsTriggerSearch() {
   const raw  = document.getElementById('foods-search-input').value.trim();
   const val  = raw.replace(/\s/g, '');
@@ -70,23 +88,29 @@ export function foodsTriggerSearch() {
 async function _handleFoodsBarcode(code) {
   const wrap   = document.getElementById('foods-search-results');
   const result = await runBarcodeLookup(code, 'foods');
-  if (!result) return; // runBarcodeLookup already set the "not found" message
-  const totals = {};
-  Object.keys(state.targets).forEach(k => { totals[k] = findNutrientVal(result.nutrients, k); });
-  showNutritionDetail(result.name, '100g · Open Food Facts · % of daily target', totals, null);
+  if (!result) return;
+  const fdcId = result.source; // 'off_' + code
+  if (!state.foods[fdcId]) {
+    dispatch({ type: 'FOODS_UPSERT', payload: { [fdcId]: { fdcId, name: result.name, nutrients: result.nutrients, source: 'Open Food Facts' } } });
+  }
   wrap.style.display = 'none';
   wrap.innerHTML = '';
+  openFoodManageModal(null, fdcId);
 }
 
 export function foodsSelectOFFResult(idx) {
   const p = getFoodsOFFResults()[idx];
-  if (!p) return;
-  const name     = p.product_name + (p.brands ? ` (${p.brands})` : '');
-  const nutrients = normalizeOFFNutrients(p);
-  const totals   = {};
-  Object.keys(state.targets).forEach(k => { totals[k] = findNutrientVal(nutrients, k); });
-  document.getElementById('foods-search-results').style.display = 'none';
-  showNutritionDetail(name, '100g · Open Food Facts · % of daily target', totals, null);
+  if (!p || !p.code) return;
+  const fdcId = 'off_' + p.code;
+  const wrap = document.getElementById('foods-search-results');
+  wrap.style.display = 'none';
+  if (!state.foods[fdcId]) {
+    const { tentative, assumptions } = inferCarbBasis(p);
+    const nutrients = normalizeOFFNutrients(p, tentative);
+    const name = (p.product_name || p.generic_name || `Product ${p.code}`) + (p.brands ? ` (${p.brands})` : '');
+    dispatch({ type: 'FOODS_UPSERT', payload: { [fdcId]: { fdcId, name, nutrients, source: 'Open Food Facts', carbBasis: tentative, carbBasisInference: { tentative, assumptions }, measures: extractMeasuresOFF(p) } } });
+  }
+  openFoodManageModal(null, fdcId);
 }
 
 export async function foodsSelectFood(fdcId) {
@@ -96,24 +120,30 @@ export async function foodsSelectFood(fdcId) {
   try {
     const data      = await fetchFoodDetails(fdcId, config.usdaKey);
     const nutrients = extractNutrients(data);
-    const totals    = {};
-    Object.keys(state.targets).forEach(k => { totals[k] = findNutrientVal(nutrients, k); });
-    const label = data.description;
+    dispatch({ type: 'FOODS_UPSERT', payload: { [fdcId]: { fdcId, name: data.description, nutrients, measures: extractMeasuresUSDA(data) } } });
     wrap.innerHTML = savedResults;
     wrap.style.display = 'none';
-    showNutritionDetail(label, '100g · USDA · % of daily target', totals, null);
+    openFoodManageModal(null, fdcId);
   } catch {
     wrap.innerHTML = '<div class="search-status">Failed to load details. Try another item.</div>';
   }
 }
 
 export function foodsSelectLocalFood(fdcId) {
-  const food = state.foods[fdcId];
-  if (!food) return;
-  const name = state.foodAliases?.[fdcId] || food.name;
-  const nutrients = food.nutrients || {};
-  const totals = {};
-  Object.keys(state.targets).forEach(k => { totals[k] = findNutrientVal(nutrients, k); });
   document.getElementById('foods-search-results').style.display = 'none';
-  showNutritionDetail(name, '100g · % of daily target', totals, null);
+  if (fdcId.startsWith('custom_')) {
+    openCustomIngEditor(fdcId.slice(7));
+  } else {
+    openFoodManageModal(null, fdcId);
+  }
+}
+
+export function foodsSelectRecipe(id) {
+  document.getElementById('foods-search-results').style.display = 'none';
+  openRecipeEditor(id);
+}
+
+export function foodsSelectCustomIng(id) {
+  document.getElementById('foods-search-results').style.display = 'none';
+  openCustomIngEditor(id);
 }

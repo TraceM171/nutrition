@@ -6,11 +6,11 @@ export function buildBlameNode(ing, nutrientKey, scaleFactor, recipes, foods, al
   if (scaleFactor === undefined) scaleFactor = 1;
   if (ing.type === 'food') {
     const base = getNutrientVal(ing, nutrientKey, foods);
-    return { name: getDisplayName(ing.fdcId, foods, aliases) || ing.name, isRecipe: false, value: base * scaleFactor, children: null };
+    return { name: getDisplayName(ing.fdcId, foods, aliases) || ing.name, fdcId: ing.fdcId, isRecipe: false, value: base * scaleFactor, children: null };
   }
   if (ing.type === 'recipe') {
     const r = recipes[ing.recipeId];
-    if (!r) return { name: ing.name, isRecipe: true, value: 0, children: null };
+    if (!r) return { name: ing.name, recipeId: ing.recipeId, isRecipe: true, value: 0, children: null };
     const baseAmtG = effectiveAmountG(ing, recipes);
     const recipeWeightG = getRecipeWeightG(r, recipes);
     const fraction = recipeWeightG > 0 ? baseAmtG / recipeWeightG : 0;
@@ -19,7 +19,7 @@ export function buildBlameNode(ing, nutrientKey, scaleFactor, recipes, foods, al
       .map(sub => buildBlameNode(sub, nutrientKey, fraction * scaleFactor, recipes, foods, aliases))
       .filter(n => n.value > 0.0005)
       .sort((a, b) => b.value - a.value);
-    return { name: ing.name, isRecipe: true, value: base * scaleFactor, children: children.length ? children : null };
+    return { name: ing.name, recipeId: ing.recipeId, isRecipe: true, value: base * scaleFactor, children: children.length ? children : null };
   }
   return { name: '?', isRecipe: false, value: 0, children: null };
 }

@@ -9,6 +9,46 @@ import { getRecipeWeightG as _getRecipeWeightG, getRecipeNutrientsPer100g as _ge
 function getRecipeWeightG(r)        { return _getRecipeWeightG(r, state.recipes); }
 function getRecipeNutrientsPer100g(r) { return _getRecipeNutrientsPer100g(r, state.recipes, state.foods); }
 
+function getUsedRecipeIds() {
+  const used = new Set();
+  const scanItem = item => { if (item.type === 'recipe') used.add(item.recipeId); };
+  for (const day of Object.values(state.plan)) {
+    for (const meal of Object.values(day)) {
+      for (const item of meal) scanItem(item);
+    }
+  }
+  for (const item of (state.extraFoods || [])) scanItem(item);
+  for (const r of Object.values(state.recipes)) {
+    for (const ing of r.ingredients || []) {
+      if (ing.type === 'recipe') used.add(ing.recipeId);
+    }
+  }
+  return used;
+}
+
+function getUsedCustomIngIds() {
+  const used = new Set();
+  const scanItem = item => {
+    if (typeof item.fdcId === 'string' && item.fdcId.startsWith('custom_')) {
+      used.add(item.fdcId.slice(7));
+    }
+  };
+  for (const day of Object.values(state.plan)) {
+    for (const meal of Object.values(day)) {
+      for (const item of meal) scanItem(item);
+    }
+  }
+  for (const item of (state.extraFoods || [])) scanItem(item);
+  for (const r of Object.values(state.recipes)) {
+    for (const ing of r.ingredients || []) {
+      if (typeof ing.fdcId === 'string' && ing.fdcId.startsWith('custom_')) {
+        used.add(ing.fdcId.slice(7));
+      }
+    }
+  }
+  return used;
+}
+
 export function renderRecipes() {
   const wrap = document.getElementById('recipes-wrap');
   const ids  = Object.keys(state.recipes).sort((a, b) => (state.recipes[b].lastEdited || 0) - (state.recipes[a].lastEdited || 0));
@@ -22,6 +62,7 @@ export function renderRecipes() {
   if (!ids.length) {
     html += `<div class="empty-msg"><div class="e-icon">📖</div><div class="e-title">No recipes yet</div><p>Create a recipe to use across your meal plan.</p></div>`;
   } else {
+    const usedRecipeIds = getUsedRecipeIds();
     html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px">';
     ids.forEach(id => {
       const r       = state.recipes[id];
@@ -34,7 +75,8 @@ export function renderRecipes() {
       const protS = totalG ? (findNutrientVal(n, 'protein') * scale).toFixed(1) : '—';
       const carbS = totalG ? (netCarbsFromMap(n) * scale).toFixed(1) : '—';
       const fatS  = totalG ? ((findNutrientVal(n, 'lipid') || findNutrientVal(n, 'fat')) * scale).toFixed(1) : '—';
-      html += `<div class="recipe-card" style="cursor:pointer" data-action="edit-recipe" data-id="${id}">
+      const dimmed = usedRecipeIds.has(id) ? '' : 'opacity:0.45;';
+      html += `<div class="recipe-card" style="${dimmed}cursor:pointer" data-action="edit-recipe" data-id="${id}">
         <div class="recipe-card-title">${escapeHtml(r.name || 'Unnamed')}</div>
         <div style="font-size:11px;color:var(--text-dim)">${r.ingredients.length} ingredient${r.ingredients.length!==1?'s':''} · ${r.yields} serving${r.yields !== 1 ? 's' : ''}</div>
         <div style="font-size:11px;color:var(--text-dimmer)">${totalG?Math.round(totalG*10)/10+'g total':'—'} · ${servingG?servingG+'g/serving':'—'}</div>
@@ -49,12 +91,16 @@ export function renderRecipes() {
   html += `<div style="margin-top:36px;padding-top:32px;border-top:1px solid var(--border)">
     <div class="section-hdr" style="margin-bottom:14px">
       <div class="section-title">Custom Ingredients</div>
-      <button class="btn sm" data-action="new-custom-ing">+ New</button>
+      <div style="display:flex;gap:6px">
+        <button class="btn sm" data-action="new-custom-ing">+ New</button>
+        <button class="btn sm" data-action="open-crono-standalone" style="font-size:11px;padding:4px 10px" title="Import from Cronometer">📋 Cronometer</button>
+      </div>
     </div>`;
   const cids = Object.keys(state.customIngredients).sort((a, b) => (state.customIngredients[b].lastEdited || 0) - (state.customIngredients[a].lastEdited || 0));
   if (!cids.length) {
     html += `<div style="color:var(--text-dimmer);font-size:12px;padding:16px 0">No custom ingredients yet. Add one for foods not found in any database.</div>`;
   } else {
+    const usedCustomIngIds = getUsedCustomIngIds();
     html += `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px">`;
     cids.forEach(id => {
       const ci   = state.customIngredients[id];
@@ -70,7 +116,8 @@ export function renderRecipes() {
         : nb.unit === 'serving' ? escapeHtml(nb.label || 'serving')
         : nb.unit === 'g' || nb.unit === 'ml' ? `${nb.qty}${nb.unit}`
         : `${nb.qty} ${escapeHtml(nb.unit)}`;
-      html += `<div class="card" style="padding:14px;display:flex;flex-direction:column;gap:5px;cursor:pointer" data-action="edit-custom-ing" data-id="${id}">
+      const dimmed = usedCustomIngIds.has(id) ? '' : 'opacity:0.45;';
+      html += `<div class="card" style="${dimmed}padding:14px;display:flex;flex-direction:column;gap:5px;cursor:pointer" data-action="edit-custom-ing" data-id="${id}">
         <div style="font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${forkBadge}${escapeHtml(ci.name)}</div>
         <div style="font-size:11px;color:var(--text-dim)">${kcal} kcal/${perLabel}</div>
         <div style="font-size:10px;color:var(--text-dimmer)">P ${prot}g · C ${carb}g · F ${fat}g</div>
