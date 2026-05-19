@@ -7,7 +7,7 @@ import { findNutrientVal, netCarbsFromMap, getNutrientVal, getIngredientNutrient
 import { resolveBasisG } from '../units.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = JSON.parse(readFileSync(join(__dirname, '../../../../backups/nourish-backup-2026-04-25.json'), 'utf8'));
+const fixture = JSON.parse(readFileSync(join(__dirname, 'fixture.json'), 'utf8'));
 const { recipes, targets: savedTargets } = fixture;
 
 const MACRO_KEYS = ['Energy', 'Protein', 'Carbohydrate', 'Total lipid'];

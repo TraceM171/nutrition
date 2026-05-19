@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { buildBlameNode, getDayBlameTree, getWeeklyBlameTree } from '../blame.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = JSON.parse(readFileSync(join(__dirname, '../../../../backups/nourish-backup-2026-04-25.json'), 'utf8'));
+const fixture = JSON.parse(readFileSync(join(__dirname, 'fixture.json'), 'utf8'));
 const { plan, recipes } = fixture;
 
 const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];

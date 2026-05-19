@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 import { effectiveAmountG, getRecipeWeightG, getRecipeNutrientsPer100g, wouldCreateCycle } from '../recipes.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const fixture = JSON.parse(readFileSync(join(__dirname, '../../../../backups/nourish-backup-2026-04-25.json'), 'utf8'));
+const fixture = JSON.parse(readFileSync(join(__dirname, 'fixture.json'), 'utf8'));
 const { recipes } = fixture;
 
 test('effectiveAmountG returns amountG for normal food ingredient', () => {
