@@ -15,8 +15,8 @@ export function populateUnitSelector(measures) {
   _allMeasures = [...measures];
   if (mlMeasure) {
     const f = mlMeasure.factor;
-    _allMeasures.push({ label: 'tbsp', factor: f * 15 });
-    _allMeasures.push({ label: 'tsp',  factor: f * 5  });
+    if (!_allMeasures.find(m => m.label === 'tbsp')) _allMeasures.push({ label: 'tbsp', factor: f * 15 });
+    if (!_allMeasures.find(m => m.label === 'tsp'))  _allMeasures.push({ label: 'tsp',  factor: f * 5  });
   }
 
   const first = _allMeasures[0] || { label: 'g', factor: 1 };

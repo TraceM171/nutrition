@@ -11,6 +11,9 @@ export function setRecipeGetter(fn) { _getRecipe = fn; }
 
 function getIngredientNutrient(ing, key) { return _getIngredientNutrient(ing, key, state.recipes, state.foods); }
 
+let _openForkEditor = null;
+export function setForkEditorOpener(fn) { _openForkEditor = fn; }
+
 // ── Food manage modal state ─────────────────────────────────────────────────
 let _managedIngIdx    = null;
 let _managedFdcId     = null;
@@ -64,6 +67,17 @@ export function closeFoodManageModal() {
   _managedIngIdx   = null;
   _managedFdcId    = null;
   _managedFallback = null;
+}
+
+export function forkFromManageModal() {
+  const fdcId    = _managedFdcId;
+  const fallback = _managedFallback;
+  closeFoodManageModal();
+  if (!fdcId || !_openForkEditor) return;
+  if (fallback && !state.foods[fdcId]) {
+    dispatch({ type: 'FOODS_UPSERT', payload: { [fdcId]: { fdcId, ...fallback } } });
+  }
+  _openForkEditor(fdcId);
 }
 
 export function refreshFoodManageModal() {

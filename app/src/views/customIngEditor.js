@@ -7,7 +7,8 @@ import { openUsageModal } from './usageModal.js';
 import { openDeleteConfirm } from './deleteConfirmModal.js';
 import { showUndo } from './snackbar.js';
 import { bringToFront, resetZ } from './uiState.js';
-import { openFoodNutritionDetail, changeFoodCarbBasis } from './ingredientDetail.js';
+import { openFoodNutritionDetail, changeFoodCarbBasis, setForkEditorOpener } from './ingredientDetail.js';
+setForkEditorOpener(openCustomIngEditorForFork);
 
 // Fields available in the optional micros section of the custom ingredient editor.
 const CUSTOM_ING_MICRO_FIELDS = [
@@ -434,7 +435,7 @@ export function deleteCieServing() {
   });
 }
 
-const _RESERVED_UNIT_LABELS = new Set(['g', 'ml', 'tbsp', 'tsp']);
+const _RESERVED_UNIT_LABELS = new Set(['g', 'ml']);
 
 export function saveCieServing() {
   if (!_editingCustomIngId) return;

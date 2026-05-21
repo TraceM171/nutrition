@@ -135,7 +135,9 @@ export function showRecipePDFDialog() {
   const ids = Object.keys(state.recipes).sort(
     (a, b) => (state.recipes[b].lastEdited || 0) - (state.recipes[a].lastEdited || 0)
   );
-  const sel = new Set(ids);
+  const sel = config.pdfExcludeUnused
+    ? getUsedRecipeIds()
+    : new Set(ids);
 
   const overlay = document.createElement('div');
   overlay.id = 'recipe-pdf-dialog';

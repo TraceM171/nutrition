@@ -1044,8 +1044,15 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
           <input type="checkbox" id="pdf-macros-toggle" data-action="toggle-pdf-macros">
           Include macros summary
         </label>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.6">
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;margin-bottom:12px;line-height:1.6">
           When enabled, a calories/protein/carbs/fat/fiber box is shown per recipe. When disabled, only the ingredient list is included.
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px">
+          <input type="checkbox" id="pdf-exclude-unused-toggle" data-action="toggle-pdf-exclude-unused">
+          Exclude unused recipes by default
+        </label>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:6px;line-height:1.6">
+          When enabled, the export dialog pre-selects only recipes used in the meal plan. Unused recipes are shown unchecked and can be added manually.
         </div>
       </div>
 
@@ -1420,11 +1427,11 @@ import { openCustomIngEditor, openCustomIngEditorForFork, closeCustomIngEditor, 
 import { closeUsageModal, handleUsageRemoveOne, handleUsageRemoveAll } from './src/views/usageModal.js';
 import { closeDeleteConfirm, executeDeleteConfirm } from './src/views/deleteConfirmModal.js';
 import { openModal, openModalForExtras, closeModal, switchMode, handleBarcodePaste, pasteImageFromClipboard, handleBarcodeDrop, triggerSearch, doLocalSearch, confirmAdd, clearSelection, recipeAddFood, selectCustomIng, selectOFFResult, selectFood, selectLocalFood, selectRecipeForMeal, openFoodManageFromSearch, refreshSearchModalUnits, confirmCarbBasis, handleCronometerImport, openCronometerStandaloneModal, closeCronometerStandaloneModal, handleCronometerImportStandalone } from './src/views/searchModal.js';
-import { closeIngDetail, openFoodManageModal, closeFoodManageModal, openIngDetailFromManage, openFoodNutritionDetailFromManage, openFoodNutritionDetail, refreshFoodManageModal, changeFoodCarbBasis } from './src/views/ingredientDetail.js';
+import { closeIngDetail, openFoodManageModal, closeFoodManageModal, forkFromManageModal, openIngDetailFromManage, openFoodNutritionDetailFromManage, openFoodNutritionDetail, refreshFoodManageModal, changeFoodCarbBasis } from './src/views/ingredientDetail.js';
 import { foodsHandlePaste, foodsLocalSearch, foodsTriggerSearch, foodsSelectOFFResult, foodsSelectFood, foodsSelectLocalFood, foodsSelectRecipe, foodsSelectCustomIng, restoreFoodsSearch, foodsClearSearch } from './src/views/foodsView.js';
 import { renderTargets, saveTargets, applyProfileTargets, onGoalPresetChange, updateMacroTotal } from './src/views/targetsView.js';
 import { executeUndo, showUndo } from './src/views/snackbar.js';
-import { renderConfig, saveApiKey, loadApiKey, togglePdfSplit, togglePdfMacros, setShoppingFormat } from './src/views/configView.js';
+import { renderConfig, saveApiKey, loadApiKey, togglePdfSplit, togglePdfMacros, togglePdfExcludeUnused, setShoppingFormat } from './src/views/configView.js';
 import { initBlameResize, initSidebarResize } from './src/views/resize.js';
 import { generateShoppingList } from './src/views/shoppingList.js';
 
@@ -2053,7 +2060,7 @@ function init() {
       case 'open-food-manage-from-search': openFoodManageFromSearch(); break;
       case 'food-alias-rename':           openFoodAliasRename(el.dataset.fdcid); refreshFoodManageModal(); break;
       case 'food-serving-edit':           openFoodServingEdit(el.dataset.fdcid); refreshFoodManageModal(); break;
-      case 'food-fork':                   closeFoodManageModal(); openCustomIngEditorForFork(el.dataset.fdcid); break;
+      case 'food-fork':                   forkFromManageModal(); break;
       case 'food-refresh': (async () => {
         const fdcId  = el.dataset.fdcid;
         const btn    = el;
@@ -2115,9 +2122,10 @@ function init() {
       case 'import-file':        importPlan(e); break;
       case 'cie-basis-unit-change':        cieBasisUnitChange(el.value); break;
       case 'cie-basis-qty-change':         cieBasisQtyChange(); break;
-      case 'toggle-pdf-split':        togglePdfSplit(el); break;
-      case 'toggle-pdf-macros':       togglePdfMacros(el); break;
-      case 'set-shopping-format':     setShoppingFormat(el.value); break;
+      case 'toggle-pdf-split':           togglePdfSplit(el); break;
+      case 'toggle-pdf-macros':          togglePdfMacros(el); break;
+      case 'toggle-pdf-exclude-unused':  togglePdfExcludeUnused(el); break;
+      case 'set-shopping-format':        setShoppingFormat(el.value); break;
     }
   });
 

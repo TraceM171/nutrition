@@ -12,6 +12,8 @@ export function renderConfig() {
   if (splitToggle) splitToggle.checked = config.pdfPagePerRecipe;
   const macrosToggle = document.getElementById('pdf-macros-toggle');
   if (macrosToggle) macrosToggle.checked = config.pdfShowMacros;
+  const excludeUnusedToggle = document.getElementById('pdf-exclude-unused-toggle');
+  if (excludeUnusedToggle) excludeUnusedToggle.checked = config.pdfExcludeUnused;
   const fmtRadio = document.querySelector(`input[name="shopping-format"][value="${config.shoppingListFormat}"]`);
   if (fmtRadio) fmtRadio.checked = true;
 }
@@ -39,6 +41,10 @@ export function loadApiKey() {
     if (stored !== null) config.pdfShowMacros = stored === '1';
   } catch(e) {}
   try {
+    const stored = localStorage.getItem('nourish_pdf_exclude_unused');
+    if (stored !== null) config.pdfExcludeUnused = stored === '1';
+  } catch(e) {}
+  try {
     const stored = localStorage.getItem('nourish_shopping_format');
     if (stored) config.shoppingListFormat = stored;
   } catch(e) {}
@@ -52,6 +58,11 @@ export function togglePdfSplit(el) {
 export function togglePdfMacros(el) {
   config.pdfShowMacros = el.checked;
   try { localStorage.setItem('nourish_pdf_macros', el.checked ? '1' : '0'); } catch(e) {}
+}
+
+export function togglePdfExcludeUnused(el) {
+  config.pdfExcludeUnused = el.checked;
+  try { localStorage.setItem('nourish_pdf_exclude_unused', el.checked ? '1' : '0'); } catch(e) {}
 }
 
 export function setShoppingFormat(val) {
