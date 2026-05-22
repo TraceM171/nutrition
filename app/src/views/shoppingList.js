@@ -6,6 +6,37 @@ import { getDisplayName } from '../domain/nutrients.js';
 
 // ── Aggregation ────────────────────────────────────────────────────────────
 
+function _mergeGrams(acc, key, name, amtG, ingUnit, ingQty) {
+  const prefUnit = (ingUnit && ingUnit !== 'g') ? ingUnit : null;
+  if (acc.grams.has(key)) {
+    const entry = acc.grams.get(key);
+    entry.amtG += amtG;
+    if (!entry.conflict) {
+      const curPref = entry.prefUnit || 'g';
+      const newPref = prefUnit || 'g';
+      if (curPref !== newPref) {
+        entry.conflict = true;
+      } else if (prefUnit) {
+        entry.prefQty += ingQty;
+      }
+    }
+  } else {
+    acc.grams.set(key, { name, amtG, prefUnit, prefQty: prefUnit ? ingQty : 0, conflict: false });
+  }
+}
+
+function _fmtShoppingQty(amtG, prefUnit, prefQty, conflict) {
+  if (!conflict && prefUnit) {
+    if (prefUnit === 'ml') {
+      if (prefQty >= 1000) return { qty: Math.round(prefQty / 100) / 10, unit: 'L' };
+      return { qty: Math.round(prefQty), unit: 'ml' };
+    }
+    return { qty: Math.round(prefQty * 100) / 100, unit: prefUnit };
+  }
+  if (amtG >= 1000) return { qty: Math.round(amtG / 100) / 10, unit: 'kg' };
+  return { qty: Math.round(amtG), unit: 'g' };
+}
+
 function _collectIngredients(ings, servingScale, recipes, acc) {
   ings.forEach(ing => {
     if (ing.type === 'recipe') {
@@ -25,9 +56,9 @@ function _collectIngredients(ings, servingScale, recipes, acc) {
     } else {
       const key = ing.fdcId || ing.name;
       const amtG = (ing.amountG || 0) * servingScale;
+      const ingQty = (ing.qty || 0) * servingScale;
       const name = getDisplayName(ing.fdcId, state.foods, state.foodAliases) || ing.name;
-      if (acc.grams.has(key)) acc.grams.get(key).amtG += amtG;
-      else acc.grams.set(key, { name, amtG });
+      _mergeGrams(acc, key, name, amtG, ing.unit, ingQty);
     }
   });
 }
@@ -48,10 +79,8 @@ function _processTopLevelIng(ing, recipes, acc) {
     else acc.serving.set(key, { name, qty: ing.qty || 1, unit: ing.unit || 'serving' });
   } else {
     const key = ing.fdcId || ing.name;
-    const amtG = ing.amountG || 0;
     const name = getDisplayName(ing.fdcId, state.foods, state.foodAliases) || ing.name;
-    if (acc.grams.has(key)) acc.grams.get(key).amtG += amtG;
-    else acc.grams.set(key, { name, amtG });
+    _mergeGrams(acc, key, name, ing.amountG || 0, ing.unit, ing.qty || 0);
   }
 }
 
@@ -67,8 +96,11 @@ function buildShoppingList() {
   extraFoods.forEach(ing => _processTopLevelIng(ing, recipes, acc));
 
   const items = [];
-  acc.grams.forEach(({ name, amtG }) => {
-    if (amtG > 0) items.push({ name, qty: Math.round(amtG), unit: 'g' });
+  acc.grams.forEach(({ name, amtG, prefUnit, prefQty, conflict }) => {
+    if (amtG > 0 || prefQty > 0) {
+      const { qty, unit } = _fmtShoppingQty(amtG, prefUnit, prefQty, conflict);
+      items.push({ name, qty, unit });
+    }
   });
   acc.serving.forEach(({ name, qty, unit }) => {
     if (qty > 0) items.push({ name, qty: Math.round(qty * 10) / 10, unit });
