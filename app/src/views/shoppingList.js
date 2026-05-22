@@ -6,22 +6,34 @@ import { getDisplayName } from '../domain/nutrients.js';
 
 // ── Aggregation ────────────────────────────────────────────────────────────
 
+const _CONVERTIBLE_UNITS = new Set([
+  'g', 'kg', 'mg', 'oz', 'lb', 'lbs',
+  'ml', 'l', 'tsp', 'tbsp', 'cup', 'fl oz', 'fluid oz', 'cl', 'dl',
+]);
+
+// Convertible units (weight/volume) → merge to one line; named portions
+// (medium, small, clove, slice…) → separate line per unit so the list
+// stays actionable ("1 medium apple" + "1 small apple", not "302g apple").
 function _mergeGrams(acc, key, name, amtG, ingUnit, ingQty) {
+  const isConvertible = !ingUnit || _CONVERTIBLE_UNITS.has(ingUnit.toLowerCase());
+  const mapKey = isConvertible ? key : key + '\x00' + ingUnit;
   const prefUnit = (ingUnit && ingUnit !== 'g') ? ingUnit : null;
-  if (acc.grams.has(key)) {
-    const entry = acc.grams.get(key);
+
+  if (acc.grams.has(mapKey)) {
+    const entry = acc.grams.get(mapKey);
     entry.amtG += amtG;
-    if (!entry.conflict) {
-      const curPref = entry.prefUnit || 'g';
-      const newPref = prefUnit || 'g';
-      if (curPref !== newPref) {
-        entry.conflict = true;
-      } else if (prefUnit) {
-        entry.prefQty += ingQty;
+    if (isConvertible) {
+      if (!entry.conflict) {
+        const curPref = entry.prefUnit || 'g';
+        const newPref = prefUnit || 'g';
+        if (curPref !== newPref) entry.conflict = true;
+        else if (prefUnit) entry.prefQty += ingQty;
       }
+    } else {
+      entry.prefQty += ingQty;
     }
   } else {
-    acc.grams.set(key, { name, amtG, prefUnit, prefQty: prefUnit ? ingQty : 0, conflict: false });
+    acc.grams.set(mapKey, { name, amtG, prefUnit, prefQty: prefUnit ? ingQty : 0, conflict: false });
   }
 }
 
