@@ -1,4 +1,5 @@
 import { config } from './uiState.js';
+import { setMcpBridgeEnabled, setMcpBridgePort } from '../bridge/mcpBridge.js';
 
 export function renderConfig() {
   const keyInput  = document.getElementById('usda-key-input');
@@ -16,6 +17,10 @@ export function renderConfig() {
   if (excludeUnusedToggle) excludeUnusedToggle.checked = config.pdfExcludeUnused;
   const fmtRadio = document.querySelector(`input[name="shopping-format"][value="${config.shoppingListFormat}"]`);
   if (fmtRadio) fmtRadio.checked = true;
+  const mcpToggle = document.getElementById('mcp-bridge-toggle');
+  if (mcpToggle) mcpToggle.checked = config.mcpBridgeEnabled;
+  const mcpPortInput = document.getElementById('mcp-bridge-port-input');
+  if (mcpPortInput) mcpPortInput.value = config.mcpBridgePort;
 }
 
 export function saveApiKey() {
@@ -48,6 +53,26 @@ export function loadApiKey() {
     const stored = localStorage.getItem('nourish_shopping_format');
     if (stored) config.shoppingListFormat = stored;
   } catch(e) {}
+  try {
+    const stored = localStorage.getItem('nourish_mcp_bridge_port');
+    if (stored) config.mcpBridgePort = parseInt(stored, 10) || config.mcpBridgePort;
+  } catch(e) {}
+  try {
+    const stored = localStorage.getItem('nourish_mcp_bridge_enabled');
+    if (stored === '1') config.mcpBridgeEnabled = true;
+  } catch(e) {}
+}
+
+export function toggleMcpBridge(el) {
+  setMcpBridgeEnabled(el.checked);
+  try { localStorage.setItem('nourish_mcp_bridge_enabled', el.checked ? '1' : '0'); } catch(e) {}
+}
+
+export function setMcpBridgePortFromInput(el) {
+  const port = parseInt(el.value, 10);
+  if (!port || port < 1 || port > 65535) return;
+  setMcpBridgePort(port);
+  try { localStorage.setItem('nourish_mcp_bridge_port', String(port)); } catch(e) {}
 }
 
 export function togglePdfSplit(el) {

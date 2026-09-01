@@ -1,4 +1,29 @@
+import { DAYS, MEALS } from '../domain/constants.js';
+
 const STORAGE_KEY = 'nourish_data';
+
+// Merges a (post-migration) payload onto a live `state` object. Shared by the
+// browser's startup load and any other caller (e.g. the MCP server) that needs
+// the same semantics — only keys present in `payload` are applied, so a partial
+// payload leaves the rest of `state` untouched.
+export function applyPayload(state, payload) {
+  if (payload.plan) {
+    state.plan = payload.plan;
+    DAYS.forEach(d => { if (!state.plan[d]) state.plan[d] = {}; MEALS.forEach(m => { if (!state.plan[d][m]) state.plan[d][m] = []; }); });
+  }
+  if (payload.recipes)           state.recipes           = payload.recipes;
+  if (payload.customIngredients) state.customIngredients = payload.customIngredients;
+  if (payload.foods)             state.foods             = payload.foods;
+  if (payload.extraFoods)        state.extraFoods        = payload.extraFoods;
+  if (payload.foodAliases)       state.foodAliases       = payload.foodAliases;
+  if (payload.targets) Object.keys(payload.targets).forEach(k => {
+    if (!state.targets[k]) return;
+    state.targets[k].val = payload.targets[k].val;
+    if (payload.targets[k].max !== undefined) state.targets[k].max = payload.targets[k].max;
+  });
+  if (payload.disabledTargets) state.disabledTargets = payload.disabledTargets;
+  if (payload.userProfile) state.userProfile = { ...state.userProfile, ...payload.userProfile };
+}
 
 export function buildPayload(state) {
   return {

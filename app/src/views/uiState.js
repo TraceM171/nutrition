@@ -1,6 +1,6 @@
 // Shared mutable UI state for cross-cutting concerns.
 // All modules may read/write these directly.
-export const config = { usdaKey: 'DEMO_KEY', pdfPagePerRecipe: true, pdfShowMacros: true, pdfExcludeUnused: false, shoppingListFormat: 'interactive' };
+export const config = { usdaKey: 'DEMO_KEY', pdfPagePerRecipe: true, pdfShowMacros: true, pdfExcludeUnused: false, shoppingListFormat: 'interactive', mcpBridgeEnabled: false, mcpBridgePort: 8137 };
 export const ui     = { analysisDay: null, blameDetailRecipe: null };
 
 export function bringToFront(el) {

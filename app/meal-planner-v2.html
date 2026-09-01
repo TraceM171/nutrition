@@ -1085,6 +1085,24 @@ details.blame-grp:not([open]) > summary .blame-tog::before { content: '▸'; }
         </div>
       </div>
 
+      <div class="card" style="padding:24px;margin-bottom:20px">
+        <div class="section-hdr" style="margin-bottom:14px">
+          <div class="section-title">Agent Access (MCP)</div>
+        </div>
+        <p style="font-size:11px;color:var(--text-dim);margin-bottom:12px;line-height:1.6">
+          When enabled, this page connects to a Nourish MCP server running on your machine and keeps your plan
+          live-synced with it. Off by default — nothing connects anywhere unless you turn this on.
+        </p>
+        <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:13px;margin-bottom:12px">
+          <input type="checkbox" id="mcp-bridge-toggle" data-action="toggle-mcp-bridge">
+          Enable live sync with local MCP server
+        </label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <label for="mcp-bridge-port-input" style="font-size:12px;color:var(--text-dim)">Port</label>
+          <input class="tgt-input" type="number" id="mcp-bridge-port-input" data-action="set-mcp-bridge-port" min="1" max="65535" style="width:100px">
+        </div>
+      </div>
+
       <div class="card" style="padding:24px">
         <div class="section-hdr" style="margin-bottom:14px">
           <div class="section-title">Refetch Nutritional Data</div>
@@ -1415,7 +1433,7 @@ import { DAYS, MEALS, TARGETS } from './src/domain/constants.js';
 import { fetchFoodDetails, extractNutrients, extractMeasuresUSDA } from './src/sources/usdaSource.js';
 import { normalizeOFFNutrients, lookupOFFProduct, extractMeasuresOFF, inferCarbBasis } from './src/sources/offSource.js';
 import { state, dispatch, subscribe } from './src/store/store.js';
-import { load as loadPersisted, debouncedSave, buildPayload, applyMigrations } from './src/store/persistence.js';
+import { load as loadPersisted, debouncedSave, buildPayload, applyMigrations, applyPayload } from './src/store/persistence.js';
 import { escapeHtml } from './src/views/escape.js';
 import { config, getTopmostOpenModalId } from './src/views/uiState.js';
 import { renderPlan, removeIngredient, removeExtraFood } from './src/views/planView.js';
@@ -1431,30 +1449,10 @@ import { closeIngDetail, openFoodManageModal, closeFoodManageModal, forkFromMana
 import { foodsHandlePaste, foodsLocalSearch, foodsTriggerSearch, foodsSelectOFFResult, foodsSelectFood, foodsSelectLocalFood, foodsSelectRecipe, foodsSelectCustomIng, restoreFoodsSearch, foodsClearSearch } from './src/views/foodsView.js';
 import { renderTargets, saveTargets, applyProfileTargets, onGoalPresetChange, updateMacroTotal } from './src/views/targetsView.js';
 import { executeUndo, showUndo } from './src/views/snackbar.js';
-import { renderConfig, saveApiKey, loadApiKey, togglePdfSplit, togglePdfMacros, togglePdfExcludeUnused, setShoppingFormat } from './src/views/configView.js';
+import { renderConfig, saveApiKey, loadApiKey, togglePdfSplit, togglePdfMacros, togglePdfExcludeUnused, setShoppingFormat, toggleMcpBridge, setMcpBridgePortFromInput } from './src/views/configView.js';
 import { initBlameResize, initSidebarResize } from './src/views/resize.js';
+import { initMcpBridge } from './src/bridge/mcpBridge.js';
 import { generateShoppingList } from './src/views/shoppingList.js';
-
-// ── Payload hydration ───────────────────────────────────────────────────────
-function applyPayload(payload) {
-  if (payload.plan) {
-    state.plan = payload.plan;
-    DAYS.forEach(d => { if (!state.plan[d]) state.plan[d]={}; MEALS.forEach(m => { if (!state.plan[d][m]) state.plan[d][m]=[]; }); });
-  }
-  if (payload.recipes)           state.recipes           = payload.recipes;
-  if (payload.customIngredients) state.customIngredients = payload.customIngredients;
-  if (payload.foods)             state.foods             = payload.foods;
-  if (payload.extraFoods)        state.extraFoods        = payload.extraFoods;
-  if (payload.foodAliases)       state.foodAliases       = payload.foodAliases;
-  if (payload.foodServings)      state.foodServings      = payload.foodServings;
-  if (payload.targets) Object.keys(payload.targets).forEach(k => {
-    if (!state.targets[k]) return;
-    state.targets[k].val = payload.targets[k].val;
-    if (payload.targets[k].max !== undefined) state.targets[k].max = payload.targets[k].max;
-  });
-  if (payload.disabledTargets) state.disabledTargets = payload.disabledTargets;
-  if (payload.userProfile) state.userProfile = { ...state.userProfile, ...payload.userProfile };
-}
 
 // ── Refetch all nutritional data ────────────────────────────────────────────
 async function refetchAllNutrients() {
@@ -1835,7 +1833,8 @@ function init() {
 
   loadApiKey();
   const saved = loadPersisted();
-  if (saved) applyPayload(saved);
+  if (saved) applyPayload(state, saved);
+  initMcpBridge();
 
   subscribe(() => invalidateRecipeMemo());
 
@@ -2126,6 +2125,8 @@ function init() {
       case 'toggle-pdf-macros':          togglePdfMacros(el); break;
       case 'toggle-pdf-exclude-unused':  togglePdfExcludeUnused(el); break;
       case 'set-shopping-format':        setShoppingFormat(el.value); break;
+      case 'toggle-mcp-bridge':          toggleMcpBridge(el); break;
+      case 'set-mcp-bridge-port':        setMcpBridgePortFromInput(el); break;
     }
   });
 

@@ -49,7 +49,7 @@ function _fmtShoppingQty(amtG, prefUnit, prefQty, conflict) {
   return { qty: Math.round(amtG), unit: 'g' };
 }
 
-function _collectIngredients(ings, servingScale, recipes, acc) {
+function _collectIngredients(ings, servingScale, recipes, acc, foods, foodAliases) {
   ings.forEach(ing => {
     if (ing.type === 'recipe') {
       const recipe = recipes[ing.recipeId];
@@ -58,24 +58,24 @@ function _collectIngredients(ings, servingScale, recipes, acc) {
       const subScale = (ing.unit === 'serving' && (ing.qty || 0) > 0 && recipe.yields > 0)
         ? ing.qty / recipe.yields * servingScale
         : totalG > 0 ? (ing.amountG || 0) / totalG * servingScale : 0;
-      _collectIngredients(recipe.ingredients, subScale, recipes, acc);
-    } else if (state.foods?.[ing.fdcId]?.nutrientBasis?.unit === 'serving') {
+      _collectIngredients(recipe.ingredients, subScale, recipes, acc, foods, foodAliases);
+    } else if (foods?.[ing.fdcId]?.nutrientBasis?.unit === 'serving') {
       const key = (ing.fdcId || ing.name) + '\x00' + (ing.unit || 'serving');
       const qty = (ing.qty || 1) * servingScale;
-      const name = getDisplayName(ing.fdcId, state.foods, state.foodAliases) || ing.name;
+      const name = getDisplayName(ing.fdcId, foods, foodAliases) || ing.name;
       if (acc.serving.has(key)) acc.serving.get(key).qty += qty;
       else acc.serving.set(key, { name, qty, unit: ing.unit || 'serving' });
     } else {
       const key = ing.fdcId || ing.name;
       const amtG = (ing.amountG || 0) * servingScale;
       const ingQty = (ing.qty || 0) * servingScale;
-      const name = getDisplayName(ing.fdcId, state.foods, state.foodAliases) || ing.name;
+      const name = getDisplayName(ing.fdcId, foods, foodAliases) || ing.name;
       _mergeGrams(acc, key, name, amtG, ing.unit, ingQty);
     }
   });
 }
 
-function _processTopLevelIng(ing, recipes, acc) {
+function _processTopLevelIng(ing, recipes, acc, foods, foodAliases) {
   if (ing.type === 'recipe') {
     const recipe = recipes[ing.recipeId];
     if (!recipe) return;
@@ -83,29 +83,31 @@ function _processTopLevelIng(ing, recipes, acc) {
     const servingScale = (ing.unit === 'serving' && (ing.qty || 0) > 0 && recipe.yields > 0)
       ? ing.qty / recipe.yields
       : totalG > 0 ? (ing.amountG || 0) / totalG : 0;
-    _collectIngredients(recipe.ingredients, servingScale, recipes, acc);
-  } else if (state.foods?.[ing.fdcId]?.nutrientBasis?.unit === 'serving') {
+    _collectIngredients(recipe.ingredients, servingScale, recipes, acc, foods, foodAliases);
+  } else if (foods?.[ing.fdcId]?.nutrientBasis?.unit === 'serving') {
     const key = (ing.fdcId || ing.name) + '\x00' + (ing.unit || 'serving');
-    const name = getDisplayName(ing.fdcId, state.foods, state.foodAliases) || ing.name;
+    const name = getDisplayName(ing.fdcId, foods, foodAliases) || ing.name;
     if (acc.serving.has(key)) acc.serving.get(key).qty += ing.qty || 1;
     else acc.serving.set(key, { name, qty: ing.qty || 1, unit: ing.unit || 'serving' });
   } else {
     const key = ing.fdcId || ing.name;
-    const name = getDisplayName(ing.fdcId, state.foods, state.foodAliases) || ing.name;
+    const name = getDisplayName(ing.fdcId, foods, foodAliases) || ing.name;
     _mergeGrams(acc, key, name, ing.amountG || 0, ing.unit, ing.qty || 0);
   }
 }
 
-function buildShoppingList() {
+// Pure with respect to its `state` argument — no module-level state reads.
+// Browser call sites pass the shared singleton; a Node/MCP caller passes its own.
+export function buildShoppingList(state) {
   const acc = { grams: new Map(), serving: new Map() };
-  const { plan, extraFoods = [], recipes } = state;
+  const { plan, extraFoods = [], recipes, foods, foodAliases } = state;
 
   DAYS.forEach(day => {
     MEALS.forEach(meal => {
-      (plan[day]?.[meal] || []).forEach(ing => _processTopLevelIng(ing, recipes, acc));
+      (plan[day]?.[meal] || []).forEach(ing => _processTopLevelIng(ing, recipes, acc, foods, foodAliases));
     });
   });
-  extraFoods.forEach(ing => _processTopLevelIng(ing, recipes, acc));
+  extraFoods.forEach(ing => _processTopLevelIng(ing, recipes, acc, foods, foodAliases));
 
   const items = [];
   acc.grams.forEach(({ name, amtG, prefUnit, prefQty, conflict }) => {
@@ -194,7 +196,7 @@ function showShoppingListRaw(items) {
 
 // ── PDF export ─────────────────────────────────────────────────────────────
 export async function generateShoppingListPDF() {
-  const items = buildShoppingList();
+  const items = buildShoppingList(state);
   if (!items.length) { alert('Your weekly plan is empty — add some meals first.'); return; }
 
   if (!window.jspdf) {
@@ -282,7 +284,7 @@ export async function generateShoppingListPDF() {
 
 // ── Entry point ─────────────────────────────────────────────────────────────
 export async function generateShoppingList() {
-  const items = buildShoppingList();
+  const items = buildShoppingList(state);
   if (!items.length) { alert('Your weekly plan is empty — add some meals first.'); return; }
   if (config.shoppingListFormat === 'raw') {
     showShoppingListRaw(items);

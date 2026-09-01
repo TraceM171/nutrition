@@ -4,7 +4,9 @@
 
 A single-file, no-backend, vanilla browser app for meal planning and nutrient tracking. The final build output **must always be a single self-contained HTML file** (`meal-planner-dist.html`). All logic, storage, and API calls live in the browser.
 
-Source lives in `app/`. 
+Source lives in `app/`. `mcp-server/` is a separate, optional sibling package — an MCP server giving agents the same read/write access to a plan that the UI has (see `mcp-server/README.md`). It is not part of the single-file build; the app has zero runtime dependency on it.
+
+This repo is the portable, self-contained instruction set — it holds every rule needed to work on the code correctly, even in a standalone clone. The parent project directory (one level up from this repo, if present) may also carry a `knowledge/` tree with the deeper project memory: decision rationale, historical audits, and current status/open items. See `../knowledge/_basic.md` when working from there.
 
 ## Source layout
 
@@ -23,7 +25,7 @@ app/
       nutrients.js        # getNutrientVal, getRecipeNutrientsPer100g (memoised), wouldCreateCycle, etc.
       recipes.js          # effectiveAmountG, getRecipeWeightG, netCarbsFromMap
       targets.js          # calcTargetsFromProfile, deriveMacrosFromKcal, getStatus, getPct, fmt
-      tests/              # 46 unit tests (Node --test)
+      tests/              # unit tests (Node --test); run `npm run test` for the current count
     sources/              # stateless network / local data access
       usdaSource.js       # searchUSDA, fetchFoodDetails, extractNutrients
       offSource.js        # searchOFF, normalizeOFFNutrients, lookupBarcodeOFF
@@ -51,10 +53,10 @@ app/
       uiState.js          # page navigation, overlay stack, Esc handling
       resize.js           # sidebar + blame-panel drag resize
 backups/
-  nourish-backup-2026-04-25.json   # real user data — good test fixture
-docs/
-  ARCHITECTURE.md         # full analysis, pain-point catalogue, phase plan
+  nourish-backup-*.json    # user's own local data exports, gitignored — not used by tests
 ```
+
+Unit tests use a synthetic fixture (`app/src/domain/tests/fixture.json`), not real backup data — CI can't load gitignored files.
 
 ## Hard constraints
 
@@ -68,7 +70,7 @@ docs/
 
 ```bash
 cd app
-npm run test    # 46 unit tests (Node built-in test runner)
+npm run test    # unit tests (Node built-in test runner)
 npm run build   # esbuild → meal-planner-dist.html (single self-contained file)
 npm run dev     # serve on :8080 for manual testing
 ```
